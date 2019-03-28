@@ -1,0 +1,23 @@
+[prune]
+  go-tests = true
+  unused-packages = true
+
+[[constraint]]
+  name = "github.com/bwmarrin/discordgo"
+  version = "0.19.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/foxbot/gavalink"
+
+[[constraint]]
+  name = "github.com/zekroTJA/discordgocmds"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/mattn/go-sqlite3"
+  version = "1.10.0"
+
+[[constraint]]
+  name = "github.com/ghodss/yaml"
+  version = "1.0.0"
