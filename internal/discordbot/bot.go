@@ -17,9 +17,10 @@ type Bot struct {
 //   ownerID       : the Discord ID of the bot owners account
 //   generalPrefix : the general usable prefix for the bot
 //   dbMiddleware  : database middleware to access database connection
-func NewBot(token, ownerID, generalPrefix string, dbMiddleware discordgocmds.DatabaseMiddleware) *Bot {
-	session := &discordgo.Session{
-		Token: "Bot " + token,
+func NewBot(token, ownerID, generalPrefix string, dbMiddleware discordgocmds.DatabaseMiddleware) (*Bot, error) {
+	session, err := discordgo.New("Bot " + token)
+	if err != nil {
+		return nil, err
 	}
 
 	cmdHandlerOptions := discordgocmds.CmdHandlerOptions{
@@ -37,7 +38,7 @@ func NewBot(token, ownerID, generalPrefix string, dbMiddleware discordgocmds.Dat
 	return &Bot{
 		Session:    session,
 		CmdHandler: cmdHandler,
-	}
+	}, nil
 }
 
 // RegisterCommands registers a set of commands
@@ -60,4 +61,13 @@ func (b *Bot) RegisterHandler(handler []interface{}) {
 // the Discord API.
 func (b *Bot) Open() error {
 	return b.Session.Open()
+}
+
+// Close cleanly closes the connection to the Discord
+// Web Socket so that the WS does not need to wait
+// up to 45 seconds until timeout.
+func (b *Bot) Close() {
+	if b.Session != nil {
+		b.Session.Close()
+	}
 }

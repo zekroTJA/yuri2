@@ -1,0 +1,12 @@
+database:
+  dsn: file:yuri.db.sqlite3
+discord:
+  general_prefix: y!
+  owner_id: ""
+  token: ""
+lavalink:
+  address: localhost:2333
+  password: ""
+  sounds_location: ""
+misc:
+  log_level: 4

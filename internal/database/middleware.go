@@ -8,6 +8,7 @@ type Middleware interface {
 	Connect(params ...interface{}) error
 	// Close the connection to the database.
 	Close()
+	GetConfigStructure() interface{}
 
 	////////////////////////////
 	// CMD HANDLER MIDDLEWARE //

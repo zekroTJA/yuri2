@@ -12,3 +12,4 @@
 *.out
 
 *.lock
+private.*
