@@ -86,7 +86,7 @@ func (s *SQLite) setup() error {
 	_, err = s.db.Exec("CREATE TABLE IF NOT EXISTS `guilds` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT," +
 		"`guild_id` text NOT NULL DEFAULT ''," +
-		"`prefix` timestamp NOT NULL DEFAULT '' );")
+		"`prefix` text NOT NULL DEFAULT '' );")
 	mErr.Append(err)
 
 	return mErr.Concat()
@@ -126,6 +126,10 @@ func (s *SQLite) GetGuildPrefix(guildID string) (string, error) {
 	var prefix string
 	row := s.db.QueryRow("SELECT `prefix` FROM `guilds` WHERE `guild_id` = ?;", guildID)
 	err := row.Scan(&prefix)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+
 	return prefix, err
 }
 

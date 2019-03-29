@@ -21,4 +21,8 @@ type Middleware interface {
 	// GetGuildPrefix returns the individual prefix
 	// for a guild by its ID.
 	GetGuildPrefix(guildID string) (string, error)
+
+	// SetGuildPrefix sets the custom prefix
+	// for a guild in the DB.
+	SetGuildPrefix(guildID, prefix string) error
 }

@@ -27,10 +27,11 @@ func NewBot(token, ownerID, generalPrefix string, dbMiddleware discordgocmds.Dat
 		BotOwnerID:           ownerID,
 		DefaultColor:         0x039BE5,
 		InvokeToLower:        true,
-		OwnerPermissionLevel: 5,
+		OwnerPermissionLevel: 999,
 		ParseMsgEdit:         true,
 		Prefix:               generalPrefix,
 		ReactToBots:          false,
+		DeleteCmdMessages:    true,
 	}
 
 	cmdHandler := discordgocmds.New(session, dbMiddleware, &cmdHandlerOptions)

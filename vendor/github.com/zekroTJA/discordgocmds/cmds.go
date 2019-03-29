@@ -33,8 +33,11 @@ func New(session *discordgo.Session, dbMiddleware DatabaseMiddleware, options *C
 		registeredCmdInstances: make([]Command, 0),
 		logger:                 newLogger(),
 	}
+
 	c.discordSession.AddHandler(c.messageHandler)
 	c.discordSession.AddHandler(c.readyHandler)
+	c.RegisterCommand(new(CmdHelp))
+
 	return c
 }
 
@@ -106,6 +109,11 @@ func (c *CmdHandler) messageHandler(s *discordgo.Session, e *discordgo.MessageCr
 			Session:    s,
 			User:       e.Author,
 		}
+
+		if c.options.DeleteCmdMessages {
+			s.ChannelMessageDelete(e.ChannelID, e.ID)
+		}
+
 		hasPerm, err := c.permHandler.CheckUserPermission(cmdArgs, s, cmdInstance)
 		if err != nil {
 			c.sendEmbedError(channel.ID, fmt.Sprintf("Failed getting permission von database: ```\n%s\n```", err.Error()), "Permission Error")

@@ -24,30 +24,37 @@ func NewDefaultPermissionHandler(db DatabaseMiddleware) *DefaultPermissionHandle
 func (p *DefaultPermissionHandler) CheckUserPermission(cmdArgs *CommandArgs, s *discordgo.Session, cmdInstance Command) (bool, error) {
 	var roles []string
 	var err error
+	var lvl int
 
-	if cmdArgs.Guild.MemberCount > 100 {
-		roles, err = getMemberRolesByRequest(s, cmdArgs.Guild.ID, cmdArgs.User.ID)
+	if cmdArgs.User.ID == cmdArgs.CmdHandler.options.BotOwnerID {
+		lvl = 999
+	} else if cmdArgs.User.ID == cmdArgs.Guild.OwnerID {
+		lvl = cmdArgs.CmdHandler.options.OwnerPermissionLevel
 	} else {
-		var found bool
-		for _, m := range cmdArgs.Guild.Members {
-			if m.User.ID == cmdArgs.User.ID {
-				roles = m.Roles
-				found = true
-				break
+		if cmdArgs.Guild.MemberCount > 100 {
+			roles, err = getMemberRolesByRequest(s, cmdArgs.Guild.ID, cmdArgs.User.ID)
+		} else {
+			var found bool
+			for _, m := range cmdArgs.Guild.Members {
+				if m.User.ID == cmdArgs.User.ID {
+					roles = m.Roles
+					found = true
+					break
+				}
+			}
+			if !found {
+				roles, err = getMemberRolesByRequest(s, cmdArgs.Guild.ID, cmdArgs.User.ID)
 			}
 		}
-		if !found {
-			roles, err = getMemberRolesByRequest(s, cmdArgs.Guild.ID, cmdArgs.User.ID)
+
+		if err != nil {
+			return false, err
 		}
-	}
 
-	if err != nil {
-		return false, err
-	}
-
-	lvl, err := p.db.GetUserPermissionLevel(cmdArgs.User.ID, roles)
-	if err != nil {
-		return false, err
+		lvl, err = p.db.GetUserPermissionLevel(cmdArgs.User.ID, roles)
+		if err != nil {
+			return false, err
+		}
 	}
 
 	return (cmdInstance.GetPermission() <= lvl), nil

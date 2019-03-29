@@ -6,6 +6,7 @@ type Command interface {
 	GetInvokes() []string
 	GetDescription() string
 	GetHelp() string
+	GetGroup() string
 	GetPermission() int
 	Exec(args *CommandArgs) error
 }
