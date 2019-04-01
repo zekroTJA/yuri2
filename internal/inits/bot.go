@@ -1,11 +1,11 @@
 package inits
 
 import (
-	"github.com/zekroTJA/discordgocmds"
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/discordbot/commands"
 	"github.com/zekroTJA/yuri2/internal/logger"
+	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // InitDiscordBot initializes the discord bot session and registers
@@ -13,7 +13,7 @@ import (
 func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.Middleware) *discordbot.Bot {
 	handlers := []interface{}{}
 
-	commands := []discordgocmds.Command{
+	cmds := []discordgocmds.Command{
 		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
 	}
 
@@ -23,7 +23,8 @@ func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.
 	}
 
 	bot.RegisterHandler(handlers)
-	bot.RegisterCommands(commands)
+	bot.RegisterCommands(cmds)
+	bot.CmdHandler.RegisterDefaultHandler(&commands.Play{DB: dbMiddleware})
 
 	logger.Info("DBOT :: initialized")
 

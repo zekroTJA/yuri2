@@ -2,7 +2,7 @@ package discordbot
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/zekroTJA/discordgocmds"
+	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // Bot maintains the Discord bot session,

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/zekroTJA/discordgocmds"
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/static"
+	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // Prefix provides command functionalities

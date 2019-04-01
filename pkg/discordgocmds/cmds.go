@@ -16,6 +16,7 @@ type CmdHandler struct {
 	options                *CmdHandlerOptions
 	permHandler            PermissionHandler
 	databaseMiddleware     DatabaseMiddleware
+	defaultHandler         Command
 	registeredCmds         map[string]Command
 	registeredCmdInstances []Command
 	logger                 *logger
@@ -48,6 +49,12 @@ func (c *CmdHandler) RegisterCommand(cmd Command) {
 	for _, invoke := range cmd.GetInvokes() {
 		c.registeredCmds[invoke] = cmd
 	}
+}
+
+// RegisterDefaultHandler registers a command handler
+// whill be fired when no other command invoke matches.
+func (c *CmdHandler) RegisterDefaultHandler(handler Command) {
+	c.defaultHandler = handler
 }
 
 //////// private functions ////////
@@ -98,36 +105,47 @@ func (c *CmdHandler) messageHandler(s *discordgo.Session, e *discordgo.MessageCr
 		invoke = strings.ToLower(invoke)
 	}
 
-	if cmdInstance, ok := c.registeredCmds[invoke]; ok {
-		guild, _ := s.Guild(e.GuildID)
-		cmdArgs := &CommandArgs{
-			Args:       contSplit[1:],
-			Channel:    channel,
-			CmdHandler: c,
-			Guild:      guild,
-			Message:    e.Message,
-			Session:    s,
-			User:       e.Author,
-		}
+	cmdInstance, ok := c.registeredCmds[invoke]
 
-		if c.options.DeleteCmdMessages {
-			s.ChannelMessageDelete(e.ChannelID, e.ID)
-		}
-
-		hasPerm, err := c.permHandler.CheckUserPermission(cmdArgs, s, cmdInstance)
-		if err != nil {
-			c.sendEmbedError(channel.ID, fmt.Sprintf("Failed getting permission von database: ```\n%s\n```", err.Error()), "Permission Error")
-			return
-		}
-		if !hasPerm {
-			c.sendEmbedError(channel.ID, "You are not permitted to use this command!", "Missing permission")
-			return
-		}
-		err = cmdInstance.Exec(cmdArgs)
-		if err != nil {
-			c.sendEmbedError(channel.ID, fmt.Sprintf("Failed executing command: ```\n%s\n```", err.Error()), "Command execution failed")
-		}
+	guild, _ := s.Guild(e.GuildID)
+	cmdArgs := &CommandArgs{
+		Args:       contSplit[1:],
+		Channel:    channel,
+		CmdHandler: c,
+		Guild:      guild,
+		Message:    e.Message,
+		Session:    s,
+		User:       e.Author,
 	}
+
+	if c.options.DeleteCmdMessages {
+		s.ChannelMessageDelete(e.ChannelID, e.ID)
+	}
+
+	if !ok {
+		cmdInstance = c.defaultHandler
+		args := make([]string, len(cmdArgs.Args)+1)
+		args[0] = invoke
+		for i, arg := range cmdArgs.Args {
+			args[i+1] = arg
+		}
+		cmdArgs.Args = args
+	}
+
+	hasPerm, err := c.permHandler.CheckUserPermission(cmdArgs, s, cmdInstance)
+	if err != nil {
+		c.sendEmbedError(channel.ID, fmt.Sprintf("Failed getting permission von database: ```\n%s\n```", err.Error()), "Permission Error")
+		return
+	}
+	if !hasPerm {
+		c.sendEmbedError(channel.ID, "You are not permitted to use this command!", "Missing permission")
+		return
+	}
+	err = cmdInstance.Exec(cmdArgs)
+	if err != nil {
+		c.sendEmbedError(channel.ID, fmt.Sprintf("Failed executing command: ```\n%s\n```", err.Error()), "Command execution failed")
+	}
+
 }
 
 func (c *CmdHandler) readyHandler(s *discordgo.Session, e *discordgo.Ready) {
