@@ -32,10 +32,17 @@ func main() {
 		dbMiddleware.Close()
 	}()
 
+	// init Logger
 	inits.InitLogger()
+	// init Config
 	cfg := inits.InitConfig(*flagConfig, unmarshaler, marshaler, dbMiddleware.GetConfigStructure())
+	// init Databse
 	inits.InitDatabase(dbMiddleware, cfg.Database)
-	bot := inits.InitDiscordBot(cfg.Discord.Token, cfg.Discord.OwnerID, cfg.Discord.GeneralPrefix, dbMiddleware)
+	// init Player
+	player := inits.InitPlayer(cfg.Lavalink)
+	// init Bot
+	bot := inits.InitDiscordBot(cfg.Discord.Token, cfg.Discord.OwnerID,
+		cfg.Discord.GeneralPrefix, dbMiddleware, player)
 	defer func() {
 		logger.Info("DBOT :: shutting down")
 		bot.Close()

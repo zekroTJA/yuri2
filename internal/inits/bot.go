@@ -5,16 +5,22 @@ import (
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/discordbot/commands"
 	"github.com/zekroTJA/yuri2/internal/logger"
+	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // InitDiscordBot initializes the discord bot session and registers
 // all commands and handlers.
-func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.Middleware) *discordbot.Bot {
-	handlers := []interface{}{}
+func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.Middleware, player *player.Player) *discordbot.Bot {
+	handlers := []interface{}{
+		player.ReadyHandler,
+		player.VoiceServerUpdateHandler,
+		player.VoiceStateUpdateHandler,
+	}
 
 	cmds := []discordgocmds.Command{
 		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
+		&commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player},
 	}
 
 	bot, err := discordbot.NewBot(token, ownerID, generalPrefix, dbMiddleware)
