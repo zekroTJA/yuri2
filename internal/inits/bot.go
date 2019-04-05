@@ -21,6 +21,9 @@ func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.
 	cmds := []discordgocmds.Command{
 		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
 		&commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player},
+		&commands.List{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Random{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Stop{PermLvl: 0, DB: dbMiddleware, Player: player},
 	}
 
 	bot, err := discordbot.NewBot(token, ownerID, generalPrefix, dbMiddleware)

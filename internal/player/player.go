@@ -150,20 +150,30 @@ func (p *Player) FetchLocalSounds() error {
 	return nil
 }
 
-func (p *Player) GetLocalFiles() []string {
-	sounds := make([]string, len(p.localSounds))
+func (p *Player) GetLocalFiles() (SoundFileList, error) {
+	sounds := make([]*SoundFile, len(p.localSounds))
+
 	i := 0
-	for k := range p.localSounds {
-		sounds[i] = k
+	for name, path := range p.localSounds {
+		sf, err := NewSoundFile(name, path)
+		if err != nil {
+			return nil, err
+		}
+		sounds[i] = sf
 		i++
 	}
-	return sounds
+
+	return sounds, nil
 }
 
 func (p *Player) PlayRandomSound(guild *discordgo.Guild, user *discordgo.User) error {
-	sounds := p.GetLocalFiles()
+	sounds, err := p.GetLocalFiles()
+	if err != nil {
+		return err
+	}
+
 	r := rand.Intn(len(sounds))
-	return p.Play(guild, user, sounds[r], ResourceLocal)
+	return p.Play(guild, user, sounds[r].Name, ResourceLocal)
 }
 
 func (p *Player) JoinVoiceCannel(vs *discordgo.VoiceState) error {
@@ -254,4 +264,16 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 
 	// Actually playing the track
 	return player.Play(track.Data)
+}
+
+func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
+	pl, err := p.link.GetPlayer(guild.ID)
+	if err != nil && err.Error() == "Couldn't find a player for that guild" {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	return pl.Stop()
 }
