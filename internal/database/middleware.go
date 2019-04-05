@@ -22,7 +22,24 @@ type Middleware interface {
 	// for a guild by its ID.
 	GetGuildPrefix(guildID string) (string, error)
 
+	/////////////////
+	// GUILD STUFF //
+	/////////////////
+
 	// SetGuildPrefix sets the custom prefix
 	// for a guild in the DB.
 	SetGuildPrefix(guildID, prefix string) error
+
+	////////////////
+	// USER STUFF //
+	////////////////
+
+	// SetFastTrigger gets the sound value used
+	// for fast trigger. If this is an empty
+	// string, this must be interpreted as
+	// 'random sound'.
+	GetFastTrigger(userID string) (string, error)
+	// SetFastTrigger sets the sound which will
+	// be triggered by using fast trigger.
+	SetFastTrigger(userID, val string) error
 }

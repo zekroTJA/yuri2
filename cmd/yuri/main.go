@@ -39,7 +39,7 @@ func main() {
 	// init Databse
 	inits.InitDatabase(dbMiddleware, cfg.Database)
 	// init Player
-	player := inits.InitPlayer(cfg.Lavalink)
+	player := inits.InitPlayer(cfg.Lavalink, dbMiddleware)
 	// init Bot
 	bot := inits.InitDiscordBot(cfg.Discord.Token, cfg.Discord.OwnerID,
 		cfg.Discord.GeneralPrefix, dbMiddleware, player)

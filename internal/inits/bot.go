@@ -24,6 +24,8 @@ func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.
 		&commands.List{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Random{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Stop{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Bind{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.YouTube{PermLvl: 0, DB: dbMiddleware, Player: player},
 	}
 
 	bot, err := discordbot.NewBot(token, ownerID, generalPrefix, dbMiddleware)

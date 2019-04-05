@@ -36,8 +36,7 @@ type Discord struct {
 // Lavalink contains the values of
 // the Lavalink specific configuration.
 type Lavalink struct {
-	RESTAddress    string `json:"rest_address"`
-	WSAddress      string `json:"ws_address"`
+	Address        string `json:"address"`
 	Password       string `json:"password"`
 	SoundsLocation string `json:"sounds_location"`
 }
@@ -97,8 +96,7 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 			GeneralPrefix: "y!",
 		},
 		Lavalink: &Lavalink{
-			RESTAddress: "localhost:2333",
-			WSAddress:   "localhost:2334",
+			Address: "localhost:2333",
 		},
 		Database: dbConfStruct,
 		Misc: &Misc{

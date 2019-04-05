@@ -62,7 +62,7 @@ func (p *Player) VoiceStateUpdateHandler(s *discordgo.Session, e *discordgo.Voic
 		p.onVoiceChannelJoined(oldVS, newVS)
 
 	// User self muted
-	case oldVS != nil && !oldVS.Mute && newVS.Mute:
+	case oldVS != nil && !oldVS.SelfMute && newVS.SelfMute:
 		p.onUserSelfMuted(oldVS, newVS)
 	}
 }
@@ -123,8 +123,32 @@ func (p *Player) fastMuteTrigger(oldVS, newVS *discordgo.VoiceState) {
 			p.onError("fastMuteTrigger#getVS", err)
 			return
 		}
-		if vs != nil && !vs.Mute {
-			fmt.Println("fast mute trigger")
+		if vs != nil && !vs.SelfMute {
+			val, err := p.db.GetFastTrigger(newVS.UserID)
+			if err != nil {
+				p.onError("fastMuteTrigger#getValueFromDB", err)
+				return
+			}
+
+			user, err := p.session.User(newVS.UserID)
+			if err != nil {
+				p.onError("fastMuteTrigger#getUser", err)
+				return
+			}
+
+			guild, err := p.session.Guild(newVS.GuildID)
+			if err != nil {
+				p.onError("fastMuteTrigger#getGuild", err)
+				return
+			}
+
+			if val == "" {
+				err = p.PlayRandomSound(guild, user)
+			} else {
+				err = p.Play(guild, user, val, ResourceLocal)
+			}
+
+			p.onError("fastMuteTrigger#playSound", err)
 		}
 	})
 }

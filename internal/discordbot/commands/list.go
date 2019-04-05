@@ -13,8 +13,8 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
-// Random provides command functionalities
-// for the random command
+// List provides command functionalities
+// for the list command
 type List struct {
 	DB      database.Middleware
 	Player  *player.Player

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/zekroTJA/yuri2/internal/database"
+
 	"github.com/zekroTJA/yuri2/internal/logger"
 
 	"github.com/zekroTJA/timedmap"
@@ -62,10 +64,11 @@ type Player struct {
 	lastVoiceStates *timedmap.TimedMap
 	link            *gavalink.Lavalink
 	session         *discordgo.Session
+	db              database.Middleware
 	selfVoiceStates map[string]*discordgo.VoiceState
 }
 
-func NewPlayer(restURL, wsURL, password, fileLoc string, handler gavalink.EventHandler, onError func(t string, err error)) *Player {
+func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware, handler gavalink.EventHandler, onError func(t string, err error)) *Player {
 	if onError == nil {
 		onError = func(t string, err error) {}
 	}
@@ -83,6 +86,7 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, handler gavalink.EventH
 		fileLoc:         fileLoc,
 		eventHandler:    handler,
 		onError:         onError,
+		db:              db,
 		localSounds:     make(map[string]string),
 		lastVoiceStates: timedmap.New(10 * time.Minute),
 		selfVoiceStates: make(map[string]*discordgo.VoiceState),
@@ -166,6 +170,11 @@ func (p *Player) GetLocalFiles() (SoundFileList, error) {
 	return sounds, nil
 }
 
+func (p *Player) GetLocalSoundPath(short string) (string, bool) {
+	path, ok := p.localSounds[short]
+	return path, ok
+}
+
 func (p *Player) PlayRandomSound(guild *discordgo.Guild, user *discordgo.User) error {
 	sounds, err := p.GetLocalFiles()
 	if err != nil {
@@ -195,7 +204,7 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 	case ResourceLocal:
 		// Check if sound file actually exists
 		var ok bool
-		if ident, ok = p.localSounds[ident]; !ok {
+		if ident, ok = p.GetLocalSoundPath(ident); !ok {
 			return ErrNotFound
 		}
 	}

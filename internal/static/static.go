@@ -1,5 +1,6 @@
 package static
 
 const (
-	CommandGroupPlayer = "PLAYER"
+	CommandGroupPlayer   = "PLAYER"
+	CommandGroupSettings = "SETTINGS"
 )

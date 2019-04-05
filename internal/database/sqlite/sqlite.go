@@ -89,6 +89,13 @@ func (s *SQLite) setup() error {
 		"`prefix` text NOT NULL DEFAULT '' );")
 	mErr.Append(err)
 
+	// TABLE `users`
+	_, err = s.db.Exec("CREATE TABLE IF NOT EXISTS `users` (" +
+		"`id` INTEGER PRIMARY KEY AUTOINCREMENT," +
+		"`user_id` text NOT NULL DEFAULT ''," +
+		"`fast_trigger` text NOT NULL DEFAULT '' );")
+	mErr.Append(err)
+
 	return mErr.Concat()
 }
 
@@ -133,6 +140,10 @@ func (s *SQLite) GetGuildPrefix(guildID string) (string, error) {
 	return prefix, err
 }
 
+/////////////////
+// GUILD STUFF //
+/////////////////
+
 // SetGuildPrefix sets a prefix for a specific guild.
 func (s *SQLite) SetGuildPrefix(guildID, prefix string) error {
 	res, err := s.db.Exec("UPDATE `guilds` SET `prefix` = ? WHERE `guild_id` = ?;", prefix, guildID)
@@ -147,6 +158,37 @@ func (s *SQLite) SetGuildPrefix(guildID, prefix string) error {
 
 	if ar == 0 {
 		_, err = s.db.Exec("INSERT INTO `guilds` (`guild_id`, `prefix`) VALUES (?, ?);", guildID, prefix)
+	}
+
+	return err
+}
+
+////////////////
+// USER STUFF //
+////////////////
+
+func (s *SQLite) GetFastTrigger(userID string) (string, error) {
+	var val string
+	err := s.db.QueryRow("SELECT `fast_trigger` FROM `users` WHERE `user_id` = ?;", userID).Scan(&val)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	return val, err
+}
+
+func (s *SQLite) SetFastTrigger(userID, val string) error {
+	res, err := s.db.Exec("UPDATE `users` SET `fast_trigger` = ? WHERE `user_id` = ?;", val, userID)
+	if err != nil {
+		return err
+	}
+
+	ar, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if ar == 0 {
+		_, err = s.db.Exec("INSERT INTO `users` (`user_id`, `fast_trigger`) VALUES (?, ?);", userID, val)
 	}
 
 	return err
