@@ -1,7 +1,10 @@
 package commands
 
 import (
-	"fmt"
+	"time"
+
+	"github.com/zekroTJA/yuri2/internal/discordbot"
+	"github.com/zekroTJA/yuri2/internal/player"
 
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
@@ -10,7 +13,8 @@ import (
 // Play provides command functionalities
 // for the prefix command
 type Play struct {
-	DB database.Middleware
+	DB     database.Middleware
+	Player *player.Player
 }
 
 // GetInvokes returns the invokes
@@ -47,6 +51,15 @@ func (c *Play) GetPermission() int {
 // Exec is the acual function which will
 // be executed when the command was invoked.
 func (c *Play) Exec(args *discordgocmds.CommandArgs) error {
-	fmt.Printf("%+v\n", args)
-	return nil
+	err := c.Player.Play(args.Guild, args.User, args.Args[0], player.ResourceLocal)
+	if err == player.ErrNotFound {
+		return nil
+	}
+	if err == player.ErrNotInVoice {
+		msg, err := discordbot.SendEmbedError(args.Session, args.Channel.ID,
+			"You need to be in a voice channel to play sounds.", "")
+		msg.DeleteAfter(6 * time.Second)
+		return err
+	}
+	return err
 }

@@ -1,7 +1,7 @@
 package discordgocmds
 
 import (
-	"github.com/bwmarrin/discordgo"
+	"github.com/zekroTJA/discordgo"
 )
 
 // PermissionHandler describes a struct handling

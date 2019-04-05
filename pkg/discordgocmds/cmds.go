@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/zekroTJA/discordgo"
 )
 
 // CmdHandler is the main controller of the command

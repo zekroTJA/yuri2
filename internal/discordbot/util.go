@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/zekroTJA/discordgo"
 	"github.com/zekroTJA/yuri2/internal/static"
 )
 

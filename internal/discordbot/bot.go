@@ -1,7 +1,7 @@
 package discordbot
 
 import (
-	"github.com/bwmarrin/discordgo"
+	"github.com/zekroTJA/discordgo"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 

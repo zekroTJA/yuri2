@@ -1,6 +1,6 @@
 package discordgocmds
 
-import "github.com/bwmarrin/discordgo"
+import "github.com/zekroTJA/discordgo"
 
 // CommandArgs will be passed to the
 // command Exec function and contains the

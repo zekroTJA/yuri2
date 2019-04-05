@@ -4,13 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"strings"
 	"time"
 
-	"github.com/zekroTJA/slms/pkg/timedmap"
+	"github.com/zekroTJA/yuri2/internal/logger"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/zekroTJA/timedmap"
+
 	"github.com/foxbot/gavalink"
+	"github.com/zekroTJA/discordgo"
 )
 
 const allowedFileTypes = "mp3 wav ogg aac"
@@ -28,7 +31,13 @@ const (
 	ResourceHTTP
 )
 
-const voiceStateLifetime = 3 * time.Hour
+var resourceNames = []string{"local", "youtube", "http"}
+
+const (
+	voiceStateLifetime      = 3 * time.Hour
+	autoQuitDuration        = 6 * time.Second
+	fastMuteTriggerDuration = 250 * time.Millisecond
+)
 
 var (
 	// ErrNotFound will be returned wenn no resource could
@@ -53,7 +62,7 @@ type Player struct {
 	lastVoiceStates *timedmap.TimedMap
 	link            *gavalink.Lavalink
 	session         *discordgo.Session
-	selfVoiceState  *discordgo.VoiceState
+	selfVoiceStates map[string]*discordgo.VoiceState
 }
 
 func NewPlayer(restURL, wsURL, password, fileLoc string, handler gavalink.EventHandler, onError func(t string, err error)) *Player {
@@ -65,6 +74,8 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, handler gavalink.EventH
 		handler = new(gavalink.DummyEventHandler)
 	}
 
+	rand.Seed(time.Now().UnixNano())
+
 	return &Player{
 		restURL:         restURL,
 		wsURL:           wsURL,
@@ -74,6 +85,7 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, handler gavalink.EventH
 		onError:         onError,
 		localSounds:     make(map[string]string),
 		lastVoiceStates: timedmap.New(10 * time.Minute),
+		selfVoiceStates: make(map[string]*discordgo.VoiceState),
 	}
 }
 
@@ -138,61 +150,66 @@ func (p *Player) FetchLocalSounds() error {
 	return nil
 }
 
+func (p *Player) GetLocalFiles() []string {
+	sounds := make([]string, len(p.localSounds))
+	i := 0
+	for k := range p.localSounds {
+		sounds[i] = k
+		i++
+	}
+	return sounds
+}
+
+func (p *Player) PlayRandomSound(guild *discordgo.Guild, user *discordgo.User) error {
+	sounds := p.GetLocalFiles()
+	r := rand.Intn(len(sounds))
+	return p.Play(guild, user, sounds[r], ResourceLocal)
+}
+
 func (p *Player) JoinVoiceCannel(vs *discordgo.VoiceState) error {
 	if vs == nil {
 		return errors.New("voiceState is nil")
 	}
 
-	// _, err := p.session.ChannelVoiceJoin(vs.GuildID, vs.ChannelID, false, false)
-	// return err
 	return p.session.ChannelVoiceJoinManual(vs.GuildID, vs.ChannelID, false, true)
 }
 
 func (p *Player) QuitVoiceChannel(guildID string) error {
-	// This method of "quitting" a voice channel is also kind
-	// of "unconventional", but as long as I do not have a
-	// solution for the issue below, I need to solve the
-	// problem like this.
-	// https://github.com/foxbot/gavalink/issues/3
-
-	ch, err := p.session.GuildChannelCreate(guildID, "tmp", discordgo.ChannelTypeGuildVoice)
-	if err != nil {
-		return err
-	}
-
-	if err = p.session.ChannelVoiceJoinManual(guildID, ch.ID, false, true); err != nil {
-		return err
-	}
-
-	defer p.link.GetPlayer(guildID)
-
-	_, err = p.session.ChannelDelete(ch.ID)
-	return err
+	return p.session.ChannelVoiceJoinManual(guildID, "", false, true)
 }
 
 func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string, t ResourceType) error {
 	var joined bool
 
-	node, err := p.link.BestNode()
-	if err != nil {
-		return err
+	switch t {
+	case ResourceLocal:
+		// Check if sound file actually exists
+		var ok bool
+		if ident, ok = p.localSounds[ident]; !ok {
+			return ErrNotFound
+		}
 	}
 
-	var selfVS, userVS *discordgo.VoiceState
-
-	for _, vs := range guild.VoiceStates {
-		switch vs.UserID {
-		case p.session.State.User.ID:
-			selfVS = vs
-		case user.ID:
-			userVS = vs
-		}
+	// Check if executing user is in a voice channel
+	userVS, err := p.getUsersVoiceState(guild.ID, user.ID)
+	if err != nil {
+		return err
 	}
 
 	if userVS == nil {
 		return ErrNotInVoice
 	}
 
+	// Get player node
+	node, err := p.link.BestNode()
+	if err != nil {
+		return err
+	}
+
+	// Check if the bot is in a voice channel.
+	// if not, or if it is in another voice channel
+	// than the executor, join their channel.
+	selfVS := p.selfVoiceStates[guild.ID]
 	if selfVS == nil || selfVS.ChannelID != userVS.ChannelID {
 		if err = p.JoinVoiceCannel(userVS); err != nil {
 			return err
@@ -200,14 +217,7 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 		joined = true
 	}
 
-	switch t {
-	case ResourceLocal:
-		var ok bool
-		if ident, ok = p.localSounds[ident]; !ok {
-			return ErrNotFound
-		}
-	}
-
+	// Load track
 	track, err := p.loadTrack(node, ident)
 	if err != nil {
 		return err
@@ -217,6 +227,13 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 		return ErrNotFound
 	}
 
+	// Getting guild player.
+	// If the bot joined a new channel, this
+	// will be repeatet 10 times with a timeout
+	// delay of 100 milliseconds because it
+	// can take up some time until a new player
+	// wa created after establishing a voice
+	// connection.
 	player, err := p.link.GetPlayer(guild.ID)
 	if err != nil {
 		// Yes, this is quite dirty but also
@@ -233,5 +250,8 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 		}
 	}
 
+	logger.Debug("PLAYER :: playing sound '%s' (resource %s)", ident, resourceNames[t])
+
+	// Actually playing the track
 	return player.Play(track.Data)
 }

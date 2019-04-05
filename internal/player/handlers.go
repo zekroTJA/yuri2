@@ -2,9 +2,10 @@ package player
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/foxbot/gavalink"
+	"github.com/zekroTJA/discordgo"
 	"github.com/zekroTJA/yuri2/internal/logger"
 )
 
@@ -14,8 +15,6 @@ func (p *Player) VoiceServerUpdateHandler(s *discordgo.Session, e *discordgo.Voi
 		GuildID:  e.GuildID,
 		Token:    e.Token,
 	}
-
-	fmt.Printf("%+v\n", e)
 
 	if player, err := p.link.GetPlayer(e.GuildID); err == nil {
 		err = player.Forward(s.State.SessionID, vsu)
@@ -61,31 +60,71 @@ func (p *Player) VoiceStateUpdateHandler(s *discordgo.Session, e *discordgo.Voic
 	// User joins a channel
 	case (oldVS == nil || oldVS.ChannelID == "") && newVS.ChannelID != "":
 		p.onVoiceChannelJoined(oldVS, newVS)
+
+	// User self muted
+	case oldVS != nil && !oldVS.Mute && newVS.Mute:
+		p.onUserSelfMuted(oldVS, newVS)
 	}
 }
 
 func (p *Player) onVoiceChannelLeft(oldVS, newVS *discordgo.VoiceState) {
 	if newVS.UserID == p.session.State.User.ID {
-		p.selfVoiceState = nil
-		fmt.Println("self left")
+		delete(p.selfVoiceStates, newVS.GuildID)
 	}
-	// if oldVS.UserID == p.session.State.User.ID || oldVS.ChannelID
+
+	p.autoLeftEmptyVoice(oldVS, newVS)
 }
 
 func (p *Player) onVoiceChannelJoined(oldVS, newVS *discordgo.VoiceState) {
-	if newVS.UserID == p.session.State.User.ID {
-		fmt.Println("self joined")
-
-		p.selfVoiceState = newVS
-	}
+	p.updateSelfVS(newVS)
 	// if oldVS.UserID == p.session.State.User.ID || oldVS.ChannelID
 }
 
 func (p *Player) onVoiceChannelChange(oldVS, newVS *discordgo.VoiceState) {
-	if newVS.UserID == p.session.State.User.ID {
-		fmt.Println("self switched")
+	p.updateSelfVS(newVS)
 
-		p.selfVoiceState = newVS
-	}
+	p.autoLeftEmptyVoice(oldVS, newVS)
 	// if oldVS.UserID == p.session.State.User.ID || oldVS.ChannelID
+}
+
+func (p *Player) onUserSelfMuted(oldVS, newVS *discordgo.VoiceState) {
+	p.fastMuteTrigger(oldVS, newVS)
+}
+
+func (p *Player) autoLeftEmptyVoice(oldVS, newVS *discordgo.VoiceState) {
+	cVS, ok := p.selfVoiceStates[newVS.GuildID]
+
+	if ok && oldVS.UserID != p.session.State.User.ID && oldVS.ChannelID == cVS.ChannelID {
+
+		guild, err := p.session.Guild(newVS.GuildID)
+		if err != nil {
+			p.onError("autoLeftEmptyVoice#getGuild", err)
+			return
+		}
+
+		fmt.Println(cVS.ChannelID)
+		if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
+			time.AfterFunc(autoQuitDuration, func() {
+				if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
+					fmt.Println(cVS.ChannelID)
+					if err = p.QuitVoiceChannel(cVS.GuildID); err != nil {
+						p.onError("autoLeftEmptyVoice#QuitVoice", err)
+					}
+				}
+			})
+		}
+	}
+}
+
+func (p *Player) fastMuteTrigger(oldVS, newVS *discordgo.VoiceState) {
+	time.AfterFunc(fastMuteTriggerDuration, func() {
+		vs, err := p.getUsersVoiceState(newVS.GuildID, newVS.UserID)
+		if err != nil {
+			p.onError("fastMuteTrigger#getVS", err)
+			return
+		}
+		if vs != nil && !vs.Mute {
+			fmt.Println("fast mute trigger")
+		}
+	})
 }

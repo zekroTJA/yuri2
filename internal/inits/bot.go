@@ -30,7 +30,7 @@ func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.
 
 	bot.RegisterHandler(handlers)
 	bot.RegisterCommands(cmds)
-	bot.CmdHandler.RegisterDefaultHandler(&commands.Play{DB: dbMiddleware})
+	bot.CmdHandler.RegisterDefaultHandler(&commands.Play{DB: dbMiddleware, Player: player})
 
 	logger.Info("DBOT :: initialized")
 
