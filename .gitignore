@@ -13,3 +13,4 @@
 
 *.lock
 private.*
+vendor/*
