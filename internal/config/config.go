@@ -28,9 +28,10 @@ type Main struct {
 // Discord contains the values of
 // Discrord specific configuration.
 type Discord struct {
-	Token         string `json:"token"`
-	OwnerID       string `json:"owner_id"`
-	GeneralPrefix string `json:"general_prefix"`
+	Token         string         `json:"token"`
+	OwnerID       string         `json:"owner_id"`
+	GeneralPrefix string         `json:"general_prefix"`
+	StatusShuffle *StatusShuffle `json:"status_shuffle"`
 }
 
 // Lavalink contains the values of
@@ -45,6 +46,13 @@ type Lavalink struct {
 // values.
 type Misc struct {
 	LogLevel int `json:"log_level"`
+}
+
+// StatusShuffle contains the configuration
+// if the status shuffle.
+type StatusShuffle struct {
+	Status []string `json:"status"`
+	Delay  string   `json:"delay"`
 }
 
 // OpenAndParse tries to open the passed config file
@@ -94,6 +102,14 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 	var defMain = &Main{
 		Discord: &Discord{
 			GeneralPrefix: "y!",
+			StatusShuffle: &StatusShuffle{
+				Delay: "10s",
+				Status: []string{
+					"Yuri v.2!",
+					"zekro.de",
+					"github.com/zekroTJA/yuri2",
+				},
+			},
 		},
 		Lavalink: &Lavalink{
 			Address: "localhost:2333",

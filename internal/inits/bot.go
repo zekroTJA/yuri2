@@ -1,6 +1,7 @@
 package inits
 
 import (
+	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/discordbot/commands"
@@ -12,27 +13,33 @@ import (
 
 // InitDiscordBot initializes the discord bot session and registers
 // all commands and handlers.
-func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.Middleware, player *player.Player) *discordbot.Bot {
+func InitDiscordBot(cfg *config.Discord, dbMiddleware database.Middleware, player *player.Player) *discordbot.Bot {
 	handlers := []interface{}{
 		player.ReadyHandler,
 		player.VoiceServerUpdateHandler,
 		player.VoiceStateUpdateHandler,
 
-		(&handlers.Ready{}).Handler,
+		handlers.NewReady(cfg.StatusShuffle).Handler,
 	}
 
 	cmds := []discordgocmds.Command{
-		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
 		&commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player},
+
+		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
+		&commands.Bind{PermLvl: 0, DB: dbMiddleware, Player: player},
+
 		&commands.List{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Search{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Log{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Stats{PermLvl: 0, DB: dbMiddleware, Player: player},
+
 		&commands.Random{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Stop{PermLvl: 0, DB: dbMiddleware, Player: player},
-		&commands.Bind{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.YouTube{PermLvl: 0, DB: dbMiddleware, Player: player},
 	}
 
-	bot, err := discordbot.NewBot(token, ownerID, generalPrefix, dbMiddleware)
+	bot, err := discordbot.NewBot(cfg.Token, cfg.Token,
+		cfg.GeneralPrefix, dbMiddleware)
 	if err != nil {
 		logger.Fatal("DBOT :: failed initialization: %s", err.Error())
 	}

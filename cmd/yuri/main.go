@@ -41,8 +41,7 @@ func main() {
 	// init Player
 	player := inits.InitPlayer(cfg.Lavalink, dbMiddleware)
 	// init Bot
-	bot := inits.InitDiscordBot(cfg.Discord.Token, cfg.Discord.OwnerID,
-		cfg.Discord.GeneralPrefix, dbMiddleware, player)
+	bot := inits.InitDiscordBot(cfg.Discord, dbMiddleware, player)
 	defer func() {
 		logger.Info("DBOT :: shutting down")
 		bot.Close()

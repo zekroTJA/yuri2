@@ -199,6 +199,7 @@ func (p *Player) QuitVoiceChannel(guildID string) error {
 
 func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string, t ResourceType) error {
 	var joined bool
+	originalIdent := ident
 
 	switch t {
 	case ResourceLocal:
@@ -272,7 +273,25 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 	logger.Debug("PLAYER :: playing sound '%s' (resource %s)", ident, resourceNames[t])
 
 	// Actually playing the track
-	return player.Play(track.Data)
+	err = player.Play(track.Data)
+	if err != nil {
+		return err
+	}
+
+	// Add play action to sounds log
+	err = p.db.AddLogEntry(&database.SoundLogEntry{
+		GuildID: guild.ID,
+		UserID:  user.ID,
+		UserTag: user.String(),
+		Source:  resourceNames[t],
+		Sound:   originalIdent,
+	})
+
+	if t == ResourceLocal {
+		err = p.db.AddSoundStatsCount(guild.ID, originalIdent)
+	}
+
+	return err
 }
 
 func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {

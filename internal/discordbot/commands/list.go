@@ -14,7 +14,7 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
-const deleteTimeout = 5 * time.Minute
+const deleteTimeoutList = 5 * time.Minute
 
 // List provides command functionalities
 // for the list command
@@ -76,9 +76,7 @@ func (c *List) Exec(args *discordgocmds.CommandArgs) error {
 
 	msg, err := discordbot.NewListMessage(args.Session, args.Channel.ID,
 		"Sound List", fmt.Sprintf("**%d Sounds**", len(sfl)), strList, 30, 0)
-	time.AfterFunc(deleteTimeout, func() {
-		msg.Delete()
-	})
+	msg.DeleteAfter(deleteTimeoutList)
 
 	return err
 }

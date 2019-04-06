@@ -3,6 +3,7 @@ package discordbot
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zekroTJA/yuri2/internal/static"
 
@@ -81,9 +82,10 @@ func NewListMessage(s *discordgo.Session, chanID, title, header string, pageCont
 }
 
 func (lm *ListMessage) setPageEmbed(page int) {
-	if page >= len(lm.pages) {
+	if page >= len(lm.pages) && len(lm.pages) > 1 {
 		page = len(lm.pages) - 1
 	}
+
 	lm.emb.Description = lm.header + "\n\n" + lm.pages[page]
 	lm.emb.Footer.Text = fmt.Sprintf("Page %d / %d", page+1, len(lm.pages))
 }
@@ -136,4 +138,10 @@ func (lm *ListMessage) reactionHandler(s *discordgo.Session, e *discordgo.Messag
 func (lm *ListMessage) Delete() error {
 	lm.unhandle()
 	return lm.session.ChannelMessageDelete(lm.chanID, lm.ID)
+}
+
+func (lm *ListMessage) DeleteAfter(d time.Duration) {
+	time.AfterFunc(d, func() {
+		lm.Delete()
+	})
 }
