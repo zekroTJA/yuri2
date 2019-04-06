@@ -28,7 +28,9 @@ type ListMessage struct {
 	unhandle func()
 }
 
-func NewListMessage(s *discordgo.Session, chanID, title, header string, pageCont []string, maxPageSize int) (*ListMessage, error) {
+func NewListMessage(s *discordgo.Session, chanID, title, header string, pageCont []string, maxPageSize int, startPage int) (*ListMessage, error) {
+	var err error
+
 	lm := &ListMessage{
 		header:      header,
 		maxPageSize: maxPageSize,
@@ -61,11 +63,21 @@ func NewListMessage(s *discordgo.Session, chanID, title, header string, pageCont
 		lm.pages[i] = strings.Join(pageCont[from:to], "\n")
 	}
 
-	// lm.emb = &discordgo.MessageEmbed{
-	// 	Title: title,
+	lm.setPageEmbed(startPage)
+	if err = lm.updateMessage(); err != nil {
+		return nil, err
+	}
 
-	// }
-	return nil, nil
+	if err = lm.session.MessageReactionAdd(lm.chanID, lm.ID, emojiBack); err != nil {
+		return nil, err
+	}
+	if err = lm.session.MessageReactionAdd(lm.chanID, lm.ID, emojiForward); err != nil {
+		return nil, err
+	}
+
+	lm.unhandle = s.AddHandler(lm.reactionHandler)
+
+	return lm, err
 }
 
 func (lm *ListMessage) setPageEmbed(page int) {
@@ -80,10 +92,48 @@ func (lm *ListMessage) updateMessage() error {
 	var err error
 
 	if lm.Message == nil {
-		lm.Message, err = lm.session.ChannelMessageSendEmbed(lm.ChannelID, lm.emb)
+		lm.Message, err = lm.session.ChannelMessageSendEmbed(lm.chanID, lm.emb)
 		return err
 	}
 
-	lm.Message, err = lm.session.ChannelMessageEditEmbed(lm.ChannelID, lm.ID, lm.emb)
+	lm.Message, err = lm.session.ChannelMessageEditEmbed(lm.chanID, lm.ID, lm.emb)
 	return err
+}
+
+func (lm *ListMessage) turnForward() error {
+	lm.currPage++
+	if lm.currPage >= len(lm.pages) {
+		lm.currPage = 0
+	}
+	lm.setPageEmbed(lm.currPage)
+	return lm.updateMessage()
+}
+
+func (lm *ListMessage) turnBack() error {
+	lm.currPage--
+	if lm.currPage < 0 {
+		lm.currPage = len(lm.pages) - 1
+	}
+	lm.setPageEmbed(lm.currPage)
+	return lm.updateMessage()
+}
+
+func (lm *ListMessage) reactionHandler(s *discordgo.Session, e *discordgo.MessageReactionAdd) {
+	if e.MessageID != lm.ID || e.UserID == lm.session.State.User.ID {
+		return
+	}
+
+	switch e.Emoji.Name {
+	case emojiBack:
+		lm.turnBack()
+	case emojiForward:
+		lm.turnForward()
+	}
+
+	s.MessageReactionRemove(lm.chanID, lm.ID, e.Emoji.Name, e.UserID)
+}
+
+func (lm *ListMessage) Delete() error {
+	lm.unhandle()
+	return lm.session.ChannelMessageDelete(lm.chanID, lm.ID)
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/discordbot/commands"
+	"github.com/zekroTJA/yuri2/internal/discordbot/handlers"
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
@@ -16,12 +17,15 @@ func InitDiscordBot(token, ownerID, generalPrefix string, dbMiddleware database.
 		player.ReadyHandler,
 		player.VoiceServerUpdateHandler,
 		player.VoiceStateUpdateHandler,
+
+		(&handlers.Ready{}).Handler,
 	}
 
 	cmds := []discordgocmds.Command{
 		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
 		&commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player},
 		&commands.List{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Search{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Random{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Stop{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Bind{PermLvl: 0, DB: dbMiddleware, Player: player},

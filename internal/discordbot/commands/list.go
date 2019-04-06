@@ -3,8 +3,9 @@ package commands
 import (
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/zekroTJA/yuri2/internal/discordbot"
 
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
@@ -12,6 +13,8 @@ import (
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
+
+const deleteTimeout = 5 * time.Minute
 
 // List provides command functionalities
 // for the list command
@@ -55,17 +58,9 @@ func (c *List) GetPermission() int {
 // Exec is the acual function which will
 // be executed when the command was invoked.
 func (c *List) Exec(args *discordgocmds.CommandArgs) error {
-	// sfl, err := c.Player.GetLocalFiles()
-	// if err != nil {
-	// 	return err
-	// }
-
-	sfl := player.SoundFileList(make([]*player.SoundFile, 550))
-
-	for i := range sfl {
-		sfl[i] = &player.SoundFile{
-			Name: "testsound",
-		}
+	sfl, err := c.Player.GetLocalFiles()
+	if err != nil {
+		return err
 	}
 
 	if len(args.Args) > 0 && strings.ToLower(args.Args[0]) == "s" {
@@ -74,53 +69,16 @@ func (c *List) Exec(args *discordgocmds.CommandArgs) error {
 		sfl.SortByName()
 	}
 
-	sites := 1
-	switch {
-	case len(sfl) > 60:
-		sites = 3
-	case len(sfl) > 40:
-		sites = 2
+	strList := make([]string, len(sfl))
+	for i, v := range sfl {
+		strList[i] = v.Name
 	}
 
-	perSite := int(len(sfl)/sites) + 1
-
-	emb := &discordgo.MessageEmbed{
-		Color: static.ColorDefault,
-		Provider: &discordgo.MessageEmbedProvider{
-			Name: "test provider",
-		},
-		Title:  "Sound List",
-		Fields: make([]*discordgo.MessageEmbedField, sites),
-	}
-
-	fmt.Println(len(sfl), sites)
-
-	strList := make([][]string, sites)
-	for i := range strList {
-		strList[i] = make([]string, perSite)
-	}
-
-	strListC := 0
-	site := 0
-	for i, sound := range sfl {
-		skip := (site + 1) * perSite
-		if i >= skip {
-			strListC = 0
-			site++
-		}
-		strList[site][strListC] = sound.Name
-		strListC++
-	}
-
-	for i, l := range strList {
-		emb.Fields[i] = &discordgo.MessageEmbedField{
-			Inline: true,
-			Name:   "-",
-			Value:  strings.Join(l, "\n"),
-		}
-	}
-
-	_, err := args.Session.ChannelMessageSendEmbed(args.Channel.ID, emb)
+	msg, err := discordbot.NewListMessage(args.Session, args.Channel.ID,
+		"Sound List", fmt.Sprintf("**%d Sounds**", len(sfl)), strList, 30, 0)
+	time.AfterFunc(deleteTimeout, func() {
+		msg.Delete()
+	})
 
 	return err
 }
