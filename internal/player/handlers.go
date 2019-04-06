@@ -1,7 +1,6 @@
 package player
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/foxbot/gavalink"
@@ -16,7 +15,8 @@ func (p *Player) VoiceServerUpdateHandler(s *discordgo.Session, e *discordgo.Voi
 		Token:    e.Token,
 	}
 
-	if player, err := p.link.GetPlayer(e.GuildID); err == nil {
+	player, err := p.link.GetPlayer(e.GuildID)
+	if err == nil {
 		err = player.Forward(s.State.SessionID, vsu)
 		if err != nil {
 			p.onError("VoiceServerUpdate#GetPlayer", err)
@@ -31,10 +31,20 @@ func (p *Player) VoiceServerUpdateHandler(s *discordgo.Session, e *discordgo.Voi
 		return
 	}
 
-	_, err = node.CreatePlayer(e.GuildID, s.State.SessionID, vsu, p.eventHandler)
+	player, err = node.CreatePlayer(e.GuildID, s.State.SessionID, vsu, p.eventHandler)
 	if err != nil {
 		p.onError("VoiceServerUpdate#CreatePlayer", err)
 	}
+
+	vol, err := p.db.GetGuildVolume(e.GuildID)
+	if err != nil {
+		p.onError("VoiceServerUpdate#GetVolume", err)
+	}
+
+	if err = player.Volume(vol); err != nil {
+		p.onError("VoiceServerUpdate#SetVolume", err)
+	}
+
 	logger.Debug("PLAYER :: created player for guild %s", e.GuildID)
 }
 
@@ -102,11 +112,9 @@ func (p *Player) autoLeftEmptyVoice(oldVS, newVS *discordgo.VoiceState) {
 			return
 		}
 
-		fmt.Println(cVS.ChannelID)
 		if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
 			time.AfterFunc(autoQuitDuration, func() {
 				if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
-					fmt.Println(cVS.ChannelID)
 					if err = p.QuitVoiceChannel(cVS.GuildID); err != nil {
 						p.onError("autoLeftEmptyVoice#QuitVoice", err)
 					}

@@ -305,3 +305,16 @@ func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
 
 	return pl.Stop()
 }
+
+func (p *Player) SetVolume(guildID string, vol int) error {
+	pl, err := p.link.GetPlayer(guildID)
+	if err != nil {
+		return nil
+	}
+
+	if err = pl.Volume(vol); err != nil {
+		return err
+	}
+
+	return p.db.SetGuildVolume(guildID, vol)
+}

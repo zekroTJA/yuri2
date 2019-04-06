@@ -101,4 +101,7 @@ type Middleware interface {
 	// GetSoundStats returns the stats ordered
 	// descending by play count.
 	GetSoundStats(guildID string, limit int) ([]*SoundStatsEntry, error)
+
+	SetGuildVolume(guildID string, volume int) error
+	GetGuildVolume(guildID string) (int, error)
 }

@@ -90,6 +90,7 @@ func (s *SQLite) setup() error {
 	_, err = s.db.Exec("CREATE TABLE IF NOT EXISTS `guilds` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT," +
 		"`guild_id` text NOT NULL DEFAULT ''," +
+		"`volume` int NOT NULL DEFAULT '100'," +
 		"`prefix` text NOT NULL DEFAULT '' );")
 	mErr.Append(err)
 
@@ -323,4 +324,33 @@ func (s *SQLite) GetSoundStats(guildID string, limit int) ([]*database.SoundStat
 	}
 
 	return res, nil
+}
+
+func (s *SQLite) SetGuildVolume(guildID string, volume int) error {
+	res, err := s.db.Exec("UPDATE `guilds` SET `volume` = ? WHERE `guild_id` = ?;", volume, guildID)
+	if err != nil {
+		return err
+	}
+
+	ar, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if ar == 0 {
+		_, err = s.db.Exec("INSERT INTO `guilds` (`guild_id`, `volume`) VALUES (?, ?);", guildID, volume)
+	}
+
+	return err
+}
+
+func (s *SQLite) GetGuildVolume(guildID string) (int, error) {
+	var volume int
+	row := s.db.QueryRow("SELECT `volume` FROM `guilds` WHERE `guild_id` = ?;", guildID)
+	err := row.Scan(&volume)
+	if err == sql.ErrNoRows {
+		return 100, nil
+	}
+
+	return volume, err
 }

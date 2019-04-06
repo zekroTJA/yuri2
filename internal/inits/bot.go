@@ -36,6 +36,7 @@ func InitDiscordBot(cfg *config.Discord, dbMiddleware database.Middleware, playe
 		&commands.Random{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.Stop{PermLvl: 0, DB: dbMiddleware, Player: player},
 		&commands.YouTube{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Volume{PermLvl: 0, DB: dbMiddleware, Player: player},
 	}
 
 	bot, err := discordbot.NewBot(cfg.Token, cfg.Token,
