@@ -1,0 +1,21 @@
+discord:
+  general_prefix: y!
+  owner_id: ""
+  token: ""
+  status_shuffle:
+    delay: 10s
+    status:
+    - Yuri v.2!
+    - zekro.de
+    - github.com/zekroTJA/yuri2
+
+database:
+  dsn: file:yuri.db.sqlite3
+
+lavalink:
+  address: localhost:2333
+  password: ""
+  sounds_location: ""
+
+misc:
+  log_level: 4
