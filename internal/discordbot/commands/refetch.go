@@ -58,8 +58,8 @@ func (c *Refetch) Exec(args *discordgocmds.CommandArgs) error {
 		return err
 	}
 
-	msg, err := discordbot.SendEmbedError(args.Session, args.Channel.ID,
-		"Refetched local sounds.", "")
+	msg, err := discordbot.SendEmbedMessage(args.Session, args.Channel.ID,
+		"Refetched local sounds.", "", 0)
 	msg.DeleteAfter(8 * time.Second)
 
 	return err
