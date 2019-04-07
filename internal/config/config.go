@@ -22,6 +22,7 @@ type Main struct {
 	Discord  *Discord    `json:"discord"`
 	Lavalink *Lavalink   `json:"lavalink"`
 	Database interface{} `json:"database"`
+	API      *API        `json:"api"`
 	Misc     *Misc       `json:"misc"`
 }
 
@@ -53,6 +54,24 @@ type Misc struct {
 type StatusShuffle struct {
 	Status []string `json:"status"`
 	Delay  string   `json:"delay"`
+}
+
+// API contains configuration for the
+// REST and WS API.
+type API struct {
+	Enable       bool    `json:"enable"`
+	ClientID     string  `json:"client_id"`
+	ClientSecret string  `json:"client_secret"`
+	Address      string  `json:"address"`
+	TLS          *APITLS `json:"tls"`
+}
+
+// APITLS contains configuration for the
+// API TLS encryption.
+type APITLS struct {
+	Enable   bool   `json:"enable"`
+	CertFile string `json:"cert_file"`
+	KeyFile  string `json:"key_file"`
 }
 
 // OpenAndParse tries to open the passed config file
@@ -115,6 +134,15 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 			Address: "localhost:2333",
 		},
 		Database: dbConfStruct,
+		API: &API{
+			Enable:  false,
+			Address: ":443",
+			TLS: &APITLS{
+				Enable:   true,
+				CertFile: "/etc/cert/example.com/example.com.cer",
+				KeyFile:  "/etc/cert/example.com/example.com.key",
+			},
+		},
 		Misc: &Misc{
 			LogLevel: 4,
 		},
