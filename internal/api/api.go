@@ -5,24 +5,27 @@ import (
 	"net/http"
 
 	"github.com/zekroTJA/discordgo"
-	"github.com/zekroTJA/yuri2/internal/database"
-
 	"github.com/zekroTJA/yuri2/internal/config"
+	"github.com/zekroTJA/yuri2/internal/database"
+	"github.com/zekroTJA/yuri2/pkg/discordoauth"
 )
 
 type API struct {
 	cfg *config.API
 
-	authRedirectURI string
+	qualifiedAddress string
 
-	db      *database.Middleware
+	db      database.Middleware
 	session *discordgo.Session
 
 	server *http.Server
 	mux    *http.ServeMux
+
+	discordAuthFE  *discordoauth.DiscordOAuth
+	discordAuthAPI *discordoauth.DiscordOAuth
 }
 
-func NewAPI(cfg *config.API, db *database.Middleware, session *discordgo.Session) *API {
+func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session) *API {
 	api := &API{
 		cfg:     cfg,
 		db:      db,
@@ -37,7 +40,7 @@ func NewAPI(cfg *config.API, db *database.Middleware, session *discordgo.Session
 	if address[0] == ':' {
 		address = "localhost" + address
 	}
-	api.authRedirectURI = fmt.Sprintf("%s://%s", protocol, address)
+	api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, address)
 
 	api.mux = http.NewServeMux()
 
@@ -46,14 +49,24 @@ func NewAPI(cfg *config.API, db *database.Middleware, session *discordgo.Session
 		Addr:    api.cfg.Address,
 	}
 
+	api.discordAuthAPI = discordoauth.NewDiscordOAuth(
+		api.cfg.ClientID,
+		api.cfg.ClientSecret,
+		api.qualifiedAddress+"/token/authorize",
+		errResponse,
+		api.getTokenHandler)
+
 	api.registerHandlers()
 
 	return api
 }
 
 func (api *API) registerHandlers() {
-	// GET /
-	api.mux.HandleFunc("/", api.handlerRedirectToLogin)
+	// GET /token
+	api.mux.HandleFunc("/token", api.discordAuthAPI.HandlerInit)
+
+	// GET /token/authorize
+	api.mux.HandleFunc("/token/authorize", api.discordAuthAPI.HandlerCallback)
 }
 
 func (api *API) StartBlocking() error {
@@ -66,4 +79,11 @@ func (api *API) StartBlocking() error {
 	}
 
 	return err
+}
+
+func (api *API) Close() {
+	if api == nil {
+		return
+	}
+	api.server.Close()
 }

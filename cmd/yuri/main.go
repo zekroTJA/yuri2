@@ -46,6 +46,12 @@ func main() {
 		logger.Info("DBOT :: shutting down")
 		bot.Close()
 	}()
+	// init API
+	api := inits.InitAPI(cfg.API, dbMiddleware, bot.Session)
+	defer func() {
+		logger.Info("API :: shutting down")
+		api.Close()
+	}()
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)

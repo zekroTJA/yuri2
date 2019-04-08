@@ -19,4 +19,7 @@ const (
 		// 0x10000000 | // MANAGE ROLES
 		// 0x20000000 | // MANAGE WEBHOOKS
 		// 0x40000000 // MANAGE EMOJIS
+
+	URLDiscordAPIOAuthToken = "https://discordapp.com/api/oauth2/token"
+	URLDiscordGetUserMe     = "https://discordapp.com/api/users/@me"
 )
