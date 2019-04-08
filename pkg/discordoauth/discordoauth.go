@@ -13,7 +13,7 @@ import (
 
 // OnErrorFunc is the function to be used to handle errors during
 // authentication.
-type OnErrorFunc func(w http.ResponseWriter, status int, msg string)
+type OnErrorFunc func(w http.ResponseWriter, r *http.Request, status int, msg string)
 
 // OnSuccessFuc is the func to be used to handle the successful
 // authentication.
@@ -44,7 +44,7 @@ type getUserMeResponse struct {
 // NewDiscordOAuth returns a new instance of DiscordOAuth.
 func NewDiscordOAuth(clientID, clientSecret, redirectURI string, onError OnErrorFunc, onSuccess OnSuccessFuc) *DiscordOAuth {
 	if onError == nil {
-		onError = func(w http.ResponseWriter, status int, msg string) {}
+		onError = func(w http.ResponseWriter, r *http.Request, status int, msg string) {}
 	}
 	if onSuccess == nil {
 		onSuccess = func(w http.ResponseWriter, r *http.Request, userID string) {}
@@ -93,7 +93,7 @@ func (d *DiscordOAuth) HandlerCallback(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest("POST", static.URLDiscordAPIOAuthToken,
 		bytes.NewBuffer([]byte(values.Encode())))
 	if err != nil {
-		d.onError(w, http.StatusInternalServerError, "failed creating request: "+err.Error())
+		d.onError(w, r, http.StatusInternalServerError, "failed creating request: "+err.Error())
 		return
 	}
 
@@ -101,24 +101,24 @@ func (d *DiscordOAuth) HandlerCallback(w http.ResponseWriter, r *http.Request) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		d.onError(w, http.StatusInternalServerError, "failed executing request: "+err.Error())
+		d.onError(w, r, http.StatusInternalServerError, "failed executing request: "+err.Error())
 		return
 	}
 
 	if res.StatusCode >= 300 {
-		d.onError(w, http.StatusUnauthorized, "")
+		d.onError(w, r, http.StatusUnauthorized, "")
 		return
 	}
 
 	resAuthBody := new(oAuthTokenResponse)
 	err = parseJSONBody(res.Body, resAuthBody)
 	if err != nil {
-		d.onError(w, http.StatusInternalServerError, "failed parsing Discord API response: "+err.Error())
+		d.onError(w, r, http.StatusInternalServerError, "failed parsing Discord API response: "+err.Error())
 		return
 	}
 
 	if resAuthBody.Error != "" || resAuthBody.AccessToken == "" {
-		d.onError(w, http.StatusUnauthorized, "")
+		d.onError(w, r, http.StatusUnauthorized, "")
 		return
 	}
 
@@ -126,7 +126,7 @@ func (d *DiscordOAuth) HandlerCallback(w http.ResponseWriter, r *http.Request) {
 
 	req, err = http.NewRequest("GET", static.URLDiscordGetUserMe, nil)
 	if err != nil {
-		d.onError(w, http.StatusInternalServerError, "failed creating request: "+err.Error())
+		d.onError(w, r, http.StatusInternalServerError, "failed creating request: "+err.Error())
 		return
 	}
 
@@ -134,24 +134,24 @@ func (d *DiscordOAuth) HandlerCallback(w http.ResponseWriter, r *http.Request) {
 
 	res, err = http.DefaultClient.Do(req)
 	if err != nil {
-		d.onError(w, http.StatusInternalServerError, "failed executing request: "+err.Error())
+		d.onError(w, r, http.StatusInternalServerError, "failed executing request: "+err.Error())
 		return
 	}
 
 	if res.StatusCode >= 300 {
-		d.onError(w, http.StatusUnauthorized, "")
+		d.onError(w, r, http.StatusUnauthorized, "")
 		return
 	}
 
 	resGetMe := new(getUserMeResponse)
 	err = parseJSONBody(res.Body, resGetMe)
 	if err != nil {
-		d.onError(w, http.StatusInternalServerError, "failed parsing Discord API response: "+err.Error())
+		d.onError(w, r, http.StatusInternalServerError, "failed parsing Discord API response: "+err.Error())
 		return
 	}
 
 	if resGetMe.Error != "" || resGetMe.ID == "" {
-		d.onError(w, http.StatusUnauthorized, "")
+		d.onError(w, r, http.StatusUnauthorized, "")
 		return
 	}
 

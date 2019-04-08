@@ -21,3 +21,7 @@
 [[constraint]]
   name = "github.com/op/go-logging"
   version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"

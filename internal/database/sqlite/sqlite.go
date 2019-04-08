@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/miltierror"
@@ -120,6 +121,15 @@ func (s *SQLite) setup() error {
 		"`count` int NOT NULL DEFAULT '1' );")
 	mErr.Append(err)
 
+	// TABLE `auth_tokens`
+	_, err = s.db.Exec("CREATE TABLE IF NOT EXISTS `auth_tokens` (" +
+		"`id` INTEGER PRIMARY KEY AUTOINCREMENT," +
+		"`user_id` text NOT NULL DEFAULT ''," +
+		"`token_hash` text NOT NULL DEFAULT ''," +
+		"`created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+		"`expires` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP );")
+	mErr.Append(err)
+
 	return mErr.Concat()
 }
 
@@ -213,6 +223,67 @@ func (s *SQLite) SetFastTrigger(userID, val string) error {
 
 	if ar == 0 {
 		_, err = s.db.Exec("INSERT INTO `users` (`user_id`, `fast_trigger`) VALUES (?, ?);", userID, val)
+	}
+
+	return err
+}
+
+/////////////////////////
+// AUTHORIZATION STUFF //
+/////////////////////////
+
+func (s *SQLite) GetAuthToken(userID string) (string, error) {
+	entry := new(database.AuthTokenEntry)
+
+	row := s.db.QueryRow("SELECT `user_id`, `token_hash`, `created`, `expires` FROM `auth_tokens` "+
+		"WHERE `expires` > CURRENT_TIMESTAMP AND `user_id` = ?;", userID)
+	err := row.Scan(&entry.UserID, &entry.TokenHash, &entry.Created, &entry.Expires)
+
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+
+	return "", err
+}
+
+func (s *SQLite) SetAuthToken(userID, tokenHash string, expires ...time.Time) error {
+	var res sql.Result
+	var err error
+
+	switch {
+
+	case tokenHash != "" && len(expires) > 0:
+		res, err = s.db.Exec("UPDATE `auth_tokens` SET "+
+			"`token_hash` = ? AND "+
+			"`expires` = ? WHERE "+
+			"`user_id` = ?;", tokenHash, expires[0], userID)
+
+	case tokenHash != "":
+		res, err = s.db.Exec("UPDATE `auth_tokens` SET "+
+			"`tokenHash` = ? WHERE "+
+			"`user_id` = ?;", tokenHash, userID)
+
+	case len(expires) > 0:
+		res, err = s.db.Exec("UPDATE `auth_tokens` SET "+
+			"`expires` = ? WHERE "+
+			"`user_id` = ?;", expires[0], userID)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	ar, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if ar == 0 {
+		if len(expires) == 0 {
+			return errors.New("expires must be passed to create a new token")
+		}
+		_, err = s.db.Exec("INSERT INTO `auth_tokens` (`user_id`, `token_hash`, `expires`) "+
+			"VALUES (?, ?, ?);", userID, tokenHash, expires[0])
 	}
 
 	return err

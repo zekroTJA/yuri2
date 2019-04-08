@@ -31,9 +31,21 @@ type SoundLogEntry struct {
 	Sound   string    `json:"sound"`
 }
 
+// SoundStatsEntry is the data entity stored
+// in the database to count and get the playing
+// stats of a local sound file.
 type SoundStatsEntry struct {
 	Sound string `json:"sound"`
 	Count int    `json:"count"`
+}
+
+// AuthTokenEntry is the database entity to
+// store a user authorization token as hash.
+type AuthTokenEntry struct {
+	UserID    string    `json:"user_id"`
+	TokenHash string    `json:"token_hash"`
+	Created   time.Time `json:"created"`
+	Expires   time.Time `json:"expires"`
 }
 
 // Middleware describes the structure of a
@@ -79,6 +91,19 @@ type Middleware interface {
 	// be triggered by using fast trigger.
 	SetFastTrigger(userID, val string) error
 
+	/////////////////////////
+	// AUTHORIZATION STUFF //
+	/////////////////////////
+
+	// GetAuthToken returns the token hash of the
+	// token of the user´, if existent. This must return
+	// an empty stirng if no token entry exists.
+	GetAuthToken(userID string) (string, error)
+	// SetAuthToken creates a new token for the specified user
+	// or updates tokenHash and/or expire time of an already
+	// generated token.
+	SetAuthToken(userID, tokenHash string, expires ...time.Time) error
+
 	//////////////////
 	// SOUNDS STUFF //
 	//////////////////
@@ -94,14 +119,16 @@ type Middleware interface {
 	// in the log wether per guildID, if passed
 	// or of all entries.
 	GetLogLen(guildID string) (int, error)
-
 	// AddSoundStatsCount increases the play counter
 	// of the sound for the specified guildID by one.
 	AddSoundStatsCount(guildID, sound string) error
 	// GetSoundStats returns the stats ordered
 	// descending by play count.
 	GetSoundStats(guildID string, limit int) ([]*SoundStatsEntry, error)
-
+	// SetGuildVolume sets the volume the player will
+	// be set to on the specified guild.
 	SetGuildVolume(guildID string, volume int) error
+	// GetGuildVolume gets the volume the player will
+	// be set to on the specified guild.
 	GetGuildVolume(guildID string) (int, error)
 }

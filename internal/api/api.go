@@ -5,8 +5,10 @@ import (
 	"net/http"
 
 	"github.com/zekroTJA/discordgo"
+	"github.com/zekroTJA/yuri2/internal/api/auth"
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"
+	"github.com/zekroTJA/yuri2/internal/static"
 	"github.com/zekroTJA/yuri2/pkg/discordoauth"
 )
 
@@ -20,6 +22,7 @@ type API struct {
 
 	server *http.Server
 	mux    *http.ServeMux
+	auth   *auth.Auth
 
 	discordAuthFE  *discordoauth.DiscordOAuth
 	discordAuthAPI *discordoauth.DiscordOAuth
@@ -49,12 +52,21 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session)
 		Addr:    api.cfg.Address,
 	}
 
+	api.auth = auth.NewAuth(db, static.TokenHashRounds, static.TokenLifetime)
+
 	api.discordAuthAPI = discordoauth.NewDiscordOAuth(
 		api.cfg.ClientID,
 		api.cfg.ClientSecret,
 		api.qualifiedAddress+"/token/authorize",
-		errResponse,
+		nil, //  TODO: func(w http.ResponseWriter, r *http.ReadRequest), errResponse
 		api.getTokenHandler)
+
+	api.discordAuthFE = discordoauth.NewDiscordOAuth(
+		api.cfg.ClientID,
+		api.cfg.ClientSecret,
+		api.qualifiedAddress+"/login/authorize",
+		errPageResponse,
+		nil)
 
 	api.registerHandlers()
 
@@ -62,11 +74,21 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session)
 }
 
 func (api *API) registerHandlers() {
+	// Static file server
+	api.mux.Handle("/static/", http.StripPrefix("/static/",
+		http.FileServer(http.Dir("./web/static"))))
+
 	// GET /token
 	api.mux.HandleFunc("/token", api.discordAuthAPI.HandlerInit)
 
 	// GET /token/authorize
 	api.mux.HandleFunc("/token/authorize", api.discordAuthAPI.HandlerCallback)
+
+	// GET /login
+	api.mux.HandleFunc("/login", api.discordAuthFE.HandlerInit)
+
+	// GET /login/authorize
+	api.mux.HandleFunc("/login/authorize", api.discordAuthFE.HandlerCallback)
 }
 
 func (api *API) StartBlocking() error {

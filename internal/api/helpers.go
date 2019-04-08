@@ -55,3 +55,19 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 	w.WriteHeader(code)
 	_, err = w.Write(bData)
 }
+
+func errPageResponse(w http.ResponseWriter, code int, msg string) {
+	pageLoc := "./web/pages/400.html"
+
+	switch code {
+	case 401:
+		pageLoc = "./web/pages/401.html"
+	case 404:
+		pageLoc = "./web/pages/404.html"
+	case 500:
+		pageLoc = "./web/pages/500.html"
+	}
+
+	w.WriteHeader(code)
+	http.ServeFile(w, new(http.Request), pageLoc)
+}

@@ -1,5 +1,7 @@
 package static
 
+import "time"
+
 const (
 	CommandGroupPlayer   = "PLAYER"
 	CommandGroupSettings = "SETTINGS"
@@ -22,4 +24,7 @@ const (
 
 	URLDiscordAPIOAuthToken = "https://discordapp.com/api/oauth2/token"
 	URLDiscordGetUserMe     = "https://discordapp.com/api/users/@me"
+
+	TokenHashRounds = 10
+	TokenLifetime   = 7 * 24 * time.Hour
 )
