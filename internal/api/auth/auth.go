@@ -40,12 +40,12 @@ func (a *Auth) CreateToken(userID string) (string, time.Time, error) {
 }
 
 func (a *Auth) CheckToken(userID, token string) (bool, error) {
-	hash, err := a.db.GetAuthToken(userID)
-	if err != nil {
+	entry, err := a.db.GetAuthToken(userID)
+	if err != nil || entry == nil {
 		return false, err
 	}
 
-	return CompareHashString(hash, token), nil
+	return CompareHashString(entry.TokenHash, token), nil
 }
 
 func (a *Auth) RefreshToken(userID string) (time.Time, error) {

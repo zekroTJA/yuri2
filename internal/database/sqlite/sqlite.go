@@ -3,11 +3,10 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/zekroTJA/yuri2/internal/database"
-	"github.com/zekroTJA/yuri2/pkg/miltierror"
+	"github.com/zekroTJA/yuri2/pkg/multierror"
 
 	// Importing sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
@@ -69,7 +68,7 @@ func (s *SQLite) Connect(params ...interface{}) error {
 
 // setup sets up the database structure.
 func (s *SQLite) setup() error {
-	mErr := multierror.NewMultiError(nil)
+	mErr := multierror.New(nil)
 
 	// TABLE `stats`
 	_, err := s.db.Exec("CREATE TABLE IF NOT EXISTS `stats` (" +
@@ -232,18 +231,20 @@ func (s *SQLite) SetFastTrigger(userID, val string) error {
 // AUTHORIZATION STUFF //
 /////////////////////////
 
-func (s *SQLite) GetAuthToken(userID string) (string, error) {
+func (s *SQLite) GetAuthToken(userID string) (*database.AuthTokenEntry, error) {
 	entry := new(database.AuthTokenEntry)
-
 	row := s.db.QueryRow("SELECT `user_id`, `token_hash`, `created`, `expires` FROM `auth_tokens` "+
 		"WHERE `expires` > CURRENT_TIMESTAMP AND `user_id` = ?;", userID)
 	err := row.Scan(&entry.UserID, &entry.TokenHash, &entry.Created, &entry.Expires)
 
 	if err == sql.ErrNoRows {
-		return "", nil
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	return "", err
+	return entry, err
 }
 
 func (s *SQLite) SetAuthToken(userID, tokenHash string, expires ...time.Time) error {
@@ -254,7 +255,7 @@ func (s *SQLite) SetAuthToken(userID, tokenHash string, expires ...time.Time) er
 
 	case tokenHash != "" && len(expires) > 0:
 		res, err = s.db.Exec("UPDATE `auth_tokens` SET "+
-			"`token_hash` = ? AND "+
+			"`token_hash` = ?, "+
 			"`expires` = ? WHERE "+
 			"`user_id` = ?;", tokenHash, expires[0], userID)
 
@@ -387,8 +388,6 @@ func (s *SQLite) GetSoundStats(guildID string, limit int) ([]*database.SoundStat
 		res[i] = stat
 		i++
 	}
-
-	fmt.Println(i)
 
 	if i < limit {
 		return res[:i], nil

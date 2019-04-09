@@ -8,8 +8,10 @@ import (
 	"github.com/zekroTJA/yuri2/internal/api/auth"
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"
+	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
 	"github.com/zekroTJA/yuri2/pkg/discordoauth"
+	"github.com/zekroTJA/yuri2/pkg/wsmgr"
 )
 
 type API struct {
@@ -21,6 +23,7 @@ type API struct {
 	session *discordgo.Session
 
 	server *http.Server
+	ws     *wsmgr.WebSocketManager
 	mux    *http.ServeMux
 	auth   *auth.Auth
 
@@ -52,13 +55,15 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session)
 		Addr:    api.cfg.Address,
 	}
 
+	api.ws = wsmgr.New()
+
 	api.auth = auth.NewAuth(db, static.TokenHashRounds, static.TokenLifetime)
 
 	api.discordAuthAPI = discordoauth.NewDiscordOAuth(
 		api.cfg.ClientID,
 		api.cfg.ClientSecret,
 		api.qualifiedAddress+"/token/authorize",
-		nil, //  TODO: func(w http.ResponseWriter, r *http.ReadRequest), errResponse
+		errResponseWrapper,
 		api.getTokenHandler)
 
 	api.discordAuthFE = discordoauth.NewDiscordOAuth(
@@ -66,17 +71,21 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session)
 		api.cfg.ClientSecret,
 		api.qualifiedAddress+"/login/authorize",
 		errPageResponse,
-		nil)
+		api.successfullAuthHandler)
 
-	api.registerHandlers()
+	api.registerHTTPHandlers()
+	api.registerWSHandlers()
 
 	return api
 }
 
-func (api *API) registerHandlers() {
+func (api *API) registerHTTPHandlers() {
 	// Static file server
 	api.mux.Handle("/static/", http.StripPrefix("/static/",
 		http.FileServer(http.Dir("./web/static"))))
+
+	// MAIN HANDLER
+	api.mux.HandleFunc("/", api.indexPageHandler)
 
 	// GET /token
 	api.mux.HandleFunc("/token", api.discordAuthAPI.HandlerInit)
@@ -89,6 +98,21 @@ func (api *API) registerHandlers() {
 
 	// GET /login/authorize
 	api.mux.HandleFunc("/login/authorize", api.discordAuthFE.HandlerCallback)
+
+	// WS UPGRADE
+	api.mux.HandleFunc("/ws", api.wsUpgradeHandler)
+}
+
+func (api *API) registerWSHandlers() {
+	// ERROR HANDLER
+	api.ws.OnError(func(m string, e error) {
+		logger.Error("WS :: %s: %s", m, e.Error())
+	})
+
+	// Event: INIT
+	api.ws.On("INIT", api.wsInitHandler)
+	// Event: PLAY
+	api.ws.On("PLAY", api.wsPlayHandler)
 }
 
 func (api *API) StartBlocking() error {

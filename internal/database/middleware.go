@@ -98,7 +98,7 @@ type Middleware interface {
 	// GetAuthToken returns the token hash of the
 	// token of the user´, if existent. This must return
 	// an empty stirng if no token entry exists.
-	GetAuthToken(userID string) (string, error)
+	GetAuthToken(userID string) (*AuthTokenEntry, error)
 	// SetAuthToken creates a new token for the specified user
 	// or updates tokenHash and/or expire time of an already
 	// generated token.

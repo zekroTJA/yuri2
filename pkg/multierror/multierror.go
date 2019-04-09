@@ -21,10 +21,10 @@ type MultiError struct {
 	formatFunc FormatFunc
 }
 
-// NewMultiError creates a new instance of MultiError
+// New creates a new instance of MultiError
 // using the passed format function. If this argument
 // is nil, the default format function will be used.
-func NewMultiError(formatFunc FormatFunc) *MultiError {
+func New(formatFunc FormatFunc) *MultiError {
 	if formatFunc == nil {
 		formatFunc = func(i int, e error) string {
 			return fmt.Sprintf("MultiError %02x: %s\n", i, e)
