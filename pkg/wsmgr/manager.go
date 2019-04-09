@@ -47,6 +47,10 @@ type WebSocketManager struct {
 	closingPipe chan *WebSocketConn
 }
 
+// New creates a new instance of WebSocketManager
+// and initializes the event loop waiting for
+// events, errors and closing singnals from
+// the connections.
 func New() *WebSocketManager {
 	wsm := &WebSocketManager{
 		mx:          new(sync.Mutex),
@@ -62,14 +66,23 @@ func New() *WebSocketManager {
 	return wsm
 }
 
+// OnError defines the handler function used when
+// an error occures while receiving or sending
+// web socket messages.
 func (wsm *WebSocketManager) OnError(onError OnErrorFunc) {
 	wsm.onError = onError
 }
 
+// On registers an evenr handler for the specified
+// name of an ingoing event.
 func (wsm *WebSocketManager) On(name string, handler OnEventFunc) {
 	wsm.events[name] = handler
 }
 
+// NewConn creates and registers a new WebSocketConn by
+// upgrading the request to a WS connection. You may pass
+// an ident which can be used inside of event handlers
+// to identify the sender of the incomming event.
 func (wsm *WebSocketManager) NewConn(w http.ResponseWriter, r *http.Request, ident interface{}) (*WebSocketConn, error) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -85,6 +98,8 @@ func (wsm *WebSocketManager) NewConn(w http.ResponseWriter, r *http.Request, ide
 	return wsc, nil
 }
 
+// Broadcast sends an event to all connected clients.
+// Passed connection will be excluded from sending.
 func (wsm *WebSocketManager) Broadcast(e *Event, exclude ...*WebSocketConn) error {
 	mErr := multierror.New(nil)
 	var err error
@@ -102,6 +117,9 @@ func (wsm *WebSocketManager) Broadcast(e *Event, exclude ...*WebSocketConn) erro
 	return mErr.Concat()
 }
 
+// pipeListener starts the blocking loop waiting
+// for incomming events, errors or closing signals
+// from the web socket connections to handle them.
 func (wsm *WebSocketManager) pipeListener() {
 
 	for {
