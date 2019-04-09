@@ -47,7 +47,7 @@ func main() {
 		bot.Close()
 	}()
 	// init API
-	api := inits.InitAPI(cfg.API, dbMiddleware, bot.Session)
+	api := inits.InitAPI(cfg.API, dbMiddleware, bot.Session, player)
 	defer func() {
 		logger.Info("API :: shutting down")
 		api.Close()

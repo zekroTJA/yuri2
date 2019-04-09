@@ -16,5 +16,5 @@ func InitPlayer(cfg *config.Lavalink, db database.Middleware) *player.Player {
 		logger.Error("PLAYER :: %s :: %s", t, err.Error())
 	}
 
-	return player.NewPlayer("http://"+cfg.Address, "ws://"+cfg.Address, cfg.Password, cfg.SoundsLocation, db, nil, errHandler)
+	return player.NewPlayer("http://"+cfg.Address, "ws://"+cfg.Address, cfg.Password, cfg.SoundsLocation, db, errHandler)
 }

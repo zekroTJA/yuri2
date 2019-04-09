@@ -10,6 +10,7 @@ import (
 
 type getTokenResponse struct {
 	Token  string    `json:"token"`
+	UserID string    `json:"user_id"`
 	Expire time.Time `json:"expires"`
 }
 
@@ -20,7 +21,11 @@ func (api *API) getTokenHandler(w http.ResponseWriter, r *http.Request, userID s
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, &getTokenResponse{token, expire})
+	jsonResponse(w, http.StatusOK, &getTokenResponse{
+		Token:  token,
+		UserID: userID,
+		Expire: expire,
+	})
 }
 
 func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, userID string) {

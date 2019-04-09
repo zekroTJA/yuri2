@@ -6,15 +6,18 @@ import (
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/logger"
+	"github.com/zekroTJA/yuri2/internal/player"
 )
 
 // InitAPI initializes the HTTP and WS API exposure.
-func InitAPI(cfg *config.API, db database.Middleware, s *discordgo.Session) *api.API {
+func InitAPI(cfg *config.API, db database.Middleware, s *discordgo.Session, player *player.Player) *api.API {
 	if !cfg.Enable {
 		return nil
 	}
 
 	api := api.NewAPI(cfg, db, s)
+
+	player.AddEventHandler(api)
 
 	logger.Info("API :: initialized")
 

@@ -57,7 +57,7 @@ type Player struct {
 	fileLoc  string
 
 	onError      func(t string, err error)
-	eventHandler gavalink.EventHandler
+	eventHandler *EventHandler
 
 	localSounds map[string]string
 
@@ -68,13 +68,9 @@ type Player struct {
 	selfVoiceStates map[string]*discordgo.VoiceState
 }
 
-func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware, handler gavalink.EventHandler, onError func(t string, err error)) *Player {
+func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware, onError func(t string, err error)) *Player {
 	if onError == nil {
 		onError = func(t string, err error) {}
-	}
-
-	if handler == nil {
-		handler = new(gavalink.DummyEventHandler)
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -84,7 +80,7 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware,
 		wsURL:           wsURL,
 		password:        password,
 		fileLoc:         fileLoc,
-		eventHandler:    handler,
+		eventHandler:    NewEventHandler(),
 		onError:         onError,
 		db:              db,
 		localSounds:     make(map[string]string),
@@ -108,6 +104,10 @@ func (p *Player) Init(session *discordgo.Session) error {
 	}
 
 	return p.FetchLocalSounds()
+}
+
+func (p *Player) AddEventHandler(handler gavalink.EventHandler) {
+	p.eventHandler.AddHandler(handler)
 }
 
 func (p *Player) ReadyHandler(s *discordgo.Session, e *discordgo.Ready) {
