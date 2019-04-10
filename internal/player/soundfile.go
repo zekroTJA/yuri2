@@ -26,7 +26,7 @@ func (sfl SoundFileList) SortByName() {
 
 type SoundFile struct {
 	Name         string    `json:"name"`
-	Path         string    `json:"path"`
+	Path         string    `json:"-"`
 	LastModified time.Time `json:"last_modified"`
 }
 

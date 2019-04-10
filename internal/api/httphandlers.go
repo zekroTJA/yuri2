@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/zekroTJA/yuri2/internal/logger"
@@ -14,7 +15,16 @@ type getTokenResponse struct {
 	Expire time.Time `json:"expires"`
 }
 
-func (api *API) getTokenHandler(w http.ResponseWriter, r *http.Request, userID string) {
+type listResponse struct {
+	N       int         `json:"n"`
+	Results interface{} `json:"results"`
+}
+
+// -----------------------------------------------
+// --- REST API HANDLERS
+
+// GET /token
+func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, userID string) {
 	token, expire, err := api.auth.CreateToken(userID)
 	if err != nil {
 		errResponse(w, http.StatusInternalServerError, err.Error())
@@ -27,6 +37,153 @@ func (api *API) getTokenHandler(w http.ResponseWriter, r *http.Request, userID s
 		Expire: expire,
 	})
 }
+
+// GET /api/localsounds
+func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
+	if ok, _ := api.checkAuthHeaderWithResponse(w, r); !ok {
+		return
+	}
+
+	queries := r.URL.Query()
+
+	sort := queries.Get("sort")
+
+	_, from, err := GetURLQueryInt(queries, "from", 0)
+	if err != nil {
+		errResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	okLimit, limit, err := GetURLQueryInt(queries, "limit", 1)
+	if err != nil {
+		errResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	soundList, err := api.player.GetLocalFiles()
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	switch strings.ToLower(sort) {
+	case "NAME":
+		soundList.SortByName()
+	case "DATE":
+		soundList.SortByDate()
+	}
+
+	if okLimit {
+		if limit > len(soundList)-from {
+			limit = len(soundList) - from
+		}
+		soundList = soundList[from : from+limit]
+	} else {
+		soundList = soundList[from:]
+	}
+
+	jsonResponse(w, http.StatusOK, &listResponse{
+		N:       len(soundList),
+		Results: soundList,
+	})
+}
+
+// GET /api/logs/:GUILDID
+func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
+	ok, userID := api.checkAuthHeaderWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	gidInd := strings.LastIndex(r.URL.Path, "/")
+	if gidInd == -1 || gidInd == len(r.URL.Path)-1 {
+		errResponse(w, http.StatusBadRequest, "GUILDID must be a valid snowflake value")
+		return
+	}
+
+	guildID := r.URL.Path[gidInd+1:]
+
+	queries := r.URL.Query()
+
+	_, from, err := GetURLQueryInt(queries, "from", 0)
+	if err != nil {
+		errResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	okLimit, limit, err := GetURLQueryInt(queries, "limit", 1)
+	if err != nil {
+		errResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !okLimit {
+		limit = 1000
+	}
+
+	if _, err = api.session.GuildMember(guildID, userID); err != nil {
+		errResponse(w, http.StatusForbidden, "you must be a member of this guild")
+		return
+	}
+
+	logs, err := api.db.GetLogEntries(guildID, from, limit)
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	jsonResponse(w, http.StatusOK, &listResponse{
+		N:       len(logs),
+		Results: logs,
+	})
+}
+
+// GET /api/stats/:GUILDID
+func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
+	ok, userID := api.checkAuthHeaderWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	gidInd := strings.LastIndex(r.URL.Path, "/")
+	if gidInd == -1 || gidInd == len(r.URL.Path)-1 {
+		errResponse(w, http.StatusBadRequest, "GUILDID must be a valid snowflake value")
+		return
+	}
+
+	guildID := r.URL.Path[gidInd+1:]
+
+	queries := r.URL.Query()
+
+	okLimit, limit, err := GetURLQueryInt(queries, "limit", 1)
+	if err != nil {
+		errResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !okLimit {
+		limit = 1000
+	}
+
+	if _, err = api.session.GuildMember(guildID, userID); err != nil {
+		errResponse(w, http.StatusForbidden, "you must be a member of this guild")
+		return
+	}
+
+	stats, err := api.db.GetSoundStats(guildID, limit)
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	jsonResponse(w, http.StatusOK, &listResponse{
+		N:       len(stats),
+		Results: stats,
+	})
+}
+
+// -----------------------------------------------
+// --- FE HANDLERS
 
 func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, userID string) {
 	token, _, err := api.auth.CreateToken(userID)
@@ -44,7 +201,7 @@ func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, u
 }
 
 func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	ok, userID, err := api.checkAuthCookie(w, r)
+	ok, userID, err := api.checkAuthCookie(r)
 	if err != nil {
 		logger.Error("API :: checkAuthCookie: %s", err.Error())
 		errPageResponse(w, r, http.StatusInternalServerError, err.Error())

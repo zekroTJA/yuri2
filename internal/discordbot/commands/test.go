@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
@@ -48,9 +50,7 @@ func (c *Test) GetPermission() int {
 // Exec is the acual function which will
 // be executed when the command was invoked.
 func (c *Test) Exec(args *discordgocmds.CommandArgs) error {
-	if len(args.Args) > 0 && args.Args[0] == "q" {
-		return c.Player.QuitVoiceChannel(args.Guild.ID)
-	}
-	err := c.Player.Play(args.Guild, args.User, "derbergruft", player.ResourceLocal)
+	m, err := args.Session.GuildMember("526196711962705925", "123123273489234")
+	fmt.Print(m, err)
 	return err
 }

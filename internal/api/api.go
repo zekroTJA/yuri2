@@ -9,6 +9,7 @@ import (
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/internal/logger"
+	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
 	"github.com/zekroTJA/yuri2/pkg/discordoauth"
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
@@ -21,6 +22,7 @@ type API struct {
 
 	db      database.Middleware
 	session *discordgo.Session
+	player  *player.Player
 
 	server *http.Server
 	ws     *wsmgr.WebSocketManager
@@ -31,11 +33,12 @@ type API struct {
 	discordAuthAPI *discordoauth.DiscordOAuth
 }
 
-func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session) *API {
+func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session, player *player.Player) *API {
 	api := &API{
 		cfg:     cfg,
 		db:      db,
 		session: session,
+		player:  player,
 	}
 
 	protocol := "http"
@@ -64,7 +67,7 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session)
 		api.cfg.ClientSecret,
 		api.qualifiedAddress+"/token/authorize",
 		errResponseWrapper,
-		api.getTokenHandler)
+		api.restGetTokenHandler)
 
 	api.discordAuthFE = discordoauth.NewDiscordOAuth(
 		api.cfg.ClientID,
@@ -87,6 +90,12 @@ func (api *API) registerHTTPHandlers() {
 	// MAIN HANDLER
 	api.mux.HandleFunc("/", api.indexPageHandler)
 
+	// WS UPGRADE
+	api.mux.HandleFunc("/ws", api.wsUpgradeHandler)
+
+	/////////////
+	// REST API
+
 	// GET /token
 	api.mux.HandleFunc("/token", api.discordAuthAPI.HandlerInit)
 
@@ -99,8 +108,14 @@ func (api *API) registerHTTPHandlers() {
 	// GET /login/authorize
 	api.mux.HandleFunc("/login/authorize", api.discordAuthFE.HandlerCallback)
 
-	// WS UPGRADE
-	api.mux.HandleFunc("/ws", api.wsUpgradeHandler)
+	// GET /api/localsounds
+	api.mux.HandleFunc("/api/localsounds", api.restGetLocalSounds)
+
+	// GET /api/logs/:GUILDID
+	api.mux.HandleFunc("/api/logs/", api.restGetLogs)
+
+	// GET /api/stats/:GUILDID
+	api.mux.HandleFunc("/api/stats/", api.restGetStats)
 }
 
 func (api *API) registerWSHandlers() {

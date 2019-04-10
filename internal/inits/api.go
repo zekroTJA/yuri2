@@ -15,7 +15,7 @@ func InitAPI(cfg *config.API, db database.Middleware, s *discordgo.Session, play
 		return nil
 	}
 
-	api := api.NewAPI(cfg, db, s)
+	api := api.NewAPI(cfg, db, s, player)
 
 	player.AddEventHandler(api)
 
