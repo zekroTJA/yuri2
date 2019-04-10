@@ -92,3 +92,32 @@ func GetUsersGuildInVoice(s *discordgo.Session, userID string) *discordgo.Guild 
 	}
 	return nil
 }
+
+func GetUsersGuilds(s *discordgo.Session, userID string) []*discordgo.Guild {
+	guilds := make([]*discordgo.Guild, 0)
+
+	var memb *discordgo.Member
+
+	for _, g := range s.State.Guilds {
+		if g.MemberCount > 500 {
+			memb, _ = s.GuildMember(g.ID, userID)
+			continue
+		}
+
+		for _, m := range g.Members {
+			if m.User.ID == userID {
+				memb = m
+				break
+			}
+		}
+
+		if memb != nil {
+			guilds = append(guilds, g)
+		}
+	}
+
+	if len(guilds) == 0 {
+		return nil
+	}
+	return guilds
+}

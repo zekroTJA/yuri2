@@ -1,12 +1,12 @@
 # REST API
 
-The Yuri REST API is generally just used for authentication and for getting the local sounds index.
+The Yuri REST API is generally just used for authentication and for getting data like lokal sounds list and the sound playing logs and stats for guilds.
 
 ## Authentication
 
 Because Yuri is using the Discord OAuth 2 flow, you need to manually generate an API token by authentication with the Yuri Discord App. Therefore, open the `/token` endpoint using a browser-like application to press `Authorize` in the Discord authorization page. Then, you will be relocated back to the `/token/authorize`* endpoint, which will respond with a randomly generated token, your Discord user ID and the tokens lifetime on successful authentication.  
 
-The token's lifetime will be exteded each time authorizing yourself with it.
+The token's lifetime will be extended each time when you are authorizing yourself with it.
 
 Using the REST API, you need to pass your Discord User ID **and** your API token as base64 encoded value as Basic `Authorization` header **on every request**.
 
@@ -18,7 +18,7 @@ Example:
 2. Your API Token:  
 `gDURWm1gkLEjmFcjKs1CzWkUIkIDJQ486iheIfcr728jb6MxG2RUaoLnTdCILxLJ`
 
-3. Both assembled together:
+3. Both assembled together:  
 `221905671296253953:gDURWm1gkLEjmFcjKs1CzWkUIkIDJQ486iheIfcr728jb6MxG2RUaoLnTdCILxLJ`
 
 4. Bas64 encoded, assembled authorization value:  
@@ -39,8 +39,6 @@ The type *(int, string, ...)* and the passing method *(URL Query, JSON Body, Res
 ### Get Token
 
 > GET /token
-
-![](https://img.shields.io/badge/-fully%20implemented-green.svg)
 
 Because this endpoint redirects to Discord's OAuth2 App authentication, this endpoint needs to be requested from a browser-like application which is capable of rendering HTML/CSS and executing JavaScript.
 
@@ -72,8 +70,6 @@ The resulting response of the callback to `/token/authorize` will have follwoing
 ### Get Local Sounds
 
 > GET /api/localsounds
-
-![](https://img.shields.io/badge/-fully%20implemented-green.svg)
 
 #### Parameters
 
@@ -116,8 +112,6 @@ The resulting response of the callback to `/token/authorize` will have follwoing
 ### Get Play Log
 
 > GET /api/logs/:GUILDID
-
-![](https://img.shields.io/badge/-fully%20implemented-green.svg)
 
 #### Parameters
 
@@ -171,8 +165,6 @@ The resulting response of the callback to `/token/authorize` will have follwoing
 ### Get Play Stats
 
 > GET /api/stats/:GUILDID
-
-![](https://img.shields.io/badge/-fully%20implemented-green.svg)
 
 #### Parameters
 

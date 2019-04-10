@@ -19,6 +19,7 @@ type API struct {
 	cfg *config.API
 
 	qualifiedAddress string
+	trackCache       map[string]*soundTrack
 
 	db      database.Middleware
 	session *discordgo.Session
@@ -39,6 +40,8 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		db:      db,
 		session: session,
 		player:  player,
+
+		trackCache: make(map[string]*soundTrack),
 	}
 
 	protocol := "http"

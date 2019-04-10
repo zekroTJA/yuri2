@@ -103,12 +103,35 @@ func (wsm *WebSocketManager) NewConn(w http.ResponseWriter, r *http.Request, ide
 func (wsm *WebSocketManager) Broadcast(e *Event, exclude ...*WebSocketConn) error {
 	mErr := multierror.New(nil)
 	var err error
+	var inExclude bool
 
 	for wsc := range wsm.conns {
 		for _, ex := range exclude {
-			if ex == wsc {
-				continue
+			if ex == wsc && !inExclude {
+				inExclude = true
 			}
+		}
+
+		if !inExclude {
+			err = wsc.Out(e)
+			mErr.Append(err)
+		}
+
+		inExclude = false
+	}
+
+	return mErr.Concat()
+}
+
+// BroadcastExclusive broadcasts an event only to
+// the connection if the passed cond func returns
+// true on this connection.
+func (wsm *WebSocketManager) BroadcastExclusive(e *Event, cond func(c *WebSocketConn) bool) error {
+	mErr := multierror.New(nil)
+	var err error
+
+	for wsc := range wsm.conns {
+		if cond(wsc) {
 			err = wsc.Out(e)
 			mErr.Append(err)
 		}

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/logger"
 )
 
@@ -25,6 +26,12 @@ type listResponse struct {
 
 // GET /token
 func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, userID string) {
+	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	if guilds == nil {
+		errResponse(w, http.StatusForbidden, "you must be a member of a guild the bot is also member of")
+		return
+	}
+
 	token, expire, err := api.auth.CreateToken(userID)
 	if err != nil {
 		errResponse(w, http.StatusInternalServerError, err.Error())
@@ -186,6 +193,12 @@ func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
 // --- FE HANDLERS
 
 func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, userID string) {
+	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	if guilds == nil {
+		errPageResponse(w, r, http.StatusForbidden, "")
+		return
+	}
+
 	token, _, err := api.auth.CreateToken(userID)
 	if err != nil {
 		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
@@ -211,6 +224,12 @@ func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 	if !ok || userID == "" {
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	if guilds == nil {
+		errPageResponse(w, r, http.StatusForbidden, "")
 		return
 	}
 

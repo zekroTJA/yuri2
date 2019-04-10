@@ -68,17 +68,7 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 }
 
 func errPageResponse(w http.ResponseWriter, r *http.Request, code int, msg string) {
-	pageLoc := "./web/pages/400.html"
-
-	switch code {
-	case 401:
-		pageLoc = "./web/pages/errors/401.html"
-	case 404:
-		pageLoc = "./web/pages/errors/404.html"
-	case 500:
-		pageLoc = "./web/pages/errors/500.html"
-	}
-
+	pageLoc := fmt.Sprintf("./web/pages/errors/%d.html", code)
 	http.ServeFile(w, r, pageLoc)
 }
 
@@ -161,12 +151,12 @@ func wsSendError(wsc *wsmgr.WebSocketConn, msg string) error {
 	return wsc.Out(wsmgr.NewEvent("ERROR", msg))
 }
 
-func wsCheckInitilized(wsc *wsmgr.WebSocketConn) string {
-	ident, ok := wsc.GetIdent().(string)
-	if !ok || ident == "" {
+func wsCheckInitilized(wsc *wsmgr.WebSocketConn) *wsIdent {
+	ident, ok := wsc.GetIdent().(*wsIdent)
+	if !ok || ident == nil {
 		wsSendError(wsc, "unauthorized")
 		wsc.Close()
-		return ""
+		return nil
 	}
 
 	return ident

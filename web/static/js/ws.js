@@ -40,8 +40,12 @@ var ws = new WsClient(
 // --------------------------------------------------------------------------------------
 
 ws.on('ERROR', (data) => {
-    console.log("ERROR :: ", data)
+    console.log('ERROR :: ', data)
 });
+
+ws.on('PLAYING', (data) => {
+    console.log('PLAYING :: ', data);
+})
 
 ws.onOpen(() => {
     ws.emit('INIT', {
@@ -50,7 +54,10 @@ ws.onOpen(() => {
     });
 
     setTimeout(() => {
-        ws.emit('PLAY', 'test123')
+        ws.emit('PLAY', {
+            'ident': 'danke',
+            'source': 0
+        })
     }, 1000);
 });
 

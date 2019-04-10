@@ -57,7 +57,7 @@ type Player struct {
 	fileLoc  string
 
 	onError      func(t string, err error)
-	eventHandler *EventHandler
+	eventHandler *EventHandlerManager
 
 	localSounds map[string]string
 
@@ -80,7 +80,7 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware,
 		wsURL:           wsURL,
 		password:        password,
 		fileLoc:         fileLoc,
-		eventHandler:    NewEventHandler(),
+		eventHandler:    NewEventHandlerManager(),
 		onError:         onError,
 		db:              db,
 		localSounds:     make(map[string]string),
@@ -106,7 +106,7 @@ func (p *Player) Init(session *discordgo.Session) error {
 	return p.FetchLocalSounds()
 }
 
-func (p *Player) AddEventHandler(handler gavalink.EventHandler) {
+func (p *Player) AddEventHandler(handler EventHandler) {
 	p.eventHandler.AddHandler(handler)
 }
 
@@ -270,6 +270,9 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 		}
 	}
 
+	// Fire payer track start event
+	p.eventHandler.OnTrackStart(player, track.Data, originalIdent, t, guild.ID, user.ID, user.String())
+
 	logger.Debug("PLAYER :: playing sound '%s' (resource %s)", ident, resourceNames[t])
 
 	// Actually playing the track
@@ -315,6 +318,8 @@ func (p *Player) SetVolume(guildID string, vol int) error {
 	if err = pl.Volume(vol); err != nil {
 		return err
 	}
+
+	p.eventHandler.OnVolumeChanged(pl, guildID, vol)
 
 	return p.db.SetGuildVolume(guildID, vol)
 }
