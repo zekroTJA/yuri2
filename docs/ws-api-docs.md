@@ -2,6 +2,31 @@
 
 The web socket API is used for controlling players and receiving player events.
 
+## Index
+
+- [Command Structure](#command-structure)
+
+- [Event Structure](#event-structure)
+
+- [Commands](#commands)
+  - [INIT](#init)
+  - [JOIN](#join)
+  - [LEAVE](#leave)
+  - [PLAY](#play)
+  - [RANDOM](#random)
+  - [VOLUME](#volume)
+
+- [Events](#events)
+  - [PLAYING](#playing)
+  - [END](#end)
+  - [PLAY_ERROR](#play_error)
+  - [STUCK](#stuck)
+  - [VOLUME_CHANGED](#volume_changed)
+  - [JOINED](#joined)
+  - [LEFT](#left)
+
+---
+
 ## Command Structure
 
 Commands are send by the client in form of a JSON text message with following strucrure:

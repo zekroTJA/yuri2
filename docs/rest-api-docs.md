@@ -2,6 +2,20 @@
 
 The Yuri REST API is generally just used for authentication and for getting data like lokal sounds list and the sound playing logs and stats for guilds.
 
+## Index
+
+- [Authentication](#authentication)
+
+- [Parameters](#parameters)
+
+- [Endpoints](#endpoints)
+  - [Get Token](#get-token)
+  - [Get Local Sounds](#get-local-sounds)
+  - [Get Play Log](#get-play-log)
+  - [Get Play Stats](#get-play-stats)
+
+---
+
 ## Authentication
 
 Because Yuri is using the Discord OAuth 2 flow, you need to manually generate an API token by authentication with the Yuri Discord App. Therefore, open the `/token` endpoint using a browser-like application to press `Authorize` in the Discord authorization page. Then, you will be relocated back to the `/token/authorize`* endpoint, which will respond with a randomly generated token, your Discord user ID and the tokens lifetime on successful authentication.  
