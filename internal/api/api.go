@@ -50,23 +50,13 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		trackCache: make(map[string]*soundTrack),
 	}
 
-	// Create a qualified address from
-	// addres of config. For example:
-	//   cfg.Address = ":443"
-	//   cfg.TLS.Enable = true
-	//   -> QA: "https://127.0.0.1:443"
-	protocol := "http"
-	address := api.cfg.Address
-	if api.cfg.TLS != nil && api.cfg.TLS.Enable {
-		protocol = "https"
-	}
-	if address[0] == ':' {
-		address = "127.0.0.1" + address
-	}
-	if strings.HasPrefix(address, "http") {
-		api.qualifiedAddress = address
-	} else {
-		api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, address)
+	api.qualifiedAddress = cfg.PublicAddress
+	if !strings.HasPrefix(api.qualifiedAddress, "http") {
+		protocol := "http"
+		if cfg.TLS != nil && cfg.TLS.Enable {
+			protocol += "s"
+		}
+		api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, api.qualifiedAddress)
 	}
 
 	// Initialize URL path mux
@@ -77,13 +67,6 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		Handler: api.mux,
 		Addr:    api.cfg.Address,
 	}
-
-	if strings.HasPrefix(api.server.Addr, "http") {
-		i := strings.Index(api.server.Addr, "://")
-		api.server.Addr = api.server.Addr[i+3:]
-	}
-
-	fmt.Println(api.server.Addr)
 
 	// Initialize web socket manager
 	api.ws = wsmgr.New()
