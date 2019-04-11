@@ -22,6 +22,10 @@ Because Yuri is using the Discord OAuth 2 flow, you need to manually generate an
 
 The token's lifetime will be extended each time when you are authorizing yourself with it.
 
+There are **two options** to autenticate against the REST API:
+
+### I) Basic Authorization Header
+
 Using the REST API, you need to pass your Discord User ID **and** your API token as base64 encoded value as Basic `Authorization` header **on every request**.
 
 Example:
@@ -40,6 +44,21 @@ Example:
 
 5. Resulting Basic Authorization Header:  
 `Authorization: Basic MjIxOTA1NjcxMjk2MjUzOTUzOmdEVVJXbTF...`
+
+### II) Authorization Cookies
+
+If you have visited the `/login` endpoint and authorized the Discord API App, two cookies are set to authenticate against the REST and WS API.
+
+```
+< HTTP/1.1 307 Temporary Redirect
+< Location: /
+< Set-Cookie: token=UGVOEHNgu6P7iteHPTWrL08FvthQEmokZKdbY2jkQ6sxw7Y720vxvGOdJxxXRxDQ; Path=/
+< Set-Cookie: userid=221905671296253953; Path=/
+< Date: Thu, 11 Apr 2019 07:52:11 GMT
+< Content-Length: 0
+```
+
+These cookeis will be automatically detected and checked for authentication if you send them with your request to REST API endpoints.
 
 ## Parameters
 

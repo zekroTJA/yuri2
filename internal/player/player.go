@@ -291,7 +291,7 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 
 	// Fire payer track start event
 	p.eventHandler.OnTrackStart(player, track.Data, originalIdent, t, guild.ID,
-		selfVS.ChannelID, user.ID, user.String())
+		userVS.ChannelID, user.ID, user.String())
 
 	logger.Debug("PLAYER :: playing sound '%s' (resource %s)", ident, resourceNames[t])
 

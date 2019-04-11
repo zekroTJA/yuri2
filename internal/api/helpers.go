@@ -13,6 +13,22 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
 )
 
+type wsErrorType int
+
+const (
+	wsErrBadCommandArgs wsErrorType = iota
+	wsErrUnauthorized
+	wsErrForbidden
+	wsErrInternal
+)
+
+var wsErrTypeStr = []string{
+	"bad command args",
+	"unatuhorized",
+	"forbidden",
+	"internal",
+}
+
 var stdErrMsgs = map[int]string{
 	400: "bad request",
 	401: "unauthorized",
@@ -23,6 +39,12 @@ var stdErrMsgs = map[int]string{
 type apiErrorBody struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+}
+
+type wsErrorData struct {
+	Code    wsErrorType `json:"code"`
+	Type    string      `json:"type"`
+	Message string      `json:"message"`
 }
 
 func errResponse(w http.ResponseWriter, code int, msg string) {
@@ -155,14 +177,18 @@ func (api *API) checkAuthWithResponse(w http.ResponseWriter, r *http.Request) (b
 	return true, userID
 }
 
-func wsSendError(wsc *wsmgr.WebSocketConn, msg string) error {
-	return wsc.Out(wsmgr.NewEvent("ERROR", msg))
+func wsSendError(wsc *wsmgr.WebSocketConn, code wsErrorType, msg string) error {
+	return wsc.Out(wsmgr.NewEvent("ERROR", &wsErrorData{
+		Code:    code,
+		Type:    wsErrTypeStr[code],
+		Message: msg,
+	}))
 }
 
 func wsCheckInitilized(wsc *wsmgr.WebSocketConn) *wsIdent {
 	ident, ok := wsc.GetIdent().(*wsIdent)
 	if !ok || ident == nil {
-		wsSendError(wsc, "unauthorized")
+		wsSendError(wsc, wsErrUnauthorized, "unauthorized")
 		wsc.Close()
 		return nil
 	}

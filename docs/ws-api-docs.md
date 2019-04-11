@@ -2,6 +2,8 @@
 
 The web socket API is used for controlling players and receiving player events.
 
+WS events will always be fired wether the command was executed from a Discord client or a client connected to the WS API.
+
 ## Index
 
 - [Command Structure](#command-structure)
@@ -17,6 +19,8 @@ The web socket API is used for controlling players and receiving player events.
   - [VOLUME](#volume)
 
 - [Events](#events)
+  - [HELLO](#hello)
+  - [ERROR](#error)
   - [PLAYING](#playing)
   - [END](#end)
   - [PLAY_ERROR](#play_error)
@@ -158,21 +162,53 @@ The delivered data specifies the `volume` as `integer` value in a range of `[0, 
 
 ## Events
 
+### HELLO
+
+This event is fired when you successfully authenticated and initialized the WS connection with the [`INIT`](#init) command. You should wait for this event until sending further commands.
+
+```json
+{
+    "name": "HELLO"
+}
+```
+
+### ERROR
+
+This event is fired every time a command could not be executed or something other unexpected exceptions occure on the server side.
+
+```json
+{
+  "name": "ERROR",
+  "data": {
+    "code": 0,
+    "type": "bad command args",
+    "message": "ident must be a valid string value"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | `int` | The integer code of the error type. |
+| `type` | `string` | The description of the error type. |
+| `message` | `string` | Further information about the error. |
+
+
 ### PLAYING
 
 Is fired when a track starts playing.
 
 ```json
 {
-    "name": "PLAYING",
-    "data": {
-        "ident": "danke",
-        "source": 0,
-        "guild_id": "526196711962705925",
-        "channel_id": "549871583364382771",
-        "user_id": "221905671296253953",
-        "user_tag": "zekro#9131"
-    }
+  "name": "PLAYING",
+  "data": {
+     "ident": "danke",
+     "source": 0,
+     "guild_id": "526196711962705925",
+     "channel_id": "549871583364382771",
+     "user_id": "221905671296253953",
+     "user_tag": "zekro#9131"
+  }
 }
 ```
 
@@ -195,15 +231,15 @@ Is fired when a track stops playing.
 
 ```json
 {
-    "name": "END",
-    "data": {
-        "ident": "danke",
-        "source": 0,
-        "guild_id": "526196711962705925",
-        "channel_id": "549871583364382771",
-        "user_id": "221905671296253953",
-        "user_tag": "zekro#9131"
-    }
+  "name": "END",
+  "data": {
+    "ident": "danke",
+    "source": 0,
+    "guild_id": "526196711962705925",
+    "channel_id": "549871583364382771",
+    "user_id": "221905671296253953",
+    "user_tag": "zekro#9131"
+  }
 }
 ```
 
@@ -226,18 +262,18 @@ Is fired when an unexpected exception occures while trying to play a sound.
 
 ```json
 {
-    "name": "PLAY_ERROR",
-    "data": {
-        "reason": "some error description here",
-        "track": {
-            "ident": "danke",
-            "source": 0,
-            "guild_id": "526196711962705925",
-            "channel_id": "549871583364382771",
-            "user_id": "221905671296253953",
-            "user_tag": "zekro#9131"
-        }
+  "name": "PLAY_ERROR",
+  "data": {
+    "reason": "some error description here",
+    "track": {
+      "ident": "danke",
+      "source": 0,
+      "guild_id": "526196711962705925",
+      "channel_id": "549871583364382771",
+      "user_id": "221905671296253953",
+      "user_tag": "zekro#9131"
     }
+  }
 }
 ```
 
@@ -261,18 +297,18 @@ Actually, I have no Idea when this event is getting fired or what the values bel
 
 ```json
 {
-    "name": "PLAY_ERROR",
-    "data": {
-        "threshold": 1337,
-        "track": {
-            "ident": "danke",
-            "source": 0,
-            "guild_id": "526196711962705925",
-            "channel_id": "549871583364382771",
-            "user_id": "221905671296253953",
-            "user_tag": "zekro#9131"
-        }
+  "name": "PLAY_ERROR",
+  "data": {
+    "threshold": 1337,
+    "track": {
+      "ident": "danke",
+      "source": 0,
+      "guild_id": "526196711962705925",
+      "channel_id": "549871583364382771",
+      "user_id": "221905671296253953",
+      "user_tag": "zekro#9131"
     }
+  }
 }
 ```
 
@@ -296,11 +332,11 @@ Is fired when the volume for the guild was changed.
 
 ```json
 {
-    "name": "VOLUME_CHANGED",
-    "data": {
-        "guild_id": "526196711962705925",
-        "vol": 150
-    }
+  "name": "VOLUME_CHANGED",
+  "data": {
+    "guild_id": "526196711962705925",
+    "vol": 150
+  }
 }
 ```
 
@@ -320,11 +356,11 @@ Is fired when the bot joined a voice channel.
 
 ```json
 {
-    "name": "JOINED",
-    "data": {
-        "guild_id": "526196711962705925",
-        "channel_id": "549871583364382771"
-    }
+  "name": "JOINED",
+  "data": {
+    "guild_id": "526196711962705925",
+    "channel_id": "549871583364382771"
+  }
 }
 ```
 
@@ -344,11 +380,11 @@ Is fired when the bot joined a voice channel.
 
 ```json
 {
-    "name": "LEFT",
-    "data": {
-        "guild_id": "526196711962705925",
-        "channel_id": "549871583364382771"
-    }
+  "name": "LEFT",
+  "data": {
+    "guild_id": "526196711962705925",
+    "channel_id": "549871583364382771"
+  }
 }
 ```
 

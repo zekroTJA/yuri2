@@ -31,24 +31,24 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 
 	err := e.ParseDataTo(data)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("failed parsing data: %s", err.Error()))
+		wsSendError(e.Sender, wsErrBadCommandArgs, fmt.Sprintf("failed parsing data: %s", err.Error()))
 		return
 	}
 
 	guilds := discordbot.GetUsersGuilds(api.session, data.UserID)
 	if guilds == nil {
-		wsSendError(e.Sender, "forbidden: you must be a member of a guild the bot is also member of")
+		wsSendError(e.Sender, wsErrForbidden, "you must be a member of a guild the bot is also member of")
 		return
 	}
 
 	ok, _, err := api.auth.CheckAndRefersh(data.UserID, data.Token)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("failed checking auth: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("failed checking auth: %s", err.Error()))
 		return
 	}
 
 	if !ok {
-		wsSendError(e.Sender, "unauthorized")
+		wsSendError(e.Sender, wsErrUnauthorized, "unauthorized")
 		e.Sender.Close()
 		return
 	}
@@ -57,6 +57,8 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 		UserID: data.UserID,
 		Guilds: guilds,
 	})
+
+	e.Sender.Out(wsmgr.NewEvent("HELLO", nil))
 }
 
 // Event: JOIN
@@ -68,13 +70,13 @@ func (api *API) wsJoinHandler(e *wsmgr.Event) {
 
 	_, vs := discordbot.GetUsersGuildInVoice(api.session, ident.UserID)
 	if vs == nil {
-		wsSendError(e.Sender, "you need to be in a voice channel to perform this command")
+		wsSendError(e.Sender, wsErrForbidden, "you need to be in a voice channel to perform this command")
 		return
 	}
 
 	err := api.player.JoinVoiceCannel(vs)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("command failed: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
 }
 
@@ -87,13 +89,13 @@ func (api *API) wsLeaveHandler(e *wsmgr.Event) {
 
 	guild, _ := discordbot.GetUsersGuildInVoice(api.session, ident.UserID)
 	if guild == nil {
-		wsSendError(e.Sender, "you need to be in a voice channel to perform this command")
+		wsSendError(e.Sender, wsErrForbidden, "you need to be in a voice channel to perform this command")
 		return
 	}
 
 	err := api.player.LeaveVoiceChannel(guild.ID)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("command failed: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
 }
 
@@ -106,31 +108,31 @@ func (api *API) wsPlayHandler(e *wsmgr.Event) {
 
 	guild, _ := discordbot.GetUsersGuildInVoice(api.session, ident.UserID)
 	if guild == nil {
-		wsSendError(e.Sender, "you need to be in a voice channel to perform this command")
+		wsSendError(e.Sender, wsErrForbidden, "you need to be in a voice channel to perform this command")
 		return
 	}
 
 	user, err := api.session.User(ident.UserID)
 	if err != nil || user == nil {
-		wsSendError(e.Sender, fmt.Sprintf("faield getting user context: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("faield getting user context: %s", err.Error()))
 		return
 	}
 
 	data := new(wsPlayData)
 	err = e.ParseDataTo(data)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("failed parsing data: %s", err.Error()))
+		wsSendError(e.Sender, wsErrBadCommandArgs, fmt.Sprintf("failed parsing data: %s", err.Error()))
 		return
 	}
 
 	if data.Ident == "" {
-		wsSendError(e.Sender, "invalid arguments: ident must be a valid string value")
+		wsSendError(e.Sender, wsErrBadCommandArgs, "ident must be a valid string value")
 		return
 	}
 
 	err = api.player.Play(guild, user, data.Ident, player.ResourceType(data.Source))
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("command failed: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
 }
 
@@ -143,19 +145,19 @@ func (api *API) wsRandomHandler(e *wsmgr.Event) {
 
 	guild, _ := discordbot.GetUsersGuildInVoice(api.session, ident.UserID)
 	if guild == nil {
-		wsSendError(e.Sender, "you need to be in a voice channel to perform this command")
+		wsSendError(e.Sender, wsErrForbidden, "you need to be in a voice channel to perform this command")
 		return
 	}
 
 	user, err := api.session.User(ident.UserID)
 	if err != nil || user == nil {
-		wsSendError(e.Sender, fmt.Sprintf("faield getting user context: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("faield getting user context: %s", err.Error()))
 		return
 	}
 
 	err = api.player.PlayRandomSound(guild, user)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("command failed: %s", err.Error()))
+		wsSendError(e.Sender, wsErrBadCommandArgs, fmt.Sprintf("command failed: %s", err.Error()))
 	}
 }
 
@@ -168,23 +170,23 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 
 	vol, ok := e.Data.(int)
 	if !ok {
-		wsSendError(e.Sender, "invalid command data format")
+		wsSendError(e.Sender, wsErrBadCommandArgs, "invalid command data format")
 		return
 	}
 
 	if vol < 0 || vol > 1000 {
-		wsSendError(e.Sender, "invalid value: must be in range [0, 1000]")
+		wsSendError(e.Sender, wsErrBadCommandArgs, "invalid value: must be in range [0, 1000]")
 		return
 	}
 
 	guild, _ := discordbot.GetUsersGuildInVoice(api.session, ident.UserID)
 	if guild == nil {
-		wsSendError(e.Sender, "you need to be in a voice channel to perform this command")
+		wsSendError(e.Sender, wsErrForbidden, "you need to be in a voice channel to perform this command")
 		return
 	}
 
 	err := api.player.SetVolume(guild.ID, vol)
 	if err != nil {
-		wsSendError(e.Sender, fmt.Sprintf("command failed: %s", err.Error()))
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
 }
