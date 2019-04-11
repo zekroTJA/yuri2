@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/zekroTJA/discordgo"
 	"github.com/zekroTJA/yuri2/internal/api/auth"
@@ -49,20 +50,14 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		trackCache: make(map[string]*soundTrack),
 	}
 
-	// Create a qualified address from
-	// addres of config. For example:
-	//   cfg.Address = ":443"
-	//   cfg.TLS.Enable = true
-	//   -> QA: "https://127.0.0.1:443"
-	protocol := "http"
-	address := api.cfg.Address
-	if api.cfg.TLS != nil && api.cfg.TLS.Enable {
-		protocol = "https"
+	api.qualifiedAddress = cfg.PublicAddress
+	if !strings.HasPrefix(api.qualifiedAddress, "http") {
+		protocol := "http"
+		if cfg.TLS != nil && cfg.TLS.Enable {
+			protocol += "s"
+		}
+		api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, api.qualifiedAddress)
 	}
-	if address[0] == ':' {
-		address = "127.0.0.1" + address
-	}
-	api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, address)
 
 	// Initialize URL path mux
 	api.mux = http.NewServeMux()

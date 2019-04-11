@@ -59,11 +59,12 @@ type StatusShuffle struct {
 // API contains configuration for the
 // REST and WS API.
 type API struct {
-	Enable       bool    `json:"enable"`
-	ClientID     string  `json:"client_id"`
-	ClientSecret string  `json:"client_secret"`
-	Address      string  `json:"address"`
-	TLS          *APITLS `json:"tls"`
+	Enable        bool    `json:"enable"`
+	ClientID      string  `json:"client_id"`
+	ClientSecret  string  `json:"client_secret"`
+	Address       string  `json:"address"`
+	PublicAddress string  `json:"public_address"`
+	TLS           *APITLS `json:"tls"`
 }
 
 // APITLS contains configuration for the
@@ -135,8 +136,9 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 		},
 		Database: dbConfStruct,
 		API: &API{
-			Enable:  false,
-			Address: ":443",
+			Enable:        false,
+			Address:       ":443",
+			PublicAddress: "https://yuri.example.com",
 			TLS: &APITLS{
 				Enable:   true,
 				CertFile: "/etc/cert/example.com/example.com.cer",
