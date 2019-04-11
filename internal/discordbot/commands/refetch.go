@@ -7,14 +7,12 @@ import (
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
 
-	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // Refetch provides command functionalities
 // for the refetch command
 type Refetch struct {
-	DB      database.Middleware
 	Player  *player.Player
 	PermLvl int
 }

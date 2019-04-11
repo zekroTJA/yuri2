@@ -36,16 +36,13 @@ func InitDiscordBot(cfg *config.Discord, dbMiddleware database.Middleware, playe
 		&commands.Stop{PermLvl: 0, Player: player},
 		&commands.YouTube{PermLvl: 0, Player: player},
 		&commands.Volume{PermLvl: 0, DB: dbMiddleware, Player: player},
-<<<<<<< HEAD
-		&commands.Refetch{PermLvl: 0, DB: dbMiddleware, Player: player},
-=======
 		&commands.Join{PermLvl: 0, Player: player},
 		&commands.Leave{PermLvl: 0, Player: player},
+		&commands.Refetch{PermLvl: 0, Player: player},
 	}
 
 	if static.Release != "TRUE" {
 		cmds = append(cmds, &commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player})
->>>>>>> 9af8505036fdccc321fb05be29fc6000ba5ffb65
 	}
 
 	bot, err := discordbot.NewBot(cfg.Token, cfg.Token,
