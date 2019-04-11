@@ -1,2 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
 
+body {
+    background-color: #191e20;
+}
+
+h1, h2, h3, h4, p, a {
+    font-family: 'Roboto', sans-serif;
+    color: white;
+}
+
+.btn-sound {
+    background-color: #039BE5 !important;
+}

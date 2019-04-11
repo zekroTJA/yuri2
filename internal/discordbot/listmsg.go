@@ -15,6 +15,8 @@ const (
 	emojiBack    = "👈"
 )
 
+// A ListMessage is a chat message which line content can
+// be browsed by using reactions to turn "pages".
 type ListMessage struct {
 	*discordgo.Message
 
@@ -29,6 +31,15 @@ type ListMessage struct {
 	unhandle func()
 }
 
+// NewListMessage creates the ListMessage and sends it to the
+// specified channel.
+//   s           : Discord bot session
+//   chanID      : The text channel ID where the message will be posted in
+//   title       : The embed title
+//   header      : A text block which will be at the top of every page
+//   pageCont    : Content of the pages. Elements will be joined with a line break ('\n')
+//   maxPageSize : the maximum ammount of content lines per page
+//   startPage   : the page, which should be shown on first send
 func NewListMessage(s *discordgo.Session, chanID, title, header string, pageCont []string, maxPageSize int, startPage int) (*ListMessage, error) {
 	var err error
 
@@ -81,6 +92,8 @@ func NewListMessage(s *discordgo.Session, chanID, title, header string, pageCont
 	return lm, err
 }
 
+// setEmbed sets the embed content for
+// the specified page.
 func (lm *ListMessage) setPageEmbed(page int) {
 	if page >= len(lm.pages) && len(lm.pages) > 1 {
 		page = len(lm.pages) - 1
@@ -90,6 +103,8 @@ func (lm *ListMessage) setPageEmbed(page int) {
 	lm.emb.Footer.Text = fmt.Sprintf("Page %d / %d", page+1, len(lm.pages))
 }
 
+// updateMessage actually updates the message
+// in the text channel.
 func (lm *ListMessage) updateMessage() error {
 	var err error
 
@@ -102,6 +117,10 @@ func (lm *ListMessage) updateMessage() error {
 	return err
 }
 
+// turnForward is shorthand for increasing
+// the page value by one (if larger or equal
+// to page size -> 0), setting the embeds
+// content and updating the message.
 func (lm *ListMessage) turnForward() error {
 	lm.currPage++
 	if lm.currPage >= len(lm.pages) {
@@ -111,6 +130,10 @@ func (lm *ListMessage) turnForward() error {
 	return lm.updateMessage()
 }
 
+// turnBack is shorthand for decreasing
+// the page value by one (if smaller or equal
+// to 0 -> pages count - 1), setting the embeds
+// content and updating the message.
 func (lm *ListMessage) turnBack() error {
 	lm.currPage--
 	if lm.currPage < 0 {
@@ -120,6 +143,9 @@ func (lm *ListMessage) turnBack() error {
 	return lm.updateMessage()
 }
 
+// reactionHandler is the handler function for the
+// message reaction add event which will be registered
+// to the bot session.
 func (lm *ListMessage) reactionHandler(s *discordgo.Session, e *discordgo.MessageReactionAdd) {
 	if e.MessageID != lm.ID || e.UserID == lm.session.State.User.ID {
 		return
@@ -135,11 +161,16 @@ func (lm *ListMessage) reactionHandler(s *discordgo.Session, e *discordgo.Messag
 	s.MessageReactionRemove(lm.chanID, lm.ID, e.Emoji.Name, e.UserID)
 }
 
+// Delete will delete the message from
+// text channel and unregisters the
+// reaction event handler.
 func (lm *ListMessage) Delete() error {
 	lm.unhandle()
 	return lm.session.ChannelMessageDelete(lm.chanID, lm.ID)
 }
 
+// DeleteAfter executes Delete after the
+// specified duration.
 func (lm *ListMessage) DeleteAfter(d time.Duration) {
 	time.AfterFunc(d, func() {
 		lm.Delete()

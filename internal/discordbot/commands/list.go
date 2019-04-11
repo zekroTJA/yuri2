@@ -10,7 +10,6 @@ import (
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
 
-	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
@@ -19,7 +18,6 @@ const deleteTimeoutList = 5 * time.Minute
 // List provides command functionalities
 // for the list command
 type List struct {
-	DB      database.Middleware
 	Player  *player.Player
 	PermLvl int
 }
@@ -55,7 +53,7 @@ func (c *List) GetPermission() int {
 	return c.PermLvl
 }
 
-// Exec is the acual function which will
+// Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *List) Exec(args *discordgocmds.CommandArgs) error {
 	sfl, err := c.Player.GetLocalFiles()

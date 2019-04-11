@@ -82,17 +82,20 @@ func (d *DeletableMessage) DeleteAfter(t time.Duration) chan error {
 
 // GetUsersGuildInVoice tries to find a user by ID in any
 // of the voice channels of the guilds the bot is member of.
-func GetUsersGuildInVoice(s *discordgo.Session, userID string) *discordgo.Guild {
+func GetUsersGuildInVoice(s *discordgo.Session, userID string) (*discordgo.Guild, *discordgo.VoiceState) {
 	for _, g := range s.State.Guilds {
 		for _, vs := range g.VoiceStates {
 			if vs.UserID == userID {
-				return g
+				return g, vs
 			}
 		}
 	}
-	return nil
+	return nil, nil
 }
 
+// GetUsersGuilds returns the array of guilds the user and
+// the bot are members of.
+// thsi returns nil if the ammount of guilds == 0.
 func GetUsersGuilds(s *discordgo.Session, userID string) []*discordgo.Guild {
 	guilds := make([]*discordgo.Guild, 0)
 

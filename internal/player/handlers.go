@@ -8,6 +8,8 @@ import (
 	"github.com/zekroTJA/yuri2/internal/logger"
 )
 
+// VoiceServerUpdateHandler is the players handler for
+// the VoiceServerUpdate event.
 func (p *Player) VoiceServerUpdateHandler(s *discordgo.Session, e *discordgo.VoiceServerUpdate) {
 	vsu := gavalink.VoiceServerUpdate{
 		Endpoint: e.Endpoint,
@@ -48,6 +50,8 @@ func (p *Player) VoiceServerUpdateHandler(s *discordgo.Session, e *discordgo.Voi
 	logger.Debug("PLAYER :: created player for guild %s", e.GuildID)
 }
 
+// VoiceStateUpdateHandler is the players event handler for
+// the VoiceStateUpdate event.
 func (p *Player) VoiceStateUpdateHandler(s *discordgo.Session, e *discordgo.VoiceStateUpdate) {
 	var oldVS *discordgo.VoiceState
 	if p.lastVoiceStates.Contains(e.UserID) {
@@ -115,7 +119,7 @@ func (p *Player) autoLeftEmptyVoice(oldVS, newVS *discordgo.VoiceState) {
 		if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
 			time.AfterFunc(autoQuitDuration, func() {
 				if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
-					if err = p.QuitVoiceChannel(cVS.GuildID); err != nil {
+					if err = p.LeaveVoiceChannel(cVS.GuildID); err != nil {
 						p.onError("autoLeftEmptyVoice#QuitVoice", err)
 					}
 				}

@@ -5,11 +5,14 @@ import (
 )
 
 type EventHandler interface {
-	OnTrackStart(player *gavalink.Player, track, ident string, resource ResourceType, guildID, userID, userTag string)
+	OnTrackStart(player *gavalink.Player, track, ident string, resource ResourceType, guildID, channelID, userID, userTag string)
 	OnTrackEnd(player *gavalink.Player, track string, reason string) error
 	OnTrackException(player *gavalink.Player, track string, reason string) error
 	OnTrackStuck(player *gavalink.Player, track string, threshold int) error
+
 	OnVolumeChanged(player *gavalink.Player, guildID string, vol int)
+	OnVoiceJoined(guildID, channelID string)
+	OnVoiceLeft(guildID, channelID string)
 }
 
 type EventHandlerManager struct {
@@ -47,16 +50,28 @@ func (h *EventHandlerManager) OnTrackStuck(player *gavalink.Player, track string
 }
 
 func (h *EventHandlerManager) OnTrackStart(player *gavalink.Player, track, ident string,
-	resource ResourceType, guildID, userID, userTag string) {
+	resource ResourceType, guildID, channelID, userID, userTag string) {
 
 	for _, hnd := range h.handler {
-		hnd.OnTrackStart(player, track, ident, resource, guildID, userID, userTag)
+		hnd.OnTrackStart(player, track, ident, resource, guildID, channelID, userID, userTag)
 	}
 }
 
 func (h *EventHandlerManager) OnVolumeChanged(player *gavalink.Player, guildID string, vol int) {
 	for _, hnd := range h.handler {
 		hnd.OnVolumeChanged(player, guildID, vol)
+	}
+}
+
+func (h *EventHandlerManager) OnVoiceJoined(guildID, channelID string) {
+	for _, hnd := range h.handler {
+		hnd.OnVoiceJoined(guildID, channelID)
+	}
+}
+
+func (h *EventHandlerManager) OnVoiceLeft(guildID, channelID string) {
+	for _, hnd := range h.handler {
+		hnd.OnVoiceLeft(guildID, channelID)
 	}
 }
 

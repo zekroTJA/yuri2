@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/zekroTJA/yuri2/internal/discordbot"
-	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
 
 	"github.com/zekroTJA/yuri2/internal/database"
@@ -22,7 +21,6 @@ const (
 // for the stats command
 type Stats struct {
 	DB      database.Middleware
-	Player  *player.Player
 	PermLvl int
 }
 
@@ -57,7 +55,7 @@ func (c *Stats) GetPermission() int {
 	return c.PermLvl
 }
 
-// Exec is the acual function which will
+// Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *Stats) Exec(args *discordgocmds.CommandArgs) error {
 	var err error

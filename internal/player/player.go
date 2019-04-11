@@ -18,8 +18,12 @@ import (
 	"github.com/zekroTJA/discordgo"
 )
 
+// allowedFileTypes specifies local audio file types
+// which are allowed to be played
 const allowedFileTypes = "mp3 wav ogg aac"
 
+// ResourceType is the enum-like collection
+// of sound resources.
 type ResourceType int
 
 const (
@@ -33,6 +37,8 @@ const (
 	ResourceHTTP
 )
 
+// resourceNames contains text descriptions for
+// the resource types.
 var resourceNames = []string{"local", "youtube", "http"}
 
 const (
@@ -50,6 +56,7 @@ var (
 	ErrNotInVoice = errors.New("user is not in voice channel")
 )
 
+// Player maintains multiple gavalink players.
 type Player struct {
 	restURL  string
 	wsURL    string
@@ -68,6 +75,12 @@ type Player struct {
 	selfVoiceStates map[string]*discordgo.VoiceState
 }
 
+// NewPlayer creates a new Player.
+//   restURL : the lavalink REST API URL
+//   wsURL   : the lavalink WS URL
+//   fileLoc : the path to local sound files
+//   db      : the database middleware to use
+//   onError : handler func to be used when errors are occuring
 func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware, onError func(t string, err error)) *Player {
 	if onError == nil {
 		onError = func(t string, err error) {}
@@ -89,6 +102,8 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware,
 	}
 }
 
+// Init creates a node to the specified lavalink
+// connection using the sessions state user ID.
 func (p *Player) Init(session *discordgo.Session) error {
 	p.link = gavalink.NewLavalink("1", session.State.User.ID)
 	p.session = session
@@ -106,16 +121,23 @@ func (p *Player) Init(session *discordgo.Session) error {
 	return p.FetchLocalSounds()
 }
 
+// AddEventHandler adds a struct described
+// in the EventHandler interface.
 func (p *Player) AddEventHandler(handler EventHandler) {
 	p.eventHandler.AddHandler(handler)
 }
 
+// ReadyHandler is the handler set for the bot sessions
+// ready event wich will initialize the player.
 func (p *Player) ReadyHandler(s *discordgo.Session, e *discordgo.Ready) {
 	if err := p.Init(s); err != nil {
 		p.onError("Ready#Init", err)
 	}
 }
 
+// loadTrack requests the lavalink node to load
+// a track by ident and getting the returned track
+// ID and information.
 func (p *Player) loadTrack(node *gavalink.Node, ident string) (*gavalink.Track, error) {
 	tracks, err := node.LoadTracks(ident)
 	if err != nil {
@@ -131,6 +153,10 @@ func (p *Player) loadTrack(node *gavalink.Node, ident string) (*gavalink.Track, 
 	return track, err
 }
 
+// FetchLocalSounds updates the local sounds
+// list by reading all local sounds in the
+// specified location matching the specified
+// audio file types.
 func (p *Player) FetchLocalSounds() error {
 	files, err := ioutil.ReadDir(p.fileLoc)
 	if err != nil {
@@ -154,6 +180,9 @@ func (p *Player) FetchLocalSounds() error {
 	return nil
 }
 
+// GetLocalFiles returns the list of local files.
+// this function does not Refetch the local file
+// list because of performance reasons.
 func (p *Player) GetLocalFiles() (SoundFileList, error) {
 	sounds := make([]*SoundFile, len(p.localSounds))
 
@@ -170,11 +199,17 @@ func (p *Player) GetLocalFiles() (SoundFileList, error) {
 	return sounds, nil
 }
 
+// GetLocalSoundPath returns the full path to
+// a local sound file by its ident.
 func (p *Player) GetLocalSoundPath(short string) (string, bool) {
 	path, ok := p.localSounds[short]
 	return path, ok
 }
 
+// PlayRandomSound plays a random local sound.
+// If the bot is not connected to a voice channel on the
+// guild the comamnd was executed, the bot will join this
+// channel and then play the randomly chosen sound.
 func (p *Player) PlayRandomSound(guild *discordgo.Guild, user *discordgo.User) error {
 	sounds, err := p.GetLocalFiles()
 	if err != nil {
@@ -185,18 +220,45 @@ func (p *Player) PlayRandomSound(guild *discordgo.Guild, user *discordgo.User) e
 	return p.Play(guild, user, sounds[r].Name, ResourceLocal)
 }
 
+// JoinVoiceCannel joins the voice channel by passed
+// VoiceState.
 func (p *Player) JoinVoiceCannel(vs *discordgo.VoiceState) error {
 	if vs == nil {
 		return errors.New("voiceState is nil")
 	}
 
-	return p.session.ChannelVoiceJoinManual(vs.GuildID, vs.ChannelID, false, true)
+	err := p.session.ChannelVoiceJoinManual(vs.GuildID, vs.ChannelID, false, true)
+	if err != nil {
+		return err
+	}
+
+	p.eventHandler.OnVoiceJoined(vs.GuildID, vs.ChannelID)
+
+	return nil
 }
 
-func (p *Player) QuitVoiceChannel(guildID string) error {
-	return p.session.ChannelVoiceJoinManual(guildID, "", false, true)
+// LeaveVoiceChannel leaves the voice channel the
+// bot is connected to on the specified guild.
+func (p *Player) LeaveVoiceChannel(guildID string) error {
+	err := p.session.ChannelVoiceJoinManual(guildID, "", false, true)
+	if err != nil {
+		return err
+	}
+
+	var channelID string
+	if vs, ok := p.selfVoiceStates[guildID]; ok {
+		channelID = vs.ChannelID
+	}
+
+	p.eventHandler.OnVoiceLeft(guildID, channelID)
+
+	return nil
 }
 
+// Play plays the specified sound by passed ident and resource.
+// If the bot is not connected to a voice channel on the
+// guild the comamnd was executed, the bot will join this
+// channel and then play the sound.
 func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string, t ResourceType) error {
 	var joined bool
 	originalIdent := ident
@@ -271,7 +333,8 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 	}
 
 	// Fire payer track start event
-	p.eventHandler.OnTrackStart(player, track.Data, originalIdent, t, guild.ID, user.ID, user.String())
+	p.eventHandler.OnTrackStart(player, track.Data, originalIdent, t, guild.ID,
+		userVS.ChannelID, user.ID, user.String())
 
 	logger.Debug("PLAYER :: playing sound '%s' (resource %s)", ident, resourceNames[t])
 
@@ -297,6 +360,7 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 	return err
 }
 
+// Stop stops a playing sound.
 func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
 	pl, err := p.link.GetPlayer(guild.ID)
 	if err != nil && err.Error() == "Couldn't find a player for that guild" {
@@ -309,6 +373,10 @@ func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
 	return pl.Stop()
 }
 
+// SetVolume sets the volume for the current guilds
+// player. The volume will also be saved and set up
+// as volume for all following players created on
+// the guild.
 func (p *Player) SetVolume(guildID string, vol int) error {
 	pl, err := p.link.GetPlayer(guildID)
 	if err != nil {

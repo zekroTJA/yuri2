@@ -1,9 +1,37 @@
+"use strict";
+
+function Handler(id, cb) {
+    this.cb = cb;
+    this.id = id;
+    
+    this.call = (...args) => 
+        cb.apply(this, args);
+}
+
 function WsClient(url) {
     this.ws = new WebSocket(url);
 
+    this._rollingID = 0;
     this.eventListener = {};
 
-    this.on = (event, cb) => this.eventListener[event] = cb;
+    this.onEmit = (cb) => this._onEmit = cb;
+
+    this.on = (event, cb) => {
+        if (!this.eventListener[event])
+            this.eventListener[event] = [];
+
+        var id = this._rollingID++;
+        this.eventListener[event].push(
+            new Handler(id, cb));
+
+        return () => {
+            if (this.eventListener[event]) {
+                var i = this.eventListener[event]
+                    .findIndex((h) => h.id == id);
+                this.eventListener[event].splice(i, 1);
+            }
+        };
+    }
 
     this.emit = (name, data) => {
         let event = {
@@ -11,7 +39,9 @@ function WsClient(url) {
             data: data,
         }
         let rawData = JSON.stringify(event);
-        console.log("sending: ", rawData);
+
+        if (this._onEmit) this._onEmit(event, rawData);
+
         this.ws.send(rawData);
     }
 
@@ -19,9 +49,9 @@ function WsClient(url) {
         try {
             let data = JSON.parse(response.data);
             if (data) {
-                let cb = this.eventListener[data.name]
-                if (cb)
-                    cb(data.data)
+                let cbs = this.eventListener[data.name]
+                if (cbs)
+                    cbs.forEach((h) => h.call(data));
             }
         } catch (e) {
             console.log(e)
@@ -39,26 +69,11 @@ var ws = new WsClient(
 
 // --------------------------------------------------------------------------------------
 
-ws.on('ERROR', (data) => {
-    console.log('ERROR :: ', data)
-});
-
-ws.on('PLAYING', (data) => {
-    console.log('PLAYING :: ', data);
-})
-
 ws.onOpen(() => {
     ws.emit('INIT', {
         user_id: getCookieValue('userid'),
         token: getCookieValue('token'),
     });
-
-    setTimeout(() => {
-        ws.emit('PLAY', {
-            'ident': 'danke',
-            'source': 0
-        })
-    }, 1000);
 });
 
 // --------------------------------------------------------------------------------------

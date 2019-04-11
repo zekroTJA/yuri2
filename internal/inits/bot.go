@@ -8,6 +8,7 @@ import (
 	"github.com/zekroTJA/yuri2/internal/discordbot/handlers"
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/player"
+	"github.com/zekroTJA/yuri2/internal/static"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
@@ -23,21 +24,28 @@ func InitDiscordBot(cfg *config.Discord, dbMiddleware database.Middleware, playe
 	}
 
 	cmds := []discordgocmds.Command{
-		&commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player},
-
 		&commands.Prefix{PermLvl: 5, DB: dbMiddleware},
 		&commands.Bind{PermLvl: 0, DB: dbMiddleware, Player: player},
 
-		&commands.List{PermLvl: 0, DB: dbMiddleware, Player: player},
-		&commands.Search{PermLvl: 0, DB: dbMiddleware, Player: player},
-		&commands.Log{PermLvl: 0, DB: dbMiddleware, Player: player},
-		&commands.Stats{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.List{PermLvl: 0, Player: player},
+		&commands.Search{PermLvl: 0, Player: player},
+		&commands.Log{PermLvl: 0, DB: dbMiddleware},
+		&commands.Stats{PermLvl: 0, DB: dbMiddleware},
 
-		&commands.Random{PermLvl: 0, DB: dbMiddleware, Player: player},
-		&commands.Stop{PermLvl: 0, DB: dbMiddleware, Player: player},
-		&commands.YouTube{PermLvl: 0, DB: dbMiddleware, Player: player},
+		&commands.Random{PermLvl: 0, Player: player},
+		&commands.Stop{PermLvl: 0, Player: player},
+		&commands.YouTube{PermLvl: 0, Player: player},
 		&commands.Volume{PermLvl: 0, DB: dbMiddleware, Player: player},
+<<<<<<< HEAD
 		&commands.Refetch{PermLvl: 0, DB: dbMiddleware, Player: player},
+=======
+		&commands.Join{PermLvl: 0, Player: player},
+		&commands.Leave{PermLvl: 0, Player: player},
+	}
+
+	if static.Release != "TRUE" {
+		cmds = append(cmds, &commands.Test{PermLvl: 999, DB: dbMiddleware, Player: player})
+>>>>>>> 9af8505036fdccc321fb05be29fc6000ba5ffb65
 	}
 
 	bot, err := discordbot.NewBot(cfg.Token, cfg.Token,
@@ -48,7 +56,7 @@ func InitDiscordBot(cfg *config.Discord, dbMiddleware database.Middleware, playe
 
 	bot.RegisterHandler(handlers)
 	bot.RegisterCommands(cmds)
-	bot.CmdHandler.RegisterDefaultHandler(&commands.Play{DB: dbMiddleware, Player: player})
+	bot.CmdHandler.RegisterDefaultHandler(&commands.Play{Player: player})
 
 	logger.Info("DBOT :: initialized")
 

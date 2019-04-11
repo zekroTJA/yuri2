@@ -14,3 +14,5 @@
 *.lock
 private.*
 vendor/*
+
+*.sqlite3

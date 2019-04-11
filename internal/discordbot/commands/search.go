@@ -9,14 +9,12 @@ import (
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
 
-	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
-// List provides command functionalities
-// for the list command
+// Search provides command functionalities
+// for the search command
 type Search struct {
-	DB      database.Middleware
 	Player  *player.Player
 	PermLvl int
 }
@@ -53,7 +51,7 @@ func (c *Search) GetPermission() int {
 	return c.PermLvl
 }
 
-// Exec is the acual function which will
+// Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *Search) Exec(args *discordgocmds.CommandArgs) error {
 	if len(args.Args) < 1 {

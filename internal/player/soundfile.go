@@ -8,14 +8,20 @@ import (
 
 // ----------------------------------------------
 
+// SoundFileList is an arary of *SoundFile
+// provoding sort functions.
 type SoundFileList []*SoundFile
 
+// SortByDate sorts the lists sound files
+// by their last modified date descending.
 func (sfl SoundFileList) SortByDate() {
 	by(func(sf1, sf2 *SoundFile) bool {
 		return sf1.LastModified.After(sf2.LastModified)
 	}).Sort(sfl)
 }
 
+// SortByName sorts the lists sound files
+// by their ident names alphabetically descending.
 func (sfl SoundFileList) SortByName() {
 	by(func(sf1, sf2 *SoundFile) bool {
 		return sf1.Name < sf2.Name
@@ -24,12 +30,17 @@ func (sfl SoundFileList) SortByName() {
 
 // ----------------------------------------------
 
+// SoundFile contains the name (without file extension),
+// path and last modified date of a local sound file.
 type SoundFile struct {
 	Name         string    `json:"name"`
 	Path         string    `json:"-"`
 	LastModified time.Time `json:"last_modified"`
 }
 
+// NewSoundFile creates an instance of SoundFile by
+// passed name and path and gets the last modified
+// time of the file.
 func NewSoundFile(name, path string) (*SoundFile, error) {
 	s, err := os.Stat(path)
 	if err != nil {

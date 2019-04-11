@@ -47,7 +47,7 @@ func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, user
 
 // GET /api/localsounds
 func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := api.checkAuthHeaderWithResponse(w, r); !ok {
+	if ok, _ := api.checkAuthWithResponse(w, r); !ok {
 		return
 	}
 
@@ -97,7 +97,7 @@ func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/logs/:GUILDID
 func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
-	ok, userID := api.checkAuthHeaderWithResponse(w, r)
+	ok, userID := api.checkAuthWithResponse(w, r)
 	if !ok {
 		return
 	}
@@ -147,7 +147,7 @@ func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/stats/:GUILDID
 func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
-	ok, userID := api.checkAuthHeaderWithResponse(w, r)
+	ok, userID := api.checkAuthWithResponse(w, r)
 	if !ok {
 		return
 	}
