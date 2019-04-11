@@ -8,11 +8,12 @@ import (
 )
 
 type soundTrack struct {
-	Ident   string              `json:"ident,omitempty"`
-	Source  player.ResourceType `json:"source"`
-	GuildID string              `json:"guild_id,omitempty"`
-	UserID  string              `json:"user_id,omitempty"`
-	UserTag string              `json:"user_tag,omitempty"`
+	Ident     string              `json:"ident,omitempty"`
+	Source    player.ResourceType `json:"source"`
+	GuildID   string              `json:"guild_id,omitempty"`
+	ChannelID string              `json:"channel_id,omitempty"`
+	UserID    string              `json:"user_id,omitempty"`
+	UserTag   string              `json:"user_tag,omitempty"`
 }
 
 type wsPlayExceptionData struct {
@@ -30,15 +31,22 @@ type wsVolumeChangedData struct {
 	GuildID string `json:"guild_id"`
 }
 
+type wsGuildChannelData struct {
+	GuildID   string `json:"guild_id"`
+	ChannelID string `json:"channel_id"`
+}
+
+// PLAYING event
 func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
-	source player.ResourceType, guildID, userID, userTag string) {
+	source player.ResourceType, guildID, channelID, userID, userTag string) {
 
 	s := &soundTrack{
-		Ident:   ident,
-		Source:  source,
-		GuildID: guildID,
-		UserID:  userID,
-		UserTag: userTag,
+		Ident:     ident,
+		Source:    source,
+		GuildID:   guildID,
+		ChannelID: channelID,
+		UserID:    userID,
+		UserTag:   userTag,
 	}
 
 	api.trackCache[track] = s
@@ -52,6 +60,7 @@ func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
 	}
 }
 
+// END event
 func (api *API) OnTrackEnd(player *gavalink.Player, track string, reason string) error {
 	defer delete(api.trackCache, track)
 
@@ -68,6 +77,7 @@ func (api *API) OnTrackEnd(player *gavalink.Player, track string, reason string)
 	return nil
 }
 
+// PLAY_ERROR event
 func (api *API) OnTrackException(player *gavalink.Player, track string, reason string) error {
 	defer delete(api.trackCache, track)
 
@@ -90,6 +100,7 @@ func (api *API) OnTrackException(player *gavalink.Player, track string, reason s
 	return nil
 }
 
+// STUCK event
 func (api *API) OnTrackStuck(player *gavalink.Player, track string, threshold int) error {
 	logger.Debug("API :: PLAYER HANDLER :: track stuck event")
 
@@ -110,6 +121,7 @@ func (api *API) OnTrackStuck(player *gavalink.Player, track string, threshold in
 	return nil
 }
 
+// VOLUME_CHANGED event
 func (api *API) OnVolumeChanged(player *gavalink.Player, guildID string, vol int) {
 	logger.Debug("API :: PLAYER HANDLER :: volume changed event")
 
@@ -120,6 +132,36 @@ func (api *API) OnVolumeChanged(player *gavalink.Player, guildID string, vol int
 
 	cond := condFactory(guildID)
 	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("VOLUME_CHANGED", e), cond); err != nil {
+		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
+	}
+}
+
+// JOINED event
+func (api *API) OnVoiceJoined(guildID, channelID string) {
+	logger.Debug("API :: PLAYER HANDLER :: voice joined event")
+
+	e := &wsGuildChannelData{
+		GuildID:   guildID,
+		ChannelID: channelID,
+	}
+
+	cond := condFactory(guildID)
+	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("JOINED", e), cond); err != nil {
+		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
+	}
+}
+
+// LEFT event
+func (api *API) OnVoiceLeft(guildID, channelID string) {
+	logger.Debug("API :: PLAYER HANDLER :: voice left event")
+
+	e := &wsGuildChannelData{
+		GuildID:   guildID,
+		ChannelID: channelID,
+	}
+
+	cond := condFactory(guildID)
+	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("LEFT", e), cond); err != nil {
 		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 	}
 }

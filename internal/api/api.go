@@ -129,8 +129,21 @@ func (api *API) registerWSHandlers() {
 
 	// Event: INIT
 	api.ws.On("INIT", api.wsInitHandler)
+
+	// Event: JOIN
+	api.ws.On("JOIN", api.wsJoinHandler)
+
+	// Event: LEAVE
+	api.ws.On("LEAVE", api.wsLeaveHandler)
+
 	// Event: PLAY
 	api.ws.On("PLAY", api.wsPlayHandler)
+
+	// Event: RANDOM
+	api.ws.On("RANDOM", api.wsRandomHandler)
+
+	// Event: VOLUME
+	api.ws.On("VOLUME", api.wsVolumeHandler)
 }
 
 func (api *API) StartBlocking() error {

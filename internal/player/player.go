@@ -190,11 +190,30 @@ func (p *Player) JoinVoiceCannel(vs *discordgo.VoiceState) error {
 		return errors.New("voiceState is nil")
 	}
 
-	return p.session.ChannelVoiceJoinManual(vs.GuildID, vs.ChannelID, false, true)
+	err := p.session.ChannelVoiceJoinManual(vs.GuildID, vs.ChannelID, false, true)
+	if err != nil {
+		return err
+	}
+
+	p.eventHandler.OnVoiceJoined(vs.GuildID, vs.ChannelID)
+
+	return nil
 }
 
-func (p *Player) QuitVoiceChannel(guildID string) error {
-	return p.session.ChannelVoiceJoinManual(guildID, "", false, true)
+func (p *Player) LeaveVoiceChannel(guildID string) error {
+	err := p.session.ChannelVoiceJoinManual(guildID, "", false, true)
+	if err != nil {
+		return err
+	}
+
+	var channelID string
+	if vs, ok := p.selfVoiceStates[guildID]; ok {
+		channelID = vs.ChannelID
+	}
+
+	p.eventHandler.OnVoiceLeft(guildID, channelID)
+
+	return nil
 }
 
 func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string, t ResourceType) error {
@@ -271,7 +290,8 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 	}
 
 	// Fire payer track start event
-	p.eventHandler.OnTrackStart(player, track.Data, originalIdent, t, guild.ID, user.ID, user.String())
+	p.eventHandler.OnTrackStart(player, track.Data, originalIdent, t, guild.ID,
+		selfVS.ChannelID, user.ID, user.String())
 
 	logger.Debug("PLAYER :: playing sound '%s' (resource %s)", ident, resourceNames[t])
 
