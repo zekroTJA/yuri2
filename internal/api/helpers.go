@@ -129,7 +129,7 @@ func (api *API) checkAuthHeader(r *http.Request) (bool, string, error) {
 	return ok, userID, err
 }
 
-func (api *API) checkAuthHeaderWithResponse(w http.ResponseWriter, r *http.Request) (bool, string) {
+func (api *API) checkAuthWithResponse(w http.ResponseWriter, r *http.Request) (bool, string) {
 	ok, userID, err := api.checkAuthHeader(r)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "illegal base64 data") {
@@ -140,8 +140,16 @@ func (api *API) checkAuthHeaderWithResponse(w http.ResponseWriter, r *http.Reque
 		return false, ""
 	}
 	if !ok {
-		errResponse(w, http.StatusUnauthorized, "")
-		return false, ""
+		ok, userID, err = api.checkAuthCookie(r)
+		if err != nil {
+			errResponse(w, http.StatusInternalServerError, err.Error())
+			return false, ""
+		}
+
+		if !ok || userID == "" {
+			errResponse(w, http.StatusUnauthorized, "")
+			return false, ""
+		}
 	}
 
 	return true, userID
