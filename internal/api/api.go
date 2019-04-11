@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/zekroTJA/discordgo"
 	"github.com/zekroTJA/yuri2/internal/api/auth"
@@ -62,7 +63,11 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 	if address[0] == ':' {
 		address = "127.0.0.1" + address
 	}
-	api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, address)
+	if strings.HasPrefix(address, "http") {
+		api.qualifiedAddress = address
+	} else {
+		api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, address)
+	}
 
 	// Initialize URL path mux
 	api.mux = http.NewServeMux()
@@ -72,6 +77,13 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		Handler: api.mux,
 		Addr:    api.cfg.Address,
 	}
+
+	if strings.HasPrefix(api.server.Addr, "http") {
+		i := strings.Index(api.server.Addr, "://")
+		api.server.Addr = api.server.Addr[i+3:]
+	}
+
+	fmt.Println(api.server.Addr)
 
 	// Initialize web socket manager
 	api.ws = wsmgr.New()
