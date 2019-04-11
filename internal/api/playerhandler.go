@@ -36,7 +36,7 @@ type wsGuildChannelData struct {
 	ChannelID string `json:"channel_id"`
 }
 
-// PLAYING event
+// OnTrackStart is the handler for PLAYING event
 func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
 	source player.ResourceType, guildID, channelID, userID, userTag string) {
 
@@ -63,7 +63,7 @@ func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
 	}
 }
 
-// END event
+// OnTrackEnd is the handler for END event
 func (api *API) OnTrackEnd(player *gavalink.Player, track string, reason string) error {
 	defer delete(api.trackCache, track)
 
@@ -80,7 +80,7 @@ func (api *API) OnTrackEnd(player *gavalink.Player, track string, reason string)
 	return nil
 }
 
-// PLAY_ERROR event
+// OnTrackException is the handler for PLAY_ERROR event
 func (api *API) OnTrackException(player *gavalink.Player, track string, reason string) error {
 	defer delete(api.trackCache, track)
 
@@ -103,7 +103,7 @@ func (api *API) OnTrackException(player *gavalink.Player, track string, reason s
 	return nil
 }
 
-// STUCK event
+// OnTrackStuck is the handler for STUCK event
 func (api *API) OnTrackStuck(player *gavalink.Player, track string, threshold int) error {
 	logger.Debug("API :: PLAYER HANDLER :: track stuck event")
 
@@ -124,7 +124,7 @@ func (api *API) OnTrackStuck(player *gavalink.Player, track string, threshold in
 	return nil
 }
 
-// VOLUME_CHANGED event
+// OnVolumeChanged is the handler for VOLUME_CHANGED event
 func (api *API) OnVolumeChanged(player *gavalink.Player, guildID string, vol int) {
 	logger.Debug("API :: PLAYER HANDLER :: volume changed event")
 
@@ -139,7 +139,7 @@ func (api *API) OnVolumeChanged(player *gavalink.Player, guildID string, vol int
 	}
 }
 
-// JOINED event
+// OnJVoiceJoined is the handler for JOINED event
 func (api *API) OnVoiceJoined(guildID, channelID string) {
 	logger.Debug("API :: PLAYER HANDLER :: voice joined event")
 
@@ -154,7 +154,7 @@ func (api *API) OnVoiceJoined(guildID, channelID string) {
 	}
 }
 
-// LEFT event
+// OnVoiceLeft is the handler for LEFT event
 func (api *API) OnVoiceLeft(guildID, channelID string) {
 	logger.Debug("API :: PLAYER HANDLER :: voice left event")
 
@@ -171,6 +171,9 @@ func (api *API) OnVoiceLeft(guildID, channelID string) {
 
 // ------------------------------------
 
+// condFactory creates a filter function for BroadcastExclusive
+// to just send events to connections which are on the same
+// guild the event was fired from.
 func condFactory(guildID string) func(c *wsmgr.WebSocketConn) bool {
 	return func(c *wsmgr.WebSocketConn) bool {
 		ident, _ := c.GetIdent().(*wsIdent)

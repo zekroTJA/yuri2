@@ -13,6 +13,9 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
 )
 
+// a wsErrorType is the Enum-like
+// colelction of web socket error
+// codes.
 type wsErrorType int
 
 const (
@@ -36,17 +39,25 @@ var stdErrMsgs = map[int]string{
 	429: "too many requests",
 }
 
+// apIErrorBody contains data for a REST
+// API error response
 type apiErrorBody struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
+// wsErrorData contains data for a WS
+// API error event
 type wsErrorData struct {
 	Code    wsErrorType `json:"code"`
 	Type    string      `json:"type"`
 	Message string      `json:"message"`
 }
 
+// errResponse writes a JSON formated error response
+// to the passed ResponseWriter with the specified
+// code and msg. If msg is empty, a default message
+// from stdErrMsgs will be used, if available.
 func errResponse(w http.ResponseWriter, code int, msg string) {
 	if msg == "" {
 		msg = stdErrMsgs[code]
@@ -62,15 +73,24 @@ func errResponse(w http.ResponseWriter, code int, msg string) {
 	jsonResponse(w, code, data)
 }
 
+// errResponseWrapper is a wrapper function which makes
+// errResponse compatible with DiscordOAuth.
 func errResponseWrapper(w http.ResponseWriter, r *http.Request, code int, msg string) {
 	errResponse(w, code, msg)
 }
 
+// parseJSONBody ready a requests body and tries
+// it to parse this into the passed object instance
+// using a JSON decoder.
 func parseJSONBody(body io.ReadCloser, v interface{}) error {
 	dec := json.NewDecoder(body)
 	return dec.Decode(v)
 }
 
+// jsonResponse parses the passed data to a JSON
+// byte array which will be written as response to
+// the passed responseWriter with the specified
+// status code.
 func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 	var bData []byte
 	var err error
@@ -89,11 +109,23 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 	_, err = w.Write(bData)
 }
 
+// errPageResponse tries to serve a error HTML page
+// located in ./web/pages/errors with the specific
+// error status code as name and serves it to
+// the passed ResponseWriter.
+// msg argument will be ignored and is just passable
+// because of compatibility with DiscordOAuth.
 func errPageResponse(w http.ResponseWriter, r *http.Request, code int, msg string) {
 	pageLoc := fmt.Sprintf("./web/pages/errors/%d.html", code)
 	http.ServeFile(w, r, pageLoc)
 }
 
+// getCookeValue tries to get a string value from
+// a cookie passed from the request. If no cookie
+// was passed with the specified name, an empty
+// stirng in combination with an nil error will be
+// returned. Err is only not nil if the reading
+// of the cookie failed for some reason.
 func getCookieValue(r *http.Request, name string) (string, error) {
 	cookie, err := r.Cookie(name)
 	if err != nil || cookie == nil {
@@ -106,6 +138,12 @@ func getCookieValue(r *http.Request, name string) (string, error) {
 	return cookie.Value, nil
 }
 
+// checkAuthCookie tries to get the userID and token
+// from passed cookies and checks their validity.
+// The return values are a bool, which is true if the
+// check was successful without exceptions, the userID
+// and an error, which will be not nil if the cookie
+// reading or database access fails.
 func (api *API) checkAuthCookie(r *http.Request) (bool, string, error) {
 	token, err := getCookieValue(r, "token")
 	if err != nil {
@@ -117,11 +155,19 @@ func (api *API) checkAuthCookie(r *http.Request) (bool, string, error) {
 		return false, "", err
 	}
 
-	ok, _, err := api.auth.CheckAndRefersh(userID, token)
+	ok, _, err := api.auth.CheckAndRefresh(userID, token)
 
 	return ok, userID, err
 }
 
+// checkAuthCookie checks the request for an 'Authorization'
+// header, tries to parse the value, if existent and checks
+// the validity of the token.
+// The return values are a bool, which is true if the check
+// was successful without exceptions, the userID of the
+// authenticated user and an error, which will be not nil
+// if something fails during cookie reading and database
+// access.
 func (api *API) checkAuthHeader(r *http.Request) (bool, string, error) {
 	headerVal := r.Header.Get("Authorization")
 	if headerVal == "" {
@@ -146,11 +192,20 @@ func (api *API) checkAuthHeader(r *http.Request) (bool, string, error) {
 		return false, "", nil
 	}
 
-	ok, _, err := api.auth.CheckAndRefersh(userID, token)
+	ok, _, err := api.auth.CheckAndRefresh(userID, token)
 
 	return ok, userID, err
 }
 
+// checkAuthWithResponse is first checks for a valid 'Authorization'
+// header value using checkAuthHeader. If this was not successful,
+// the cookies will be checked for valid authorization values.
+// If one of both fails because of an unexpected error, this
+// will be written to the ResponseWriter.
+// If the authorization fails, this will be written to the
+// ResponseWriter as unauthorized error.
+// The returned bool is true if the authorization was passed
+// successfully and the userID will be returned as well.
 func (api *API) checkAuthWithResponse(w http.ResponseWriter, r *http.Request) (bool, string) {
 	ok, userID, err := api.checkAuthHeader(r)
 	if err != nil {
@@ -177,6 +232,8 @@ func (api *API) checkAuthWithResponse(w http.ResponseWriter, r *http.Request) (b
 	return true, userID
 }
 
+// wsSendError creates a wsErrorData object from passed error
+// code and message and sends it to the specified connection.
 func wsSendError(wsc *wsmgr.WebSocketConn, code wsErrorType, msg string) error {
 	return wsc.Out(wsmgr.NewEvent("ERROR", &wsErrorData{
 		Code:    code,
@@ -185,6 +242,9 @@ func wsSendError(wsc *wsmgr.WebSocketConn, code wsErrorType, msg string) error {
 	}))
 }
 
+// wsCheckInitialized checks if the connection was successfully
+// initialized by an `INIT` event, which writes userID and
+// the users guilds to the ident property of the connection.
 func wsCheckInitilized(wsc *wsmgr.WebSocketConn) *wsIdent {
 	ident, ok := wsc.GetIdent().(*wsIdent)
 	if !ok || ident == nil {

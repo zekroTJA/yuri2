@@ -15,6 +15,8 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
 )
 
+// API maintains the HTTP web server, REST
+// API and WS API.
 type API struct {
 	cfg *config.API
 
@@ -34,7 +36,10 @@ type API struct {
 	discordAuthAPI *discordoauth.DiscordOAuth
 }
 
+// NewAPI initializes a new API and registers handlers
+// for web server, REST API and WS API endpoints.
 func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session, player *player.Player) *API {
+	// init API object
 	api := &API{
 		cfg:     cfg,
 		db:      db,
@@ -44,27 +49,38 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		trackCache: make(map[string]*soundTrack),
 	}
 
+	// Create a qualified address from
+	// addres of config. For example:
+	//   cfg.Address = ":443"
+	//   cfg.TLS.Enable = true
+	//   -> QA: "https://127.0.0.1:443"
 	protocol := "http"
 	address := api.cfg.Address
 	if api.cfg.TLS != nil && api.cfg.TLS.Enable {
 		protocol = "https"
 	}
 	if address[0] == ':' {
-		address = "localhost" + address
+		address = "127.0.0.1" + address
 	}
 	api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, address)
 
+	// Initialize URL path mux
 	api.mux = http.NewServeMux()
 
+	// Initialize HTTP server
 	api.server = &http.Server{
 		Handler: api.mux,
 		Addr:    api.cfg.Address,
 	}
 
+	// Initialize web socket manager
 	api.ws = wsmgr.New()
 
+	// Initialize Auth manager
 	api.auth = auth.NewAuth(db, static.TokenHashRounds, static.TokenLifetime)
 
+	// Create Discord OAuth Router for API token
+	// request
 	api.discordAuthAPI = discordoauth.NewDiscordOAuth(
 		api.cfg.ClientID,
 		api.cfg.ClientSecret,
@@ -72,6 +88,8 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		errResponseWrapper,
 		api.restGetTokenHandler)
 
+	// Create Discord OAuth Router for user
+	// interface login
 	api.discordAuthFE = discordoauth.NewDiscordOAuth(
 		api.cfg.ClientID,
 		api.cfg.ClientSecret,
@@ -79,12 +97,16 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		errPageResponse,
 		api.successfullAuthHandler)
 
+	// register HTTP handlers
 	api.registerHTTPHandlers()
+	// register WS handlers
 	api.registerWSHandlers()
 
 	return api
 }
 
+// registerHTTPHandlers registers HTTP request handlers
+// for specific endpoint paths to the ServeMux.
 func (api *API) registerHTTPHandlers() {
 	// Static file server
 	api.mux.Handle("/static/", http.StripPrefix("/static/",
@@ -121,6 +143,8 @@ func (api *API) registerHTTPHandlers() {
 	api.mux.HandleFunc("/api/stats/", api.restGetStats)
 }
 
+// registerWSHandlers registers WS handlers
+// for specific WS commands to the WS manager.
 func (api *API) registerWSHandlers() {
 	// ERROR HANDLER
 	api.ws.OnError(func(m string, e error) {
@@ -146,6 +170,10 @@ func (api *API) registerWSHandlers() {
 	api.ws.On("VOLUME", api.wsVolumeHandler)
 }
 
+// StartBlocking starts the HTTP server
+// wther in TLS or non-TLS mode, depending
+// on configuration and blocks the current
+// go routine waiting for incomming requests.
 func (api *API) StartBlocking() error {
 	var err error
 
@@ -158,6 +186,9 @@ func (api *API) StartBlocking() error {
 	return err
 }
 
+// Close cleanly shuts down the server.
+// This will not panic if the api instance
+// is nil because of failed initialization.
 func (api *API) Close() {
 	if api == nil {
 		return

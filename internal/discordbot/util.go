@@ -93,6 +93,9 @@ func GetUsersGuildInVoice(s *discordgo.Session, userID string) (*discordgo.Guild
 	return nil, nil
 }
 
+// GetUsersGuilds returns the array of guilds the user and
+// the bot are members of.
+// thsi returns nil if the ammount of guilds == 0.
 func GetUsersGuilds(s *discordgo.Session, userID string) []*discordgo.Guild {
 	guilds := make([]*discordgo.Guild, 0)
 

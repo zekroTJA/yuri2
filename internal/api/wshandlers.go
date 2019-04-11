@@ -41,7 +41,7 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 		return
 	}
 
-	ok, _, err := api.auth.CheckAndRefersh(data.UserID, data.Token)
+	ok, _, err := api.auth.CheckAndRefresh(data.UserID, data.Token)
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("failed checking auth: %s", err.Error()))
 		return

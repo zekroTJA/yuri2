@@ -1,27 +1,28 @@
 package random
 
 import (
-	"math/rand"
-	"time"
+	"crypto/rand"
+	"math/big"
 )
 
 var chars = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 // GetRandString returnes a random stirng
 // of the defined length.
-func GetRandString(n int, charSet []rune) string {
+func GetRandString(n int, charSet []rune) (string, error) {
 	if charSet == nil {
 		charSet = chars
 	}
 
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = chars[rand.Intn(len(chars))]
+	nb, err := rand.Int(rand.Reader, big.NewInt(int64(len(charSet))))
+	if err != nil {
+		return "", err
 	}
 
-	return string(b)
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = charSet[nb.Int64()]
+	}
+
+	return string(b), nil
 }
