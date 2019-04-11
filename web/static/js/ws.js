@@ -1,3 +1,5 @@
+"use strict";
+
 function Handler(id, cb) {
     this.cb = cb;
     this.id = id;

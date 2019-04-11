@@ -49,7 +49,10 @@ func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
 		UserTag:   userTag,
 	}
 
-	api.trackCache[track] = s
+	// The saved track ID is shortened by 5 characters because
+	// the IDs are exactly the same until the last 3 to 5 chars
+	// for some reason.
+	api.trackCache[track[:len(track)-5]] = s
 
 	logger.Debug("API :: PLAYER HANDLER :: track start event: %s", ident)
 
@@ -66,7 +69,7 @@ func (api *API) OnTrackEnd(player *gavalink.Player, track string, reason string)
 
 	logger.Debug("API :: PLAYER HANDLER :: track end event")
 
-	s, ok := api.trackCache[track]
+	s, ok := api.trackCache[track[:len(track)-5]]
 	if ok {
 		cond := condFactory(s.GuildID)
 		if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("END", s), cond); err != nil {
@@ -83,7 +86,7 @@ func (api *API) OnTrackException(player *gavalink.Player, track string, reason s
 
 	logger.Debug("API :: PLAYER HANDLER :: track exception: %s", reason)
 
-	s, ok := api.trackCache[track]
+	s, ok := api.trackCache[track[:len(track)-5]]
 
 	e := &wsPlayExceptionData{
 		Reason: reason,
@@ -104,7 +107,7 @@ func (api *API) OnTrackException(player *gavalink.Player, track string, reason s
 func (api *API) OnTrackStuck(player *gavalink.Player, track string, threshold int) error {
 	logger.Debug("API :: PLAYER HANDLER :: track stuck event")
 
-	s, ok := api.trackCache[track]
+	s, ok := api.trackCache[track[:len(track)-5]]
 
 	e := &wsPlayStuckData{
 		Threshold: threshold,
