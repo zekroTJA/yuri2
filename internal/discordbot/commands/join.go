@@ -10,53 +10,55 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
-// Random provides command functionalities
-// for the random command
-type Random struct {
+// Join provides command functionalities
+// for the leave command
+type Join struct {
 	Player  *player.Player
 	PermLvl int
 }
 
 // GetInvokes returns the invokes
 // for this command.
-func (c *Random) GetInvokes() []string {
-	return []string{"r"}
+func (c *Join) GetInvokes() []string {
+	return []string{"join"}
 }
 
 // GetDescription returns the description
 // for this command
-func (c *Random) GetDescription() string {
-	return "Play a random, local file"
+func (c *Join) GetDescription() string {
+	return "Join your voice channel"
 }
 
 // GetHelp returns the help text for
 // this command.
-func (c *Random) GetHelp() string {
-	return "`r` - play a random, local file"
+func (c *Join) GetHelp() string {
+	return "`join` - join your voice channel"
 }
 
 // GetGroup returns the group of
 // the command
-func (c *Random) GetGroup() string {
+func (c *Join) GetGroup() string {
 	return static.CommandGroupPlayer
 }
 
 // GetPermission returns the minimum
 // required required permission level
 // to execute this command.
-func (c *Random) GetPermission() int {
+func (c *Join) GetPermission() int {
 	return c.PermLvl
 }
 
 // Exec is the actual function which will
 // be executed when the command was invoked.
-func (c *Random) Exec(args *discordgocmds.CommandArgs) error {
-	err := c.Player.PlayRandomSound(args.Guild, args.User)
-	if err == player.ErrNotInVoice {
-		msg, err := discordbot.SendEmbedError(args.Session, args.Channel.ID,
-			"You need to be in a voice channel to play sounds.", "")
-		msg.DeleteAfter(6 * time.Second)
-		return err
+func (c *Join) Exec(args *discordgocmds.CommandArgs) error {
+	for _, vs := range args.Guild.VoiceStates {
+		if vs.UserID == args.User.ID {
+			return c.Player.JoinVoiceCannel(vs)
+		}
 	}
+
+	msg, err := discordbot.SendEmbedError(args.Session, args.Channel.ID,
+		"You need to be in a voice channel that I can join.", "")
+	msg.DeleteAfter(6 * time.Second)
 	return err
 }

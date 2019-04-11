@@ -7,46 +7,46 @@ import (
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
-// Stop provides command functionalities
-// for the random command
-type Stop struct {
+// Leave provides command functionalities
+// for the leave command
+type Leave struct {
 	Player  *player.Player
 	PermLvl int
 }
 
 // GetInvokes returns the invokes
 // for this command.
-func (c *Stop) GetInvokes() []string {
-	return []string{"stop"}
+func (c *Leave) GetInvokes() []string {
+	return []string{"leave", "quit"}
 }
 
 // GetDescription returns the description
 // for this command
-func (c *Stop) GetDescription() string {
-	return "Stop a playing sound"
+func (c *Leave) GetDescription() string {
+	return "Quit the currently connected voice channel"
 }
 
 // GetHelp returns the help text for
 // this command.
-func (c *Stop) GetHelp() string {
-	return "`stop` - stop a playing sound"
+func (c *Leave) GetHelp() string {
+	return "`quit` - quit voice channel"
 }
 
 // GetGroup returns the group of
 // the command
-func (c *Stop) GetGroup() string {
+func (c *Leave) GetGroup() string {
 	return static.CommandGroupPlayer
 }
 
 // GetPermission returns the minimum
 // required required permission level
 // to execute this command.
-func (c *Stop) GetPermission() int {
+func (c *Leave) GetPermission() int {
 	return c.PermLvl
 }
 
 // Exec is the actual function which will
 // be executed when the command was invoked.
-func (c *Stop) Exec(args *discordgocmds.CommandArgs) error {
-	return c.Player.Stop(args.Guild, args.User)
+func (c *Leave) Exec(args *discordgocmds.CommandArgs) error {
+	return c.Player.LeaveVoiceChannel(args.Guild.ID)
 }

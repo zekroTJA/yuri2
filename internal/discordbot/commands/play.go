@@ -6,14 +6,12 @@ import (
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/player"
 
-	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // Play provides command functionalities
 // for the play command
 type Play struct {
-	DB     database.Middleware
 	Player *player.Player
 }
 
@@ -48,7 +46,7 @@ func (c *Play) GetPermission() int {
 	return 0
 }
 
-// Exec is the acual function which will
+// Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *Play) Exec(args *discordgocmds.CommandArgs) error {
 	err := c.Player.Play(args.Guild, args.User, args.Args[0], player.ResourceLocal)

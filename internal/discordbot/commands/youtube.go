@@ -8,14 +8,12 @@ import (
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/internal/static"
 
-	"github.com/zekroTJA/yuri2/internal/database"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
 )
 
 // YouTube provides command functionalities
 // for the yt command
 type YouTube struct {
-	DB      database.Middleware
 	Player  *player.Player
 	PermLvl int
 }
@@ -51,7 +49,7 @@ func (c *YouTube) GetPermission() int {
 	return c.PermLvl
 }
 
-// Exec is the acual function which will
+// Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *YouTube) Exec(args *discordgocmds.CommandArgs) error {
 	if len(args.Args) < 1 {

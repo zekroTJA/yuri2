@@ -48,7 +48,7 @@ func (c *Prefix) GetPermission() int {
 	return c.PermLvl
 }
 
-// Exec is the acual function which will
+// Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *Prefix) Exec(args *discordgocmds.CommandArgs) error {
 	if len(args.Args) == 0 {
