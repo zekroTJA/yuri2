@@ -8,7 +8,7 @@ function addButton(name) {
     var btn = document.createElement('button');
     btn.innerText = name;
     btn.id = 'sound-btn-name';
-    btn.className = 'btn btn-primary mx-1';
+    btn.className = 'btn btn-primary m-2';
     btn.onclick = (e) => 
         ws.emit('PLAY', {
             'ident': name,
