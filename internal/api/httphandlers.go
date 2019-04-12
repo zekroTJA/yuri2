@@ -73,7 +73,7 @@ func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch strings.ToLower(sort) {
+	switch strings.ToUpper(sort) {
 	case "NAME":
 		soundList.SortByName()
 	case "DATE":
