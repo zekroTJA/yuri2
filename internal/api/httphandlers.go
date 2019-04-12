@@ -236,6 +236,12 @@ func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./web/pages/index.html")
 }
 
+func (api *API) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Set-Cookie", "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
+	w.Header().Add("Set-Cookie", "userid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
+	http.ServeFile(w, r, "./web/pages/logout.html")
+}
+
 func (api *API) wsUpgradeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := api.ws.NewConn(w, r, nil)
 	if err != nil {
