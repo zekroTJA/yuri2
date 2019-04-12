@@ -76,13 +76,3 @@ ws.onOpen(() => {
     });
 });
 
-// --------------------------------------------------------------------------------------
-
-function getCookieValue(name) {
-    var c = document.cookie
-        .split(";")
-        .map((c) => c.trim().split('='))
-        .find((c) => c[0] == name);
-    if (c)
-        return c[1];
-}

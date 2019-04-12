@@ -7,19 +7,59 @@
 </head>
 
 <body>
-	
+	<!-- HEADER BAR -->
 	<div id="header" class="container-fluid d-flex align-items-center mx-auto px-3 py-2">
-		<h1 class="p-0 m-0">YURI</h1>
+		<h2 class="p-0 m-0">YURI</h2>
 		<div class="container-fluid d-flex mx-2">
-			<button class="btn btn-primary py-1 mx-1">TEST</button>
-			<button class="btn btn-primary py-1 mx-1">TEST</button>
+			<a href="/logout" class="btn text-white btn-danger btn-header mx-1">LOGOUT</a>
+			<a href="javascript:{}" class="btn text-white btn-info btn-header mx-1" id="btnSortBy">SORT BY DATE</a>
 		</div>
 	</div>
 
-	<div id="container-sound-btns" class="container-fluid my-3">
+	<!-- COOKIE INFORMATION -->
+	<div id="cookieInformation" class="alert alert-warning alert-warning-override m-4" role="alert" style="display: none">
+		<h4 class="alert-heading text-white">COOKIE INFORMATION</h4>
+		<p class="text-white">
+			Yuri is saving information in form of cookies to auto-authenticate your identity and for saving settings
+			like the sound sort preferecne or hiding this message.<br/><br/>
+			Read <a class="text-info" href="https://github.com/zekroTJA/yuri2/blob/master/docs/cookie-usage.md" target="_blank">here</a> 
+			for further information about Yuri's cookie usage.<br/><br/>
+			You can also use <a class="text-info" href="/static/delete-cookies.html">this</a> page to delete all cookies
+			Yuri has created <i>(requires JavaScript enabled)</i>:<br/>
+			<code>/static/delete-cookies.html</code><br/><br/>
+			<b>By declining this policy you will not be able to use the Yuri Web frontend which hardly requires cookie usage.</b>
+		</p>
+		<hr>
+		<div class="d-flex justify-content-end">
+			<a id="btCookieAccept" href="javascript:{}" class="btn btn-light btn-sm">ACCEPT</a>
+			<a id="btCookieDecline" href="javascript:{}" class="btn btn-danger text-white btn-sm ml-3">DECLINE</a>
+		</div>
 	</div>
 
+	<!-- ERROR ALERT -->
+	<div id="errorAlert" class="alert alert-danger alert-error-override m-4 text-white fade" style="display: none; opacity: 0;" role="alert">
+		<div class="row">
+			<div class="col-0">
+				<img class="ml-3 mb-1" src="/static/img/error.png" height="20" width="20"/>
+			</div>
+			<div id="errorAlertText" class="col"></div>
+		</div>
+	</div>
+
+	<!-- LOADING SPINNER -->
+	<div id="spinnerLoadingSounds" class="container-fluid d-flex align-items-center fade">
+		<div class="spinner-border text-primary m-3" role="status"></div>
+		<span class="text-white">Loading sounds...</span>
+	</div>
+	
+	<!-- SOUND BUTTONS -->
+	<div id="container-sound-btns" class="container-fluid my-3">
+		<!-- Sound buttons will be placed here -->
+	</div>
+
+	<!-- SCRIPTS -->
 	<script src="/static/lib/jquery.min.js"></script>
+	<script src="/static/js/util.js"></script>
 	<script src="/static/js/rest.js"></script>
 	<script src="/static/js/ws.js"></script>
 	<script src="/static/js/index.js"></script>

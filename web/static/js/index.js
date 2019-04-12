@@ -7,8 +7,8 @@ function eventDebug(name, data) {
 function addButton(name) {
     var btn = document.createElement('button');
     btn.innerText = name;
-    btn.id = 'sound-btn-name';
-    btn.className = 'btn btn-primary m-2';
+    btn.id = `soundBtn-${name}`;
+    btn.className = 'btn btn-primary btn-sound m-2';
     btn.onclick = (e) => 
         ws.emit('PLAY', {
             'ident': name,
@@ -17,22 +17,80 @@ function addButton(name) {
     $('#container-sound-btns').append(btn);
 };
 
+function fetchSoundsList(sort, cb) {
+    $('#container-sound-btns').empty();
+    $('#spinnerLoadingSounds').addClass('d-flex');
+    $('#spinnerLoadingSounds').removeClass('d-none');
+    getLocalSounds(sort ? sort : 'NAME').then((sounds) => {
+        sounds.forEach((s) => addButton(s.name));
+        $('#spinnerLoadingSounds').removeClass('d-flex');
+        $('#spinnerLoadingSounds').addClass('d-none');
+        if (cb) cb();
+    }).catch((r, s) => {
+        console.log('REST :: ERROR :: ', r, s);
+        displayError(`<code>REST API ERROR</code> getting sounds failed:<br/><code>${r}</code>`);
+        $('#spinnerLoadingSounds').removeClass('d-flex');
+        $('#spinnerLoadingSounds').addClass('d-none');
+        if (cb) cb();
+    });
+}
+
+function displayError(desc, time) {
+    if (!time) time = 8000;
+
+    var alertBox = $('#errorAlert')[0];
+    $('#errorAlertText')[0].innerHTML = desc;
+    alertBox.style.display = 'block';
+    setTimeout(() => {
+        alertBox.style.opacity = '1';
+    }, 10);
+    setTimeout(() => {
+        alertBox.style.opacity = '0';
+    }, time);
+    setTimeout(() => {
+        alertBox.style.display = 'none';
+    }, time + 250);
+}
+
 ws.onEmit((e, raw) => console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data));
 
 // --------------------------
-// --- INIT BUTTONS
+// --- INIT
 
-getLocalSounds().then((sounds) => {
-    sounds.forEach((s) => addButton(s.name));
-}).catch((r, s) => {
-    console.log('REST :: ERROR :: ', r, s);
+var sortBy = getCookieValue('sort_by');
+
+if (getCookieValue('cookies_accepted') !== '1') {
+    $('#cookieInformation')[0].style.display = 'block';
+}
+
+$('#btnSortBy').on('click', (e) => {
+    sortBy = sortBy == 'DATE' ? 'NAME' : 'DATE'; 
+    document.cookie = `sort_by=${sortBy}; paht=/`;
+    $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
+    fetchSoundsList(sortBy);
 });
+
+$('#btCookieAccept').on('click', (e) => {
+    document.cookie = 'cookies_accepted=1; path=/';
+    $('#cookieInformation')[0].style.display = 'none';
+});
+
+$('#btCookieDecline').on('click', (e) => {
+    deleteAllCookies();
+    window.location = '/static/cookies-declined.html';
+});
+
+if (sortBy)
+    $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
+
+fetchSoundsList(sortBy);
 
 // --------------------------
 // --- WS EVENT HANDLERS
 
 ws.on('ERROR', (data) => {
     eventDebug('ERROR', data);
+    displayError(`<code>${data.data.code} - ${data.data.type}</code>&nbsp; ${data.data.message}`);
 });
 
 ws.on('HELLO', (data) => {
@@ -41,10 +99,16 @@ ws.on('HELLO', (data) => {
 
 ws.on('PLAYING', (data) => {
     eventDebug('PLAYING', data);
+    if (data.data.ident) {
+        $(`#soundBtn-${data.data.ident}`).addClass('playing');
+    }
 });
 
 ws.on('END', (data) => {
     eventDebug('END', data);
+    if (data.data.ident) {
+        $(`#soundBtn-${data.data.ident}`).removeClass('playing');
+    }
 });
 
 ws.on('PLAY_ERROR', (data) => {
