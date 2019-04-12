@@ -80,6 +80,11 @@ $('#btCookieDecline').on('click', (e) => {
     window.location = '/static/cookies-declined.html';
 });
 
+$('#btStop').on('click', (e) => {
+    deleteAllCookies();
+    // ws.emit('STOP');
+});
+
 if (sortBy)
     $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
 
@@ -102,6 +107,7 @@ ws.on('PLAYING', (data) => {
     if (data.data.ident) {
         $(`#soundBtn-${data.data.ident}`).addClass('playing');
     }
+    $('#btnStop').removeClass('disabled');
 });
 
 ws.on('END', (data) => {
@@ -109,6 +115,7 @@ ws.on('END', (data) => {
     if (data.data.ident) {
         $(`#soundBtn-${data.data.ident}`).removeClass('playing');
     }
+    $('#btnStop').addClass('disabled');
 });
 
 ws.on('PLAY_ERROR', (data) => {
