@@ -113,6 +113,15 @@ func (api *API) registerHTTPHandlers() {
 	// WS UPGRADE
 	api.mux.HandleFunc("/ws", api.wsUpgradeHandler)
 
+	// GET /login
+	api.mux.HandleFunc("/login", api.discordAuthFE.HandlerInit)
+
+	// GET /login/authorize
+	api.mux.HandleFunc("/login/authorize", api.discordAuthFE.HandlerCallback)
+
+	// GET /logout
+	api.mux.HandleFunc("/logout", api.logoutHandler)
+
 	/////////////
 	// REST API
 
@@ -121,12 +130,6 @@ func (api *API) registerHTTPHandlers() {
 
 	// GET /token/authorize
 	api.mux.HandleFunc("/token/authorize", api.discordAuthAPI.HandlerCallback)
-
-	// GET /login
-	api.mux.HandleFunc("/login", api.discordAuthFE.HandlerInit)
-
-	// GET /login/authorize
-	api.mux.HandleFunc("/login/authorize", api.discordAuthFE.HandlerCallback)
 
 	// GET /api/localsounds
 	api.mux.HandleFunc("/api/localsounds", api.restGetLocalSounds)
