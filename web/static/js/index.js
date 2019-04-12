@@ -58,6 +58,7 @@ ws.onEmit((e, raw) => console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data))
 // --- INIT
 
 var sortBy = getCookieValue('sort_by');
+var inChannel = false;
 
 if (getCookieValue('cookies_accepted') !== '1') {
     $('#cookieInformation')[0].style.display = 'block';
@@ -80,9 +81,23 @@ $('#btCookieDecline').on('click', (e) => {
     window.location = '/static/cookies-declined.html';
 });
 
-$('#btStop').on('click', (e) => {
-    deleteAllCookies();
-    // ws.emit('STOP');
+$('#btnStop').on('click', (e) => {
+    ws.emit('STOP');
+});
+
+$('#btnJoinLeave').on('click', (e) => {
+    if (inChannel)
+        ws.emit('LEAVE');
+    else
+        ws.emit('JOIN');
+});
+
+$('#btnLog').on('click', (e) => {
+    alert('Gibbet noch ned!');
+});
+
+$('#btnStats').on('click', (e) => {
+    alert('Gibbet noch ned!');
 });
 
 if (sortBy)
@@ -107,7 +122,8 @@ ws.on('PLAYING', (data) => {
     if (data.data.ident) {
         $(`#soundBtn-${data.data.ident}`).addClass('playing');
     }
-    $('#btnStop').removeClass('disabled');
+    inChannel = true;
+    $('#btnJoinLeave')[0].innerText = 'LEFT';
 });
 
 ws.on('END', (data) => {
@@ -115,7 +131,6 @@ ws.on('END', (data) => {
     if (data.data.ident) {
         $(`#soundBtn-${data.data.ident}`).removeClass('playing');
     }
-    $('#btnStop').addClass('disabled');
 });
 
 ws.on('PLAY_ERROR', (data) => {
@@ -132,8 +147,12 @@ ws.on('VOLUME_CHANGED', (data) => {
 
 ws.on('JOINED', (data) => {
     eventDebug('JOINED', data);
+    inChannel = true;
+    $('#btnJoinLeave')[0].innerText = 'LEFT';
 });
 
 ws.on('LEFT', (data) => {
     eventDebug('LEFT', data);
+    inChannel = false;
+    $('#btnJoinLeave')[0].innerText = 'JOIN';
 });
