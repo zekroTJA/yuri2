@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/foxbot/gavalink"
+	"github.com/zekroTJA/discordgo"
+	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/player"
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
@@ -56,7 +58,7 @@ func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
 
 	logger.Debug("API :: PLAYER HANDLER :: track start event: %s", ident)
 
-	cond := condFactory(guildID)
+	cond := condFactory(api.session, guildID)
 
 	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("PLAYING", s), cond); err != nil {
 		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
@@ -71,7 +73,7 @@ func (api *API) OnTrackEnd(player *gavalink.Player, track string, reason string)
 
 	s, ok := api.trackCache[track[:len(track)-5]]
 	if ok {
-		cond := condFactory(s.GuildID)
+		cond := condFactory(api.session, s.GuildID)
 		if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("END", s), cond); err != nil {
 			logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 		}
@@ -94,7 +96,7 @@ func (api *API) OnTrackException(player *gavalink.Player, track string, reason s
 	}
 
 	if ok {
-		cond := condFactory(s.GuildID)
+		cond := condFactory(api.session, s.GuildID)
 		if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("PLAY_ERROR", e), cond); err != nil {
 			logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 		}
@@ -115,7 +117,7 @@ func (api *API) OnTrackStuck(player *gavalink.Player, track string, threshold in
 	}
 
 	if ok {
-		cond := condFactory(s.GuildID)
+		cond := condFactory(api.session, s.GuildID)
 		if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("STUCK", e), cond); err != nil {
 			logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 		}
@@ -133,13 +135,13 @@ func (api *API) OnVolumeChanged(player *gavalink.Player, guildID string, vol int
 		Vol:     vol,
 	}
 
-	cond := condFactory(guildID)
+	cond := condFactory(api.session, guildID)
 	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("VOLUME_CHANGED", e), cond); err != nil {
 		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 	}
 }
 
-// OnJVoiceJoined is the handler for JOINED event
+// OnVoiceJoined is the handler for JOINED event
 func (api *API) OnVoiceJoined(guildID, channelID string) {
 	logger.Debug("API :: PLAYER HANDLER :: voice joined event")
 
@@ -148,7 +150,7 @@ func (api *API) OnVoiceJoined(guildID, channelID string) {
 		ChannelID: channelID,
 	}
 
-	cond := condFactory(guildID)
+	cond := condFactory(api.session, guildID)
 	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("JOINED", e), cond); err != nil {
 		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 	}
@@ -163,7 +165,7 @@ func (api *API) OnVoiceLeft(guildID, channelID string) {
 		ChannelID: channelID,
 	}
 
-	cond := condFactory(guildID)
+	cond := condFactory(api.session, guildID)
 	if err := api.ws.BroadcastExclusive(wsmgr.NewEvent("LEFT", e), cond); err != nil {
 		logger.Error("WS :: PLAYER HANDLER :: failed broadcasting: %s", err.Error())
 	}
@@ -174,19 +176,15 @@ func (api *API) OnVoiceLeft(guildID, channelID string) {
 // condFactory creates a filter function for BroadcastExclusive
 // to just send events to connections which are on the same
 // guild the event was fired from.
-func condFactory(guildID string) func(c *wsmgr.WebSocketConn) bool {
+func condFactory(s *discordgo.Session, guildID string) func(c *wsmgr.WebSocketConn) bool {
 	return func(c *wsmgr.WebSocketConn) bool {
 		ident, _ := c.GetIdent().(*wsIdent)
 		if ident == nil {
 			return false
 		}
 
-		for _, g := range ident.Guilds {
-			if g.ID == guildID {
-				return true
-			}
-		}
+		guild, _ := discordbot.GetUsersGuildInVoice(s, ident.UserID)
 
-		return false
+		return guild != nil && guildID == guild.ID
 	}
 }

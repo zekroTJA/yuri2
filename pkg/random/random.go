@@ -14,13 +14,15 @@ func GetRandString(n int, charSet []rune) (string, error) {
 		charSet = chars
 	}
 
-	nb, err := rand.Int(rand.Reader, big.NewInt(int64(len(charSet))))
-	if err != nil {
-		return "", err
-	}
+	nBig := big.NewInt(int64(len(charSet)))
 
 	b := make([]rune, n)
 	for i := range b {
+		nb, err := rand.Int(rand.Reader, nBig)
+		if err != nil {
+			return "", err
+		}
+
 		b[i] = charSet[nb.Int64()]
 	}
 
