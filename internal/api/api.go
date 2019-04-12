@@ -166,6 +166,9 @@ func (api *API) registerWSHandlers() {
 
 	// Event: VOLUME
 	api.ws.On("VOLUME", api.wsVolumeHandler)
+
+	// Event: STOP
+	api.ws.On("STOP", api.wsStopHandler)
 }
 
 // StartBlocking starts the HTTP server
