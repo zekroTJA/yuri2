@@ -9,6 +9,12 @@ h1, h2, h3, h4, p, a {
     color: white;
 }
 
+#header {
+    background-color: #112831;
+}
+
+
+
 .btn-sound {
     background-color: #039BE5 !important;
 }
