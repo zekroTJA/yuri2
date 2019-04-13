@@ -76,10 +76,13 @@ ws.onEmit((e, raw) => console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data))
 
 var sortBy = getCookieValue('sort_by');
 var inChannel = false;
+var guildID = null;
 
 if (getCookieValue('cookies_accepted') !== '1') {
     $('#cookieInformation')[0].style.display = 'block';
 }
+
+// BUTTON EVENT HOOKS
 
 $('#btnSortBy').on('click', (e) => {
     sortBy = sortBy == 'DATE' ? 'NAME' : 'DATE'; 
@@ -109,12 +112,54 @@ $('#btnJoinLeave').on('click', (e) => {
         ws.emit('JOIN');
 });
 
-$('#btnLog').on('click', (e) => {
+$('#btnStats').on('click', (e) => {
     alert('Gibbet noch ned!');
 });
 
-$('#btnStats').on('click', (e) => {
-    alert('Gibbet noch ned!');
+$('#btnLog').on('click', (e) => {
+    getGuildLog(guildID).then((res) => {
+        $('#modalLog').modal('show');
+        var tab = $('#modalLog div.modal-body > table');
+
+        Array.forEach(tab.children('tr'), (tr) => tr.remove());
+        res.forEach((r) => {
+            var tr = document.createElement('tr');
+
+            var tdTime = document.createElement('td');
+            tdTime.innerText = getTime(new Date(r.time));
+            tr.appendChild(tdTime);
+
+            var tdCaller = document.createElement('td');
+            tdCaller.innerText = r.user_tag;
+            tr.appendChild(tdCaller);
+
+            var tdSound = document.createElement('td');
+            tdSound.innerText = r.sound;
+            tr.appendChild(tdSound);
+
+            var tdSource = document.createElement('td');
+            switch (r.source) {
+                case 'local':
+                    tdSource.innerHTML = '<span class="badge badge-primary">L</span>';
+                    break;
+                case 'youtube':
+                    tdSource.innerHTML = '<span class="badge badge-warning">Y</span>';
+                    break;
+                case 'http':
+                    tdSource.innerHTML = '<span class="badge badge-info">H</span>';
+                    break;
+                default:
+                    tdSource.innerHTML = '<span class="badge badge-dark">?</span>';
+            }
+            tr.appendChild(tdSource);
+
+            tab.append(tr);
+        });
+
+    }).catch((r, s) => {
+        console.log('REST :: ERROR :: ', r, s);
+        displayError(`<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds voice log.`);
+    });
 });
 
 if (sortBy)
@@ -132,6 +177,11 @@ ws.on('ERROR', (data) => {
 
 ws.on('HELLO', (data) => {
     eventDebug('HELLO', data);
+    if (data.data && data.data.connected) {
+        $('#btnJoinLeave')[0].innerText = 'LEAVE';
+        inChannel = true;
+        guildID = data.data.voice_state.guild_id;
+    }
 });
 
 ws.on('PLAYING', (data) => {
@@ -140,7 +190,8 @@ ws.on('PLAYING', (data) => {
         $(`#soundBtn-${data.data.ident}`).addClass('playing');
     }
     inChannel = true;
-    $('#btnJoinLeave')[0].innerText = 'LEFT';
+    $('#btnJoinLeave')[0].innerText = 'LEAVE';
+    guildID = data.data.guild_id;
 });
 
 ws.on('END', (data) => {
@@ -165,7 +216,8 @@ ws.on('VOLUME_CHANGED', (data) => {
 ws.on('JOINED', (data) => {
     eventDebug('JOINED', data);
     inChannel = true;
-    $('#btnJoinLeave')[0].innerText = 'LEFT';
+    $('#btnJoinLeave')[0].innerText = 'LEAVE';
+    guildID = data.data.guild_id;
 });
 
 ws.on('LEFT', (data) => {
