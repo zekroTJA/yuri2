@@ -143,6 +143,18 @@ This is shorthand for `PLAY` command which plays a random picked, local sound.
 }
 ```
 
+
+### STOP
+
+Stop a currently playing sound.
+
+```json
+{
+    "name": "STOP"
+}
+```
+
+
 ### VOLUME
 
 Set the volume of a player in a voice channel. The set volume will be saved and also applied to future players created and used on the guild.
