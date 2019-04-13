@@ -25,6 +25,16 @@ type wsIdent struct {
 	Guilds []*discordgo.Guild
 }
 
+type wsHelloData struct {
+	Connected bool          `json:"connected"`
+	VS        *wsVoiceState `json:"voice_state"`
+}
+
+type wsVoiceState struct {
+	GuildID   string `json:"guild_id"`
+	ChannelID string `json:"channel_id"`
+}
+
 // Event: INIT
 func (api *API) wsInitHandler(e *wsmgr.Event) {
 	data := new(wsInitData)
@@ -58,7 +68,25 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 		Guilds: guilds,
 	})
 
-	e.Sender.Out(wsmgr.NewEvent("HELLO", nil))
+	guild, _ := discordbot.GetUsersGuildInVoice(api.session, data.UserID)
+	var svs *discordgo.VoiceState
+
+	if guild != nil {
+		svs = api.player.GetSelfVoiceState(guild.ID)
+	}
+
+	event := &wsHelloData{
+		Connected: svs != nil,
+	}
+
+	if svs != nil {
+		event.VS = &wsVoiceState{
+			ChannelID: svs.ChannelID,
+			GuildID:   svs.GuildID,
+		}
+	}
+
+	e.Sender.Out(wsmgr.NewEvent("HELLO", event))
 }
 
 // Event: JOIN
