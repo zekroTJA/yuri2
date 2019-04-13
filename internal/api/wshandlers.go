@@ -25,6 +25,16 @@ type wsIdent struct {
 	Guilds []*discordgo.Guild
 }
 
+type wsHelloData struct {
+	Connected bool          `json:"connected"`
+	VS        *wsVoiceState `json:"voice_state"`
+}
+
+type wsVoiceState struct {
+	GuildID   string `json:"guild_id"`
+	ChannelID string `json:"channel_id"`
+}
+
 // Event: INIT
 func (api *API) wsInitHandler(e *wsmgr.Event) {
 	data := new(wsInitData)
@@ -58,7 +68,25 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 		Guilds: guilds,
 	})
 
-	e.Sender.Out(wsmgr.NewEvent("HELLO", nil))
+	guild, _ := discordbot.GetUsersGuildInVoice(api.session, data.UserID)
+	var svs *discordgo.VoiceState
+
+	if guild != nil {
+		svs = api.player.GetSelfVoiceState(guild.ID)
+	}
+
+	event := &wsHelloData{
+		Connected: svs != nil,
+	}
+
+	if svs != nil {
+		event.VS = &wsVoiceState{
+			ChannelID: svs.ChannelID,
+			GuildID:   svs.GuildID,
+		}
+	}
+
+	e.Sender.Out(wsmgr.NewEvent("HELLO", event))
 }
 
 // Event: JOIN
@@ -188,5 +216,30 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 	err := api.player.SetVolume(guild.ID, vol)
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
+	}
+}
+
+// Event: STOP
+func (api *API) wsStopHandler(e *wsmgr.Event) {
+	ident := wsCheckInitilized(e.Sender)
+	if ident == nil {
+		return
+	}
+
+	guild, _ := discordbot.GetUsersGuildInVoice(api.session, ident.UserID)
+	if guild == nil {
+		wsSendError(e.Sender, wsErrForbidden, "you need to be in a voice channel to perform this command")
+		return
+	}
+
+	user, err := api.session.User(ident.UserID)
+	if err != nil || user == nil {
+		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("faield getting user context: %s", err.Error()))
+		return
+	}
+
+	err = api.player.Stop(guild, user)
+	if err != nil {
+		wsSendError(e.Sender, wsErrBadCommandArgs, fmt.Sprintf("command failed: %s", err.Error()))
 	}
 }

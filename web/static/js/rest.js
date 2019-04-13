@@ -10,16 +10,68 @@ function restDebugRespone(data, status) {
 // ------------------------------
 // --- REQUESTS 
 
-function getLocalSounds() {
-    restDebugRequest('GET', '/api/localsounds');
+// GET /api/localsounds
+function getLocalSounds(sortBy) {
+    var url = '/api/localsounds'
+    if (sortBy)
+        url += '?sort=' + sortBy.toUpperCase()
+
+    restDebugRequest('GET', url);
+
     return new Promise((resolve, rejects) => {
-        $.getJSON('/api/localsounds', (res, s) => {
-            restDebugRespone(s, res);
+        
+        $.getJSON(url, (res, s) => {
+            restDebugRespone(res, s);
             if (s == 'success') {
                 resolve(res.results);
             } else {
                 rejects(res, s);
             }
+        }).fail((e) => {
+            rejects(e);
         });
+
+    });
+}
+
+// GET /api/logs/:GUILDID
+function getGuildLog(guildID) {
+    var url = `/api/logs/${guildID}?limit=50`;
+    restDebugRequest('GET', url);
+
+    return new Promise((resolve, rejects) => {
+        
+        $.getJSON(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s == 'success') {
+                resolve(res.results);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+
+    });
+}
+
+// GET /api/stats/:GUILDID
+function getGuildStats(guildID) {
+    var url = `/api/stats/${guildID}?limit=50`;
+    restDebugRequest('GET', url);
+
+    return new Promise((resolve, rejects) => {
+        
+        $.getJSON(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s == 'success') {
+                resolve(res.results);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+
     });
 }

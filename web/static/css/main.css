@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
+@import url('/static/css/vars.css');
 
 body {
-    background-color: #191e20;
+    background-color: var(--c-bg);
 }
 
 h1, h2, h3, h4, p, a {
@@ -9,6 +10,74 @@ h1, h2, h3, h4, p, a {
     color: white;
 }
 
+#header {
+    background-color: var(--c-header);
+}
+
+#errorAlert {
+    display: none; 
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+#soundBtn-RANDOM {
+    background-color: var(--c-btn-random);
+    border-color: var(--c-btn-random);
+    animation: randomButtonHover 5s infinite;
+    animation-play-state: paused;
+    transition: all .25s ease;
+}
+
+#soundBtn-RANDOM:hover {
+    animation-play-state: running;
+}
+
+#searchBox {
+    width: 300px; 
+    height: 20px;
+    background-color: transparent;
+    color: white; 
+    text-align: center;
+    outline: none;
+    border-bottom: 1.5px solid white;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    transition: all .25s ease-in-out;
+}
+
 .btn-sound {
-    background-color: #039BE5 !important;
+    background-color: var(--c-btn-sound) !important;
+    transition: all .25s ease;
+}
+
+.btn-header {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    font-size: 13px !important;
+}
+
+.playing {
+    background-color: var(--c-btn-sound-activated) !important;
+    border-color: var(--c-btn-sound-activated) !important;
+}
+
+.alert-warning-override {
+    background-color: var(--c-warning) !important;
+}
+
+.alert-error-override {
+    background-color: var(--c-error) !important;
+}
+
+.fade {
+    transition: all .25s ease;
+}
+
+.btn-basic-override {
+    background-color: var(--c-btn-basic) !important;
+}
+
+.avi {
+    border-radius: 50%;
 }

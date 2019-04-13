@@ -11,6 +11,7 @@ GO     = go
 DEP    = dep
 GOLINT = golint
 GREP   = grep
+CLOC   = cloc
 ###############################################
 
 # ---------------------------------------------
@@ -78,11 +79,18 @@ run:
 PHONY += cleanup
 cleanup:
 
+PHONY += cloc
+cloc:
+	$(CLOC) \
+		--exclude-dir=vendor,docs,public \
+		--exclude-lang=JSON,Markdown,YAML,XML,TOML,Sass ./
+
 PHONY += help
 help:
 	@echo "Available targets:"
 	@echo "  #        - creates binary in ./bin"
 	@echo "  cleanup  - tidy up temporary stuff created by build or scripts"
+	@echo "  cloc     - tidy up temporary stuff created by build or scripts"
 	@echo "  deps     - ensure dependencies are installed"
 	@echo "  lint     - run linters (golint)"
 	@echo "  run      - debug run app (go run) with test config"

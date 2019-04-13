@@ -7,11 +7,125 @@
 </head>
 
 <body>
-	
-	<div id="container-sound-btns" class="container-fluid my-3">
+	<!-- HEADER BAR -->
+	<div id="header" class="container-fluid d-flex align-items-center mx-auto px-3 py-2">
+		<img class="avi mr-3" src="/static/img/avi.jpg" width="42"/>
+		<h2 class="p-0 m-0">YURI</h2>
+		<div class="container-fluid d-flex mx-2">
+			<a href="/logout" class="btn text-white btn-danger btn-header mx-1">LOGOUT</a>
+			<a href="javascript:{}" class="btn text-white btn-info btn-header mx-1" id="btnSortBy">SORT BY DATE</a>
+			<a href="javascript:{}" class="btn text-white btn-warning btn-header mx-1" id="btnStop">STOP</a>
+			<a href="javascript:{}" class="btn text-white btn-success btn-header mx-1" id="btnJoinLeave">JOIN</a>
+			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnLog">LOG</a>
+			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnStats">STATS</a>
+		</div>
+		<input id="searchBox" class="mr-3" type="text"/>
+		<img src="/static/img/search.png" width="20" height="20">
 	</div>
 
+	<!-- MODAL LOG -->
+	<div class="modal fade" id="modalLog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">PLAYER LOG</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<table class="table">
+					<thead>
+  					 	<tr>
+  					 	 	<th scope="col">Time</th>
+  					 	 	<th scope="col">Caller</th>
+  					 	 	<th scope="col">Sound</th>
+  					 	 	<th scope="col">Type</th>
+  					 	</tr>
+  					</thead>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- MODAL STATS -->
+	<div class="modal fade" id="modalStats" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">SOUND STATS</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<table class="table">
+					<thead>
+  					 	<tr>
+  					 	 	<th scope="col">#</th>
+  					 	 	<th scope="col">Sound</th>
+  					 	 	<th scope="col">Calls</th>
+  					 	</tr>
+  					</thead>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- COOKIE INFORMATION -->
+	<div id="cookieInformation" class="alert alert-warning alert-warning-override m-4" role="alert" style="display: none">
+		<h4 class="alert-heading text-white">COOKIE INFORMATION</h4>
+		<p class="text-white">
+			Yuri is saving information in form of cookies to auto-authenticate your identity and for saving settings
+			like the sound sort preferecne or hiding this message.<br/><br/>
+			Read <a class="text-info" href="https://github.com/zekroTJA/yuri2/blob/master/docs/cookie-usage.md" target="_blank">here</a> 
+			for further information about Yuri's cookie usage.<br/><br/>
+			You can also use <a class="text-info" href="/static/delete-cookies.html">this</a> page to delete all cookies
+			Yuri has created <i>(requires JavaScript enabled)</i>:<br/>
+			<code>/static/delete-cookies.html</code><br/><br/>
+			<b>By declining this policy you will not be able to use the Yuri Web frontend which hardly requires cookie usage.</b>
+		</p>
+		<hr>
+		<div class="d-flex justify-content-end">
+			<a id="btCookieAccept" href="javascript:{}" class="btn btn-light btn-sm">ACCEPT</a>
+			<a id="btCookieDecline" href="javascript:{}" class="btn btn-danger text-white btn-sm ml-3">DECLINE</a>
+		</div>
+	</div>
+
+	<!-- ERROR ALERT -->
+	<div id="errorAlert" class="alert alert-danger alert-error-override m-4 text-white fade" role="alert">
+		<div class="row">
+			<div class="col-0">
+				<img class="ml-3 mb-1" src="/static/img/error.png" height="20" width="20"/>
+			</div>
+			<div id="errorAlertText" class="col"></div>
+		</div>
+	</div>
+
+	<!-- LOADING SPINNER -->
+	<div id="spinnerLoadingSounds" class="container-fluid d-flex align-items-center">
+		<div class="spinner-border text-primary m-3" role="status"></div>
+		<span class="text-white">Loading sounds...</span>
+	</div>
+	
+	<!-- SOUND BUTTONS -->
+	<div id="container-sound-btns" class="container-fluid my-3">
+		<!-- Sound buttons will be placed here -->
+	</div>
+
+	<!-- SCRIPTS -->
 	<script src="/static/lib/jquery.min.js"></script>
+	<script src="/static/lib/bootstrap.min.js"></script>
+
+	<script src="/static/js/util.js"></script>
 	<script src="/static/js/rest.js"></script>
 	<script src="/static/js/ws.js"></script>
 	<script src="/static/js/index.js"></script>
