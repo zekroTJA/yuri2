@@ -17,8 +17,7 @@
 			<a href="javascript:{}" class="btn text-white btn-warning btn-header mx-1" id="btnStop">STOP</a>
 			<a href="javascript:{}" class="btn text-white btn-success btn-header mx-1" id="btnJoinLeave">JOIN</a>
 			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnLog">LOG</a>
-			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnStats"
-				data-toggle="modal" data-target="#exampleModal">STATS</a>
+			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnStats">STATS</a>
 		</div>
 	</div>
 
@@ -40,6 +39,34 @@
   					 	 	<th scope="col">Caller</th>
   					 	 	<th scope="col">Sound</th>
   					 	 	<th scope="col">Type</th>
+  					 	</tr>
+  					</thead>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- MODAL STATS -->
+	<div class="modal fade" id="modalStats" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">SOUND STATS</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<table class="table">
+					<thead>
+  					 	<tr>
+  					 	 	<th scope="col">#</th>
+  					 	 	<th scope="col">Sound</th>
+  					 	 	<th scope="col">Calls</th>
   					 	</tr>
   					</thead>
 				</table>

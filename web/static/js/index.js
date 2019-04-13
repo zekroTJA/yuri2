@@ -112,10 +112,6 @@ $('#btnJoinLeave').on('click', (e) => {
         ws.emit('JOIN');
 });
 
-$('#btnStats').on('click', (e) => {
-    alert('Gibbet noch ned!');
-});
-
 $('#btnLog').on('click', (e) => {
     getGuildLog(guildID).then((res) => {
         $('#modalLog').modal('show');
@@ -158,7 +154,37 @@ $('#btnLog').on('click', (e) => {
 
     }).catch((r, s) => {
         console.log('REST :: ERROR :: ', r, s);
-        displayError(`<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds voice log.`);
+        displayError(`<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds log.`);
+    });
+});
+
+$('#btnStats').on('click', (e) => {
+    getGuildStats(guildID).then((res) => {
+        $('#modalStats').modal('show');
+        var tab = $('#modalStats div.modal-body > table');
+
+        Array.forEach(tab.children('tr'), (tr) => tr.remove());
+        res.forEach((r, i) => {
+            var tr = document.createElement('tr');
+
+            var tdNumber = document.createElement('td');
+            tdNumber.innerHTML = `<span class="badge badge-primary">${i + 1}</span>`;
+            tr.appendChild(tdNumber);
+
+            var tdSound = document.createElement('td');
+            tdSound.innerText = r.sound;
+            tr.appendChild(tdSound);
+
+            var tdCount = document.createElement('td');
+            tdCount.innerText = r.count;
+            tr.appendChild(tdCount);
+
+            tab.append(tr);
+        });
+
+    }).catch((r, s) => {
+        console.log('REST :: ERROR :: ', r, s);
+        displayError(`<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds stats.`);
     });
 });
 
