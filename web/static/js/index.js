@@ -31,6 +31,7 @@ function fetchSoundsList(sort, cb) {
     var spinner = $('#spinnerLoadingSounds');
     spinner.addClass('d-flex');
     spinner.removeClass('d-none');
+    $('#container-sound-btns').empty();
     getLocalSounds(sort ? sort : 'NAME').then((sounds) => {
         updateSoundList(sounds);
         spinner.removeClass('d-flex');
