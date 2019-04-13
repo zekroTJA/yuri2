@@ -16,6 +16,7 @@ WS events will always be fired wether the command was executed from a Discord cl
   - [LEAVE](#leave)
   - [PLAY](#play)
   - [RANDOM](#random)
+  - [STOP](#stop)
   - [VOLUME](#volume)
 
 - [Events](#events)
