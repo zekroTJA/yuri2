@@ -105,7 +105,7 @@ if (getCookieValue('cookies_accepted') !== '1') {
 
 $('#btnSortBy').on('click', (e) => {
     sortBy = sortBy == 'DATE' ? 'NAME' : 'DATE'; 
-    document.cookie = `sort_by=${sortBy}; paht=/`;
+    document.cookie = `sort_by=${sortBy}; Max-Age=2147483647; Paht=/`;
     $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
     fetchSoundsList(sortBy, (s) => {
         if (s) sounds = s;
@@ -113,7 +113,7 @@ $('#btnSortBy').on('click', (e) => {
 });
 
 $('#btCookieAccept').on('click', (e) => {
-    document.cookie = 'cookies_accepted=1; path=/';
+    document.cookie = 'cookies_accepted=1; Max-Age=2147483647; Path=/';
     $('#cookieInformation')[0].style.display = 'none';
 });
 
