@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
+@import url('/static/css/vars.css');
 
 body {
-    background-color: #191e20;
+    background-color: var(--c-bg);
 }
 
 h1, h2, h3, h4, p, a {
@@ -10,11 +11,29 @@ h1, h2, h3, h4, p, a {
 }
 
 #header {
-    background-color: #112831;
+    background-color: var(--c-header);
+}
+
+#errorAlert {
+    display: none; 
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+#soundBtn-RANDOM {
+    background-color: var(--c-btn-random);
+    border-color: var(--c-btn-random);
+    animation: randomButtonHover 5s infinite;
+    animation-play-state: paused;
+    transition: all .25s ease;
+}
+
+#soundBtn-RANDOM:hover {
+    animation-play-state: running;
 }
 
 .btn-sound {
-    background-color: #039BE5 !important;
+    background-color: var(--c-btn-sound) !important;
     transition: all .25s ease;
 }
 
@@ -25,16 +44,16 @@ h1, h2, h3, h4, p, a {
 }
 
 .playing {
-    background-color: #E91E63 !important;
-    border-color: #E91E63 !important;
+    background-color: var(--c-btn-sound-activated) !important;
+    border-color: var(--c-btn-sound-activated) !important;
 }
 
 .alert-warning-override {
-    background-color: #FFCA2833 !important;
+    background-color: var(--c-warning) !important;
 }
 
 .alert-error-override {
-    background-color: rgba(255, 40, 40, 0.2) !important;
+    background-color: var(--c-error) !important;
 }
 
 .fade {
@@ -42,7 +61,7 @@ h1, h2, h3, h4, p, a {
 }
 
 .btn-basic-override {
-    background-color: rgba(255, 255, 255, 0.534) !important;
+    background-color: var(--c-btn-basic) !important;
 }
 
 .avi {

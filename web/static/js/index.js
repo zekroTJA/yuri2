@@ -17,20 +17,32 @@ function addButton(name) {
     $('#container-sound-btns').append(btn);
 };
 
+function addRandomButton() {
+    var btn = document.createElement('button');
+    btn.innerText = '🎲';
+    btn.id = `soundBtn-RANDOM`;
+    btn.className = 'btn btn-primary m-2';
+    btn.onclick = (e) => 
+        ws.emit('RANDOM');
+    $('#container-sound-btns').append(btn);
+}
+
 function fetchSoundsList(sort, cb) {
+    var spinner = $('#spinnerLoadingSounds');
     $('#container-sound-btns').empty();
-    $('#spinnerLoadingSounds').addClass('d-flex');
-    $('#spinnerLoadingSounds').removeClass('d-none');
+    spinner.addClass('d-flex');
+    spinner.removeClass('d-none');
     getLocalSounds(sort ? sort : 'NAME').then((sounds) => {
+        addRandomButton();
         sounds.forEach((s) => addButton(s.name));
-        $('#spinnerLoadingSounds').removeClass('d-flex');
-        $('#spinnerLoadingSounds').addClass('d-none');
+        spinner.removeClass('d-flex');
+        spinner.addClass('d-none');
         if (cb) cb();
     }).catch((r, s) => {
         console.log('REST :: ERROR :: ', r, s);
         displayError(`<code>REST API ERROR</code> getting sounds failed:<br/><code>${r}</code>`);
-        $('#spinnerLoadingSounds').removeClass('d-flex');
-        $('#spinnerLoadingSounds').addClass('d-none');
+        spinner.removeClass('d-flex');
+        spinner.addClass('d-none');
         if (cb) cb();
     });
 }
@@ -40,12 +52,17 @@ function displayError(desc, time) {
 
     var alertBox = $('#errorAlert')[0];
     $('#errorAlertText')[0].innerHTML = desc;
+
+    // fade in
     alertBox.style.display = 'block';
     setTimeout(() => {
         alertBox.style.opacity = '1';
+        alertBox.style.transform = 'translateY(0px)';
     }, 10);
+    // fade out
     setTimeout(() => {
         alertBox.style.opacity = '0';
+        alertBox.style.transform = 'translateY(-20px)';
     }, time);
     setTimeout(() => {
         alertBox.style.display = 'none';
