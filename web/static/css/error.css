@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
+@import url('/static/css/vars.css');
+
 
 body {
-    background-color: #191e20;
+    background-color: var(--c-bg);
     display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
