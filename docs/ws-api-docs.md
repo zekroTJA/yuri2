@@ -179,11 +179,28 @@ The delivered data specifies the `volume` as `integer` value in a range of `[0, 
 
 This event is fired when you successfully authenticated and initialized the WS connection with the [`INIT`](#init) command. You should wait for this event until sending further commands.
 
+**NOTICE:**  
+You will only get valid `connected` and `voice_state` information when you are connected to a voice channel on a guild Yuri is member of. Else, these values will be `false` and `null` even if the bot is actually in any of the guilds voice channels.
+
 ```json
 {
-    "name": "HELLO"
+  "name": "HELLO",
+  "data": {
+    "connected": true,
+    "voice_state": {
+      "guild_id": "526196711962705925",
+      "channel_id": "549871583364382771"
+    }
+  }
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `connected` | `bool` | Identicates whether the bot is connected to any voice channel on the guild you are also connected to. |
+| `voice_state.guild_id` | `string` | The guild where the bot is in the voice channel. |
+| `voice_state.channel_id` | `string` | The voice channel where the bot is connected to. |
+
 
 ### ERROR
 
