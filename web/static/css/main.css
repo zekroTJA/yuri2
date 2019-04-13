@@ -1,8 +1,23 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
 @import url('/static/css/vars.css');
 
+html {
+    height: 100%;
+    box-sizing: border-box;
+  }
+  
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
 body {
     background-color: var(--c-bg);
+    position: relative;
+    margin: 0;
+    padding-bottom: 6rem;
+    min-height: 100%;
 }
 
 h1, h2, h3, h4, p, a {
@@ -46,6 +61,10 @@ h1, h2, h3, h4, p, a {
     transition: all .25s ease-in-out;
 }
 
+#container-sound-btns {
+    margin-bottom: 4rem !important;
+}
+
 .btn-sound {
     background-color: var(--c-btn-sound) !important;
     transition: all .25s ease;
@@ -81,3 +100,13 @@ h1, h2, h3, h4, p, a {
 .avi {
     border-radius: 50%;
 }
+
+.footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: var(--c-footer);
+    /* height: 60px; Set the fixed height of the footer here */
+  }
