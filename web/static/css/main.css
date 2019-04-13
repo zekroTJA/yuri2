@@ -32,6 +32,20 @@ h1, h2, h3, h4, p, a {
     animation-play-state: running;
 }
 
+#searchBox {
+    width: 300px; 
+    height: 20px;
+    background-color: transparent;
+    color: white; 
+    text-align: center;
+    outline: none;
+    border-bottom: 1.5px solid white;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    transition: all .25s ease-in-out;
+}
+
 .btn-sound {
     background-color: var(--c-btn-sound) !important;
     transition: all .25s ease;

@@ -29,15 +29,13 @@ function addRandomButton() {
 
 function fetchSoundsList(sort, cb) {
     var spinner = $('#spinnerLoadingSounds');
-    $('#container-sound-btns').empty();
     spinner.addClass('d-flex');
     spinner.removeClass('d-none');
     getLocalSounds(sort ? sort : 'NAME').then((sounds) => {
-        addRandomButton();
-        sounds.forEach((s) => addButton(s.name));
+        updateSoundList(sounds);
         spinner.removeClass('d-flex');
         spinner.addClass('d-none');
-        if (cb) cb();
+        if (cb) cb(sounds);
     }).catch((r, s) => {
         console.log('REST :: ERROR :: ', r, s);
         displayError(`<code>REST API ERROR</code> getting sounds failed:<br/><code>${r}</code>`);
@@ -45,6 +43,25 @@ function fetchSoundsList(sort, cb) {
         spinner.addClass('d-none');
         if (cb) cb();
     });
+}
+
+function updateSoundList(soundList) {
+    $('#container-sound-btns').empty();
+    addRandomButton();
+    soundList.forEach((s) => addButton(s.name));
+}
+
+function filterSoundsList(query, sl) {
+    if (!query)
+        updateSoundList(sl);
+    query = query.toLowerCase();
+    updateSoundList(sl.filter((s) => {
+        if (query.startsWith('*'))
+            return s.name.endsWith(query.substr(1));
+        if (query.endsWith('*'))
+            return s.name.startsWith(query.substr(0, query.length - 1));
+        return s.name.includes(query);
+    }));
 }
 
 function displayError(desc, time) {
@@ -74,6 +91,7 @@ ws.onEmit((e, raw) => console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data))
 // --------------------------
 // --- INIT
 
+var sounds = [];
 var sortBy = getCookieValue('sort_by');
 var inChannel = false;
 var guildID = null;
@@ -88,7 +106,9 @@ $('#btnSortBy').on('click', (e) => {
     sortBy = sortBy == 'DATE' ? 'NAME' : 'DATE'; 
     document.cookie = `sort_by=${sortBy}; paht=/`;
     $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
-    fetchSoundsList(sortBy);
+    fetchSoundsList(sortBy, (s) => {
+        if (s) sounds = s;
+    });
 });
 
 $('#btCookieAccept').on('click', (e) => {
@@ -188,10 +208,21 @@ $('#btnStats').on('click', (e) => {
     });
 });
 
+$('#searchBox').on('input', (e) => {
+    var tb = e.currentTarget;
+    var val = tb.value;
+    setTimeout(() => {
+        if (val == tb.value)
+            filterSoundsList(val, sounds);
+    }, 250);
+});
+
 if (sortBy)
     $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
 
-fetchSoundsList(sortBy);
+fetchSoundsList(sortBy, (s) => {
+    if (s) sounds = s;
+});
 
 // --------------------------
 // --- WS EVENT HANDLERS
