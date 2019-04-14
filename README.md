@@ -14,11 +14,29 @@
 
 ---
 
+# Index
+
+- [Intro](#intro)
+
+
+---
+
 # Intro
 
-Yuri is the best Discord sound board in whole North Korea, if you believe it or not! And now, even better with v.2 with way better performance, better code structure, easier installation and a brand new web interface! Also, now, Lavalink is completely implemented as Discord voice backend. With the new, open REST and Web Socket API you are now able to create applications hooking up the Yuri backend!
+Yuri is the best Discord sound board in whole North Korea, if you believe it or not! And now, even better with v.2 with way better performance, better code structure, easier installation and a brand new web interface! Also, now, Lavalink is completely implemented as Discord voice backend. With the new, open REST and Web Socket API you are now able to create applications hooking up the Yuri back end!
 
+# Screen Shots
 
+## Discord Front End
+
+<img src=".github/media/ss-dc-help.png" width="577"/><br/>
+<img src=".github/media/ss-dc-list.gif" height="400"/>
+<img src=".github/media/ss-dc-log.png" height="400"/>
+<img src=".github/media/ss-dc-stats.png" height="400"/>
+
+## Web Interface
+
+![](.github/media/ss-wi.gif)
 
 ---
 
