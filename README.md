@@ -17,14 +17,10 @@
 # Index
 
 - [Intro](#intro)
-<<<<<<< HEAD
-
-=======
 - [Screen Shots](#screen-shots)
 - [Setup](#setup)
 - [Compiling](#compiling)
 - [Used 3rd Party Dependencies](#used-3rd-party-dependencies)
->>>>>>> dev
 
 ---
 
