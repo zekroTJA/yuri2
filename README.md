@@ -37,7 +37,7 @@ Yuri is the best Discord sound board in whole North Korea, if you believe it or 
 <img src=".github/media/ss-dc-log.png" height="400"/>
 <img src=".github/media/ss-dc-stats.png" height="400"/>
 
-# Web Interface
+## Web Interface
 
 ![](.github/media/ss-wi.gif)
 
