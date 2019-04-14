@@ -18,7 +18,7 @@
 
 Yuri is the best Discord sound board in whole North Korea, if you believe it or not! And now, even better with v.2 with way better performance, better code structure, easier installation and a brand new web interface! Also, now, Lavalink is completely implemented as Discord voice backend. With the new, open REST and Web Socket API you are now able to create applications hooking up the Yuri backend!
 
-# Features
+
 
 ---
 

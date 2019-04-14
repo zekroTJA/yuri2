@@ -11,6 +11,9 @@
 
     --c-warning: #FFCA2833;
     --c-error: rgba(255, 40, 40, 0.2);
+
+    --c-vol: #039BE5;
+    --c-vol-bg: #191e20;
 }
 
 @keyframes randomButtonHover {

@@ -87,6 +87,14 @@ function displayError(desc, time) {
     }, time + 250);
 }
 
+function setVolume(v) {
+    var container = $('#containerVol');
+    if (container.hasClass('invis'))
+        container.removeClass('invis');
+    $('#sliderVol').val(v);
+    $('#labelVol')[0].innerText = v + '%';
+}
+
 ws.onEmit((e, raw) => console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data));
 
 // --------------------------
@@ -100,6 +108,10 @@ var guildID = null;
 if (getCookieValue('cookies_accepted') !== '1') {
     $('#cookieInformation')[0].style.display = 'block';
 }
+
+fetchSoundsList(sortBy, (s) => {
+    if (s) sounds = s;
+});
 
 // BUTTON EVENT HOOKS
 
@@ -218,12 +230,18 @@ $('#searchBox').on('input', (e) => {
     }, 250);
 });
 
+$('#sliderVol').on('input', (e) => {
+    var val = $('#sliderVol').val();
+    $('#labelVol')[0].innerText = val + '%';
+});
+
+$('#sliderVol').on('change', (e) => {
+    var val = $('#sliderVol').val();
+    ws.emit('VOLUME', parseInt(val));
+});
+
 if (sortBy)
     $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
-
-fetchSoundsList(sortBy, (s) => {
-    if (s) sounds = s;
-});
 
 // --------------------------
 // --- WS EVENT HANDLERS
@@ -239,6 +257,7 @@ ws.on('HELLO', (data) => {
         $('#btnJoinLeave')[0].innerText = 'LEAVE';
         inChannel = true;
         guildID = data.data.voice_state.guild_id;
+        setVolume(data.data.vol);
     }
 });
 
@@ -250,6 +269,7 @@ ws.on('PLAYING', (data) => {
     inChannel = true;
     $('#btnJoinLeave')[0].innerText = 'LEAVE';
     guildID = data.data.guild_id;
+    setVolume(data.data.vol);    
 });
 
 ws.on('END', (data) => {
@@ -276,6 +296,7 @@ ws.on('JOINED', (data) => {
     inChannel = true;
     $('#btnJoinLeave')[0].innerText = 'LEAVE';
     guildID = data.data.guild_id;
+    setVolume(data.data.vol);
 });
 
 ws.on('LEFT', (data) => {

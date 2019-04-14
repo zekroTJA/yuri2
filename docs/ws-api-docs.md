@@ -187,6 +187,7 @@ You will only get valid `connected` and `voice_state` information when you are c
   "name": "HELLO",
   "data": {
     "connected": true,
+    "vol": 25,
     "voice_state": {
       "guild_id": "526196711962705925",
       "channel_id": "549871583364382771"
@@ -198,6 +199,7 @@ You will only get valid `connected` and `voice_state` information when you are c
 | Field | Type | Description |
 |-------|------|-------------|
 | `connected` | `bool` | Identicates whether the bot is connected to any voice channel on the guild you are also connected to. |
+| `vol` | `int` | The volume of the guilds player, if connected. |
 | `voice_state.guild_id` | `string` | The guild where the bot is in the voice channel. |
 | `voice_state.channel_id` | `string` | The voice channel where the bot is connected to. |
 
@@ -237,7 +239,8 @@ Is fired when a track starts playing.
      "guild_id": "526196711962705925",
      "channel_id": "549871583364382771",
      "user_id": "221905671296253953",
-     "user_tag": "zekro#9131"
+     "user_tag": "zekro#9131",
+     "vol": 25
   }
 }
 ```
@@ -253,6 +256,7 @@ The event data is a JSON object with following properties:
 | `guild_id` | `string` | The guild the track was played on. |
 | `user_id` | `string` | The users ID who played the track. |
 | `user_tag` | `string` | The users Tag who played the track. |
+| `vol` | `int` | The current volume of the guilds player. |
 
 
 ### END
@@ -389,7 +393,8 @@ Is fired when the bot joined a voice channel.
   "name": "JOINED",
   "data": {
     "guild_id": "526196711962705925",
-    "channel_id": "549871583364382771"
+    "channel_id": "549871583364382771",
+    "vol": 25
   }
 }
 ```
@@ -402,6 +407,7 @@ The event data is a JSON object with following properties:
 |-------|------|-------------|
 | `guild_id` | `string` | The ID of the guild where the bot joined. |
 | `channel_id` | `string` | The ID of the channel where the bot joined into. |
+| `vol` | `int` | The current volume of the guilds player. |
 
 
 ### LEFT

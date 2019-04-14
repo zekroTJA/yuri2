@@ -16,6 +16,7 @@ type soundTrack struct {
 	ChannelID string              `json:"channel_id,omitempty"`
 	UserID    string              `json:"user_id,omitempty"`
 	UserTag   string              `json:"user_tag,omitempty"`
+	Vol       int                 `json:"vol,omitempty"`
 }
 
 type wsPlayExceptionData struct {
@@ -36,6 +37,7 @@ type wsVolumeChangedData struct {
 type wsGuildChannelData struct {
 	GuildID   string `json:"guild_id"`
 	ChannelID string `json:"channel_id"`
+	Vol       int    `json:"vol"`
 }
 
 // OnTrackStart is the handler for PLAYING event
@@ -49,6 +51,7 @@ func (api *API) OnTrackStart(player *gavalink.Player, track, ident string,
 		ChannelID: channelID,
 		UserID:    userID,
 		UserTag:   userTag,
+		Vol:       player.GetVolume(),
 	}
 
 	// The saved track ID is shortened by 5 characters because
@@ -145,9 +148,12 @@ func (api *API) OnVolumeChanged(player *gavalink.Player, guildID string, vol int
 func (api *API) OnVoiceJoined(guildID, channelID string) {
 	logger.Debug("API :: PLAYER HANDLER :: voice joined event")
 
+	vol, _ := api.player.GetVolume(guildID)
+
 	e := &wsGuildChannelData{
 		GuildID:   guildID,
 		ChannelID: channelID,
+		Vol:       vol,
 	}
 
 	cond := condFactory(api.session, guildID)

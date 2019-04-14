@@ -392,6 +392,17 @@ func (p *Player) SetVolume(guildID string, vol int) error {
 	return p.db.SetGuildVolume(guildID, vol)
 }
 
+// GetVolume returns the volume of the player
+// for the specified guild.
+func (p *Player) GetVolume(guildID string) (int, error) {
+	pl, err := p.link.GetPlayer(guildID)
+	if err != nil {
+		return 0, nil
+	}
+
+	return pl.GetVolume(), nil
+}
+
 // GetSelfVoiceState returns the current voice state on
 // the specified guild. This will return nil if the bot
 // is not in any voice channel on this guild.

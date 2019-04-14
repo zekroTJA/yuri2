@@ -27,6 +27,7 @@ type wsIdent struct {
 
 type wsHelloData struct {
 	Connected bool          `json:"connected"`
+	Vol       int           `json:"vol"`
 	VS        *wsVoiceState `json:"voice_state"`
 }
 
@@ -70,12 +71,15 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 
 	guild, _ := discordbot.GetUsersGuildInVoice(api.session, data.UserID)
 	var svs *discordgo.VoiceState
+	var vol int
 
 	if guild != nil {
 		svs = api.player.GetSelfVoiceState(guild.ID)
+		vol, _ = api.player.GetVolume(guild.ID)
 	}
 
 	event := &wsHelloData{
+		Vol:       vol,
 		Connected: svs != nil,
 	}
 
@@ -196,7 +200,7 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 		return
 	}
 
-	vol, ok := e.Data.(int)
+	vol, ok := e.Data.(float64)
 	if !ok {
 		wsSendError(e.Sender, wsErrBadCommandArgs, "invalid command data format")
 		return
@@ -213,7 +217,7 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 		return
 	}
 
-	err := api.player.SetVolume(guild.ID, vol)
+	err := api.player.SetVolume(guild.ID, int(vol))
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
