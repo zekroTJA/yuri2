@@ -322,7 +322,7 @@ func (api *API) wsCheckLimitWithResponse(wsc *wsmgr.WebSocketConn, userID string
 
 	ok, res := limiter.Reserve()
 	if !ok {
-		wsSendError(wsc, wsErrRateLimitExceed, "", map[string]int64{
+		wsSendError(wsc, wsErrRateLimitExceed, "Rate limit exceed. Wait reset_time * milliseconds until sending another command.", map[string]int64{
 			"reset_time": time.Until(res.Reset.Time).Nanoseconds() / 1000000,
 		})
 	}
