@@ -199,9 +199,9 @@ You will only get valid `connected` and `voice_state` information when you are c
 | Field | Type | Description |
 |-------|------|-------------|
 | `connected` | `bool` | Identicates whether the bot is connected to any voice channel on the guild you are also connected to. |
-| `vol` | `int` | The volume of the guilds player, if connected. |
-| `voice_state.guild_id` | `string` | The guild where the bot is in the voice channel. |
-| `voice_state.channel_id` | `string` | The voice channel where the bot is connected to. |
+| *`vol`* | `int` | The volume of the guilds player, if connected. |
+| *`voice_state.guild_id`* | `string` | The guild where the bot is in the voice channel. |
+| *`voice_state.channel_id`* | `string` | The voice channel where the bot is connected to. |
 
 
 ### ERROR
@@ -224,6 +224,7 @@ This event is fired every time a command could not be executed or something othe
 | `code` | `int` | The integer code of the error type. |
 | `type` | `string` | The description of the error type. |
 | `message` | `string` | Further information about the error. |
+| *`data`* | `any?` | Also, extra data **can** be contained. |
 
 
 ### PLAYING

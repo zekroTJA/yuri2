@@ -65,6 +65,11 @@ These cookeis will be automatically detected and checked for authentication if y
 Parameters with `default` formated names are **required** and parameters with *`italic`* formated names are ***optional***.  
 The type *(int, string, ...)* and the passing method *(URL Query, JSON Body, Resource Path, ...)* are described in the parameter tables.
 
+## Response Data
+
+Generally, the API will never omit response data keys if they are unset or not existent. They will always be defined as `null` or as the default value o the specific data type like `""` for strings or `0` for integers.  
+Those data properties are marked with *`italic`* font style.
+
 ---
 
 ## Endpoints

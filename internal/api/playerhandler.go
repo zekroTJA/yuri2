@@ -10,23 +10,23 @@ import (
 )
 
 type soundTrack struct {
-	Ident     string              `json:"ident,omitempty"`
+	Ident     string              `json:"ident"`
 	Source    player.ResourceType `json:"source"`
-	GuildID   string              `json:"guild_id,omitempty"`
-	ChannelID string              `json:"channel_id,omitempty"`
-	UserID    string              `json:"user_id,omitempty"`
-	UserTag   string              `json:"user_tag,omitempty"`
-	Vol       int                 `json:"vol,omitempty"`
+	GuildID   string              `json:"guild_id"`
+	ChannelID string              `json:"channel_id"`
+	UserID    string              `json:"user_id"`
+	UserTag   string              `json:"user_tag"`
+	Vol       int                 `json:"vol"`
 }
 
 type wsPlayExceptionData struct {
 	Reason string      `json:"reason"`
-	Track  *soundTrack `json:"track,omitempty"`
+	Track  *soundTrack `json:"track"`
 }
 
 type wsPlayStuckData struct {
 	Threshold int         `json:"threshold"`
-	Track     *soundTrack `json:"track,omitempty"`
+	Track     *soundTrack `json:"track"`
 }
 
 type wsVolumeChangedData struct {

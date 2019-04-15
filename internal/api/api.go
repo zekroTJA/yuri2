@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/zekroTJA/timedmap"
 
 	"github.com/zekroTJA/discordgo"
+
 	"github.com/zekroTJA/yuri2/internal/api/auth"
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"
@@ -14,6 +18,17 @@ import (
 	"github.com/zekroTJA/yuri2/internal/static"
 	"github.com/zekroTJA/yuri2/pkg/discordoauth"
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
+)
+
+const (
+	limitsCleanupInterval = 5 * time.Minute
+	limitsLifetime        = 1 * time.Hour
+
+	wsLimit = 1500 * time.Millisecond
+	wsBurst = 10
+
+	restLimit = 2 * time.Second
+	restBurst = 5
 )
 
 // API maintains the HTTP web server, REST
@@ -35,6 +50,8 @@ type API struct {
 
 	discordAuthFE  *discordoauth.DiscordOAuth
 	discordAuthAPI *discordoauth.DiscordOAuth
+
+	limits *timedmap.TimedMap
 }
 
 // NewAPI initializes a new API and registers handlers
@@ -48,6 +65,7 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 		player:  player,
 
 		trackCache: make(map[string]*soundTrack),
+		limits:     timedmap.New(limitsCleanupInterval),
 	}
 
 	api.qualifiedAddress = cfg.PublicAddress
