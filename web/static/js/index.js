@@ -150,7 +150,7 @@ $('#btnLog').on('click', (e) => {
         $('#modalLog').modal('show');
         var tab = $('#modalLog div.modal-body > table');
 
-        Array.forEach(tab.children('tr'), (tr) => tr.remove());
+        tab.children('tr').each((_, tr) => tr.remove());
         res.forEach((r) => {
             var tr = document.createElement('tr');
 
@@ -196,7 +196,7 @@ $('#btnStats').on('click', (e) => {
         $('#modalStats').modal('show');
         var tab = $('#modalStats div.modal-body > table');
 
-        Array.forEach(tab.children('tr'), (tr) => tr.remove());
+        tab.children('tr').each((_, tr) => tr.remove());
         res.forEach((r, i) => {
             var tr = document.createElement('tr');
 
@@ -289,6 +289,7 @@ ws.on('STUCK', (data) => {
 
 ws.on('VOLUME_CHANGED', (data) => {
     eventDebug('VOLUME_CHANGED', data);
+    setVolume(data.data.vol);
 });
 
 ws.on('JOINED', (data) => {
