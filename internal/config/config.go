@@ -38,9 +38,9 @@ type Discord struct {
 // Lavalink contains the values of
 // the Lavalink specific configuration.
 type Lavalink struct {
-	Address        string `json:"address"`
-	Password       string `json:"password"`
-	SoundsLocation string `json:"sounds_location"`
+	Address         string   `json:"address"`
+	Password        string   `json:"password"`
+	SoundsLocations []string `json:"sounds_locations"`
 }
 
 // Misc contains miscellaneous configuration

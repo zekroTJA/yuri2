@@ -15,7 +15,8 @@ database:
 lavalink:
   address: localhost:2333
   password: ""
-  sounds_location: ""
+  sounds_location: 
+    - "./sounds"
 
 misc:
   log_level: 4

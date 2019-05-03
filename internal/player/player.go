@@ -61,7 +61,7 @@ type Player struct {
 	restURL  string
 	wsURL    string
 	password string
-	fileLoc  string
+	fileLocs []string
 
 	onError      func(t string, err error)
 	eventHandler *EventHandlerManager
@@ -78,10 +78,11 @@ type Player struct {
 // NewPlayer creates a new Player.
 //   restURL : the lavalink REST API URL
 //   wsURL   : the lavalink WS URL
-//   fileLoc : the path to local sound files
+//   fileLoc : the pathes to local sound files
+//             (will be merged together and handled as one location)
 //   db      : the database middleware to use
 //   onError : handler func to be used when errors are occuring
-func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware, onError func(t string, err error)) *Player {
+func NewPlayer(restURL, wsURL, password string, fileLocs []string, db database.Middleware, onError func(t string, err error)) *Player {
 	if onError == nil {
 		onError = func(t string, err error) {}
 	}
@@ -92,7 +93,7 @@ func NewPlayer(restURL, wsURL, password, fileLoc string, db database.Middleware,
 		restURL:         restURL,
 		wsURL:           wsURL,
 		password:        password,
-		fileLoc:         fileLoc,
+		fileLocs:        fileLocs,
 		eventHandler:    NewEventHandlerManager(),
 		onError:         onError,
 		db:              db,
@@ -158,23 +159,34 @@ func (p *Player) loadTrack(node *gavalink.Node, ident string) (*gavalink.Track, 
 // specified location matching the specified
 // audio file types.
 func (p *Player) FetchLocalSounds() error {
-	files, err := ioutil.ReadDir(p.fileLoc)
-	if err != nil {
-		return err
+	if len(p.fileLocs) == 0 {
+		return errors.New("sound file locations can not be empty")
 	}
 
 	p.localSounds = make(map[string]string)
-	for _, f := range files {
-		if f.IsDir() {
-			continue
+
+	for _, floc := range p.fileLocs {
+		files, err := ioutil.ReadDir(floc)
+		if err != nil {
+			return err
 		}
 
-		nameSplit := strings.Split(f.Name(), ".")
-		if len(nameSplit) == 1 || !strings.Contains(allowedFileTypes, nameSplit[1]) {
-			continue
+		loaded := 0
+		for _, f := range files {
+			if f.IsDir() {
+				continue
+			}
+
+			nameSplit := strings.Split(f.Name(), ".")
+			if len(nameSplit) == 1 || !strings.Contains(allowedFileTypes, nameSplit[1]) {
+				continue
+			}
+
+			p.localSounds[nameSplit[0]] = fmt.Sprintf("%s/%s", floc, f.Name())
+			loaded++
 		}
 
-		p.localSounds[nameSplit[0]] = fmt.Sprintf("%s/%s", p.fileLoc, f.Name())
+		logger.Info("PLAYER :: loaded %d sounds from %s", loaded, floc)
 	}
 
 	return nil
