@@ -85,6 +85,11 @@ cloc:
 		--exclude-dir=vendor,docs,public \
 		--exclude-lang=JSON,Markdown,YAML,XML,TOML,Sass ./
 
+PHONY += release
+release:
+	bash $(CURDIR)/scripts/bundle-release.sh
+
+
 PHONY += help
 help:
 	@echo "Available targets:"

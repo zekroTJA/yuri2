@@ -10,6 +10,12 @@ WS events will always be fired wether the command was executed from a Discord cl
 
 - [Event Structure](#event-structure)
 
+- [Source Types](#source-types)
+
+- [Error Codes](#error-codes)
+
+- [Rate Limiting](#rate-limiting)
+
 - [Commands](#commands)
   - [INIT](#init)
   - [JOIN](#join)
@@ -34,7 +40,7 @@ WS events will always be fired wether the command was executed from a Discord cl
 
 ## Command Structure
 
-Commands are send by the client in form of a JSON text message with following strucrure:
+Commands are sent by the client in form of a JSON text message with following strucrure:
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -60,13 +66,50 @@ Source types specify the type of source of a sound.
 | `1` | YouTube video ID |
 | `2` | HTTP link |
 
+## Error Codes
+
+The `ERROR` event comes with specific error codes:
+
+| Code | Message | Description |
+|------|---------|-------------|
+| `0` | `bad command args` | Invalid, missing or malformed command arguments. |
+| `1` | `unauthorized` | Unauthorized access due to an uninitialized connection. |
+| `2` | `forbidden` | An action was requested which is not allowed under current circumstances for the authenticated user. |
+| `3` | `internal` | Something unexpected occured on the server while executing the command. |
+| `4` | `bad command` | Occurs when using `INIT` command on a connection which is already initialized. |
+| `5` | `rate limit exceed` | The rat limit for the current connection has been exceed. |
+
+For all errors, there are further information sent as `message` or `data` content.
+
+## Rate Limiting
+
+The Web Socket API is rate limited based on a per-user limiter globally over all commands.
+
+Every **1500 Milliseconds, 1 token** is regenerated to a total burst number of **10 tokens**.
+
+If the rate limit is exceed, an `ERROR` event will be returned which looks like following example:
+
+```json
+{
+  "name": "ERROR",
+  "data": {
+    "code": 5,
+    "type": "rate limit exceed",
+    "message": "Rate limit exceed. Wait reset_time * milliseconds until sending another command.",
+    "data": {
+      "reset_time": 1073
+    }
+  }
+}
+```
+
 ---
 
 ## Commands
 
 ### INIT
 
-This command must be send on start of each new web socket connection to authorize and identify this connection.
+This command must be sent on start of each new web socket connection to authorize and identify this connection.
 
 ```json
 {
@@ -199,9 +242,9 @@ You will only get valid `connected` and `voice_state` information when you are c
 | Field | Type | Description |
 |-------|------|-------------|
 | `connected` | `bool` | Identicates whether the bot is connected to any voice channel on the guild you are also connected to. |
-| `vol` | `int` | The volume of the guilds player, if connected. |
-| `voice_state.guild_id` | `string` | The guild where the bot is in the voice channel. |
-| `voice_state.channel_id` | `string` | The voice channel where the bot is connected to. |
+| *`vol`* | `int` | The volume of the guilds player, if connected. |
+| *`voice_state.guild_id`* | `string` | The guild where the bot is in the voice channel. |
+| *`voice_state.channel_id`* | `string` | The voice channel where the bot is connected to. |
 
 
 ### ERROR
@@ -214,7 +257,8 @@ This event is fired every time a command could not be executed or something othe
   "data": {
     "code": 0,
     "type": "bad command args",
-    "message": "ident must be a valid string value"
+    "message": "ident must be a valid string value",
+    "data": null
   }
 }
 ```
@@ -224,6 +268,7 @@ This event is fired every time a command could not be executed or something othe
 | `code` | `int` | The integer code of the error type. |
 | `type` | `string` | The description of the error type. |
 | `message` | `string` | Further information about the error. |
+| *`data`* | `any?` | Also, extra data **can** be contained. |
 
 
 ### PLAYING

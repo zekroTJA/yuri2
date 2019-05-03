@@ -8,6 +8,10 @@ The Yuri REST API is generally just used for authentication and for getting data
 
 - [Parameters](#parameters)
 
+- [Response Data](#response-data)
+
+- [Rate Limiting](#rate-limiting)
+
 - [Endpoints](#endpoints)
   - [Get Token](#get-token)
   - [Get Local Sounds](#get-local-sounds)
@@ -58,12 +62,53 @@ If you have visited the `/login` endpoint and authorized the Discord API App, tw
 < Content-Length: 0
 ```
 
-These cookeis will be automatically detected and checked for authentication if you send them with your request to REST API endpoints.
+These cookeis will be automatically detected and checked for authentication if you sent them with your request to REST API endpoints.
 
 ## Parameters
 
 Parameters with `default` formated names are **required** and parameters with *`italic`* formated names are ***optional***.  
 The type *(int, string, ...)* and the passing method *(URL Query, JSON Body, Resource Path, ...)* are described in the parameter tables.
+
+## Response Data
+
+Generally, the API will never omit response data keys if they are unset or not existent. They will always be defined as `null` or as the default value o the specific data type like `""` for strings or `0` for integers.  
+Those data properties are marked with *`italic`* font style.
+
+## Rate Limiting
+
+The TREST API is rate limited based on a per-user limiter globally over all endpoints.
+
+Every **2000 Milliseconds, 1 token** is regenerated to a total burst number of **5 tokens**.
+
+On each request, the response contains inforamtion about the users rate limiting status in the following three response headers:
+
+```
+< X-Ratelimit-Limit: 5
+< X-Ratelimit-Remaining: 4
+< X-Ratelimit-Reset: 0
+```
+
+If the rate limit has been exceed, an error response like following will be returned:
+
+```
+< HTTP/1.1 429 Too Many Requests
+< Content-Type: application/json
+< X-Ratelimit-Limit: 5
+< X-Ratelimit-Remaining: 0
+< X-Ratelimit-Reset: 1585
+< Date: Mon, 15 Apr 2019 14:00:43 GMT
+< Content-Length: 72
+```
+```json
+{
+  "error": {
+    "code": 429,
+    "message": "rate limit exceed"
+  }
+}
+```
+
+The value of the `X-Ratelimit-Reset` header indicates the time in milliseconds which the user has to wait until another request can be executed.
 
 ---
 

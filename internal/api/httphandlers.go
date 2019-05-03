@@ -26,6 +26,10 @@ type listResponse struct {
 
 // GET /token
 func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, userID string) {
+	if ok, _ := api.checkLimitWithResponse(w, r.RemoteAddr); !ok {
+		return
+	}
+
 	guilds := discordbot.GetUsersGuilds(api.session, userID)
 	if guilds == nil {
 		errResponse(w, http.StatusForbidden, "you must be a member of a guild the bot is also member of")
@@ -47,7 +51,12 @@ func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, user
 
 // GET /api/localsounds
 func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
-	if ok, _ := api.checkAuthWithResponse(w, r); !ok {
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if ok, _ := api.checkLimitWithResponse(w, userID); !ok {
 		return
 	}
 
@@ -102,6 +111,10 @@ func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ok, _ := api.checkLimitWithResponse(w, userID); !ok {
+		return
+	}
+
 	gidInd := strings.LastIndex(r.URL.Path, "/")
 	if gidInd == -1 || gidInd == len(r.URL.Path)-1 {
 		errResponse(w, http.StatusBadRequest, "GUILDID must be a valid snowflake value")
@@ -149,6 +162,10 @@ func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
 func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
 	ok, userID := api.checkAuthWithResponse(w, r)
 	if !ok {
+		return
+	}
+
+	if ok, _ := api.checkLimitWithResponse(w, userID); !ok {
 		return
 	}
 
@@ -246,7 +263,7 @@ func (api *API) wsUpgradeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := api.ws.NewConn(w, r, nil)
 	if err != nil {
 		logger.Error("API :: wsUpgradeHandler: %s", err.Error())
-		errResponse(w, http.StatusInternalServerError, err.Error())
+		errResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 }
