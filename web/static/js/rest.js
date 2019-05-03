@@ -1,3 +1,6 @@
+/** @format */
+
+'use strict';
 
 function restDebugRequest(method, endpoint) {
     console.log(`REST API :: REQUEST :: ${method} ${endpoint}`);
@@ -8,18 +11,16 @@ function restDebugRespone(data, status) {
 }
 
 // ------------------------------
-// --- REQUESTS 
+// --- REQUESTS
 
 // GET /api/localsounds
 function getLocalSounds(sortBy) {
-    var url = '/api/localsounds'
-    if (sortBy)
-        url += '?sort=' + sortBy.toUpperCase()
+    var url = '/api/localsounds';
+    if (sortBy) url += '?sort=' + sortBy.toUpperCase();
 
     restDebugRequest('GET', url);
 
     return new Promise((resolve, rejects) => {
-        
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
             if (s == 'success') {
@@ -30,7 +31,6 @@ function getLocalSounds(sortBy) {
         }).fail((e) => {
             rejects(e);
         });
-
     });
 }
 
@@ -40,7 +40,6 @@ function getGuildLog(guildID) {
     restDebugRequest('GET', url);
 
     return new Promise((resolve, rejects) => {
-        
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
             if (s == 'success') {
@@ -51,7 +50,6 @@ function getGuildLog(guildID) {
         }).fail((e) => {
             rejects(e);
         });
-
     });
 }
 
@@ -61,7 +59,6 @@ function getGuildStats(guildID) {
     restDebugRequest('GET', url);
 
     return new Promise((resolve, rejects) => {
-        
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
             if (s == 'success') {
@@ -72,6 +69,5 @@ function getGuildStats(guildID) {
         }).fail((e) => {
             rejects(e);
         });
-
     });
 }

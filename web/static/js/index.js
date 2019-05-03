@@ -1,4 +1,6 @@
-"use strict";
+/** @format */
+
+'use strict';
 
 function eventDebug(name, data) {
     console.log(`WS API :: EVENT < ${name} > ::`, data);
@@ -9,21 +11,20 @@ function addButton(name) {
     btn.innerText = name;
     btn.id = `soundBtn-${name}`;
     btn.className = 'btn btn-primary btn-sound m-2';
-    btn.onclick = (e) => 
+    btn.onclick = (e) =>
         ws.emit('PLAY', {
-            'ident': name,
-            'source': 0,
+            ident: name,
+            source: 0,
         });
     $('#container-sound-btns').append(btn);
-};
+}
 
 function addRandomButton() {
     var btn = document.createElement('button');
     btn.innerText = '🎲';
     btn.id = `soundBtn-RANDOM`;
     btn.className = 'btn btn-primary m-2';
-    btn.onclick = (e) => 
-        ws.emit('RANDOM');
+    btn.onclick = (e) => ws.emit('RANDOM');
     $('#container-sound-btns').append(btn);
 }
 
@@ -32,18 +33,22 @@ function fetchSoundsList(sort, cb) {
     spinner.addClass('d-flex');
     spinner.removeClass('d-none');
     $('#container-sound-btns').empty();
-    getLocalSounds(sort ? sort : 'NAME').then((sounds) => {
-        updateSoundList(sounds);
-        spinner.removeClass('d-flex');
-        spinner.addClass('d-none');
-        if (cb) cb(sounds);
-    }).catch((r, s) => {
-        console.log('REST :: ERROR :: ', r, s);
-        displayError(`<code>REST API ERROR</code> getting sounds failed:<br/><code>${r}</code>`);
-        spinner.removeClass('d-flex');
-        spinner.addClass('d-none');
-        if (cb) cb();
-    });
+    getLocalSounds(sort ? sort : 'NAME')
+        .then((sounds) => {
+            updateSoundList(sounds);
+            spinner.removeClass('d-flex');
+            spinner.addClass('d-none');
+            if (cb) cb(sounds);
+        })
+        .catch((r, s) => {
+            console.log('REST :: ERROR :: ', r, s);
+            displayError(
+                `<code>REST API ERROR</code> getting sounds failed:<br/><code>${r}</code>`
+            );
+            spinner.removeClass('d-flex');
+            spinner.addClass('d-none');
+            if (cb) cb();
+        });
 }
 
 function updateSoundList(soundList) {
@@ -53,16 +58,16 @@ function updateSoundList(soundList) {
 }
 
 function filterSoundsList(query, sl) {
-    if (!query)
-        updateSoundList(sl);
+    if (!query) updateSoundList(sl);
     query = query.toLowerCase();
-    updateSoundList(sl.filter((s) => {
-        if (query.startsWith('*'))
-            return s.name.endsWith(query.substr(1));
-        if (query.endsWith('*'))
-            return s.name.startsWith(query.substr(0, query.length - 1));
-        return s.name.includes(query);
-    }));
+    updateSoundList(
+        sl.filter((s) => {
+            if (query.startsWith('*')) return s.name.endsWith(query.substr(1));
+            if (query.endsWith('*'))
+                return s.name.startsWith(query.substr(0, query.length - 1));
+            return s.name.includes(query);
+        })
+    );
 }
 
 function displayError(desc, time) {
@@ -89,13 +94,14 @@ function displayError(desc, time) {
 
 function setVolume(v) {
     var container = $('#containerVol');
-    if (container.hasClass('invis'))
-        container.removeClass('invis');
+    if (container.hasClass('invis')) container.removeClass('invis');
     $('#sliderVol').val(v);
     $('#labelVol')[0].innerText = v + '%';
 }
 
-ws.onEmit((e, raw) => console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data));
+ws.onEmit((e, raw) =>
+    console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data)
+);
 
 // --------------------------
 // --- INIT
@@ -116,9 +122,10 @@ fetchSoundsList(sortBy, (s) => {
 // BUTTON EVENT HOOKS
 
 $('#btnSortBy').on('click', (e) => {
-    sortBy = sortBy == 'DATE' ? 'NAME' : 'DATE'; 
+    sortBy = sortBy == 'DATE' ? 'NAME' : 'DATE';
     document.cookie = `sort_by=${sortBy}; Max-Age=2147483647; Paht=/`;
-    $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
+    $('#btnSortBy')[0].innerText =
+        'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
     fetchSoundsList(sortBy, (s) => {
         if (s) sounds = s;
     });
@@ -139,94 +146,102 @@ $('#btnStop').on('click', (e) => {
 });
 
 $('#btnJoinLeave').on('click', (e) => {
-    if (inChannel)
-        ws.emit('LEAVE');
-    else
-        ws.emit('JOIN');
+    if (inChannel) ws.emit('LEAVE');
+    else ws.emit('JOIN');
 });
 
 $('#btnLog').on('click', (e) => {
-    getGuildLog(guildID).then((res) => {
-        $('#modalLog').modal('show');
-        var tab = $('#modalLog div.modal-body > table');
+    getGuildLog(guildID)
+        .then((res) => {
+            $('#modalLog').modal('show');
+            var tab = $('#modalLog div.modal-body > table');
 
-        Array.forEach(tab.children('tr'), (tr) => tr.remove());
-        res.forEach((r) => {
-            var tr = document.createElement('tr');
+            Array.forEach(tab.children('tr'), (tr) => tr.remove());
+            res.forEach((r) => {
+                var tr = document.createElement('tr');
 
-            var tdTime = document.createElement('td');
-            tdTime.innerText = getTime(new Date(r.time));
-            tr.appendChild(tdTime);
+                var tdTime = document.createElement('td');
+                tdTime.innerText = getTime(new Date(r.time));
+                tr.appendChild(tdTime);
 
-            var tdCaller = document.createElement('td');
-            tdCaller.innerText = r.user_tag;
-            tr.appendChild(tdCaller);
+                var tdCaller = document.createElement('td');
+                tdCaller.innerText = r.user_tag;
+                tr.appendChild(tdCaller);
 
-            var tdSound = document.createElement('td');
-            tdSound.innerText = r.sound;
-            tr.appendChild(tdSound);
+                var tdSound = document.createElement('td');
+                tdSound.innerText = r.sound;
+                tr.appendChild(tdSound);
 
-            var tdSource = document.createElement('td');
-            switch (r.source) {
-                case 'local':
-                    tdSource.innerHTML = '<span class="badge badge-primary">L</span>';
-                    break;
-                case 'youtube':
-                    tdSource.innerHTML = '<span class="badge badge-warning">Y</span>';
-                    break;
-                case 'http':
-                    tdSource.innerHTML = '<span class="badge badge-info">H</span>';
-                    break;
-                default:
-                    tdSource.innerHTML = '<span class="badge badge-dark">?</span>';
-            }
-            tr.appendChild(tdSource);
+                var tdSource = document.createElement('td');
+                switch (r.source) {
+                    case 'local':
+                        tdSource.innerHTML =
+                            '<span class="badge badge-primary">L</span>';
+                        break;
+                    case 'youtube':
+                        tdSource.innerHTML =
+                            '<span class="badge badge-warning">Y</span>';
+                        break;
+                    case 'http':
+                        tdSource.innerHTML =
+                            '<span class="badge badge-info">H</span>';
+                        break;
+                    default:
+                        tdSource.innerHTML =
+                            '<span class="badge badge-dark">?</span>';
+                }
+                tr.appendChild(tdSource);
 
-            tab.append(tr);
+                tab.append(tr);
+            });
+        })
+        .catch((r, s) => {
+            console.log('REST :: ERROR :: ', r, s);
+            displayError(
+                `<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds log.`
+            );
         });
-
-    }).catch((r, s) => {
-        console.log('REST :: ERROR :: ', r, s);
-        displayError(`<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds log.`);
-    });
 });
 
 $('#btnStats').on('click', (e) => {
-    getGuildStats(guildID).then((res) => {
-        $('#modalStats').modal('show');
-        var tab = $('#modalStats div.modal-body > table');
+    getGuildStats(guildID)
+        .then((res) => {
+            $('#modalStats').modal('show');
+            var tab = $('#modalStats div.modal-body > table');
 
-        Array.forEach(tab.children('tr'), (tr) => tr.remove());
-        res.forEach((r, i) => {
-            var tr = document.createElement('tr');
+            Array.forEach(tab.children('tr'), (tr) => tr.remove());
+            res.forEach((r, i) => {
+                var tr = document.createElement('tr');
 
-            var tdNumber = document.createElement('td');
-            tdNumber.innerHTML = `<span class="badge badge-primary">${i + 1}</span>`;
-            tr.appendChild(tdNumber);
+                var tdNumber = document.createElement('td');
+                tdNumber.innerHTML = `<span class="badge badge-primary">${i +
+                    1}</span>`;
+                tr.appendChild(tdNumber);
 
-            var tdSound = document.createElement('td');
-            tdSound.innerText = r.sound;
-            tr.appendChild(tdSound);
+                var tdSound = document.createElement('td');
+                tdSound.innerText = r.sound;
+                tr.appendChild(tdSound);
 
-            var tdCount = document.createElement('td');
-            tdCount.innerText = r.count;
-            tr.appendChild(tdCount);
+                var tdCount = document.createElement('td');
+                tdCount.innerText = r.count;
+                tr.appendChild(tdCount);
 
-            tab.append(tr);
+                tab.append(tr);
+            });
+        })
+        .catch((r, s) => {
+            console.log('REST :: ERROR :: ', r, s);
+            displayError(
+                `<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds stats.`
+            );
         });
-
-    }).catch((r, s) => {
-        console.log('REST :: ERROR :: ', r, s);
-        displayError(`<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds stats.`);
-    });
 });
 
 $('#searchBox').on('input', (e) => {
     var tb = e.currentTarget;
     var val = tb.value;
     setTimeout(() => {
-        if (val == tb.value)
-            filterSoundsList(val, sounds);
+        if (val == tb.value) filterSoundsList(val, sounds);
     }, 250);
 });
 
@@ -241,14 +256,19 @@ $('#sliderVol').on('change', (e) => {
 });
 
 if (sortBy)
-    $('#btnSortBy')[0].innerText = 'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
+    $('#btnSortBy')[0].innerText =
+        'SORT BY ' + (sortBy == 'DATE' ? 'NAME' : 'DATE');
 
 // --------------------------
 // --- WS EVENT HANDLERS
 
 ws.on('ERROR', (data) => {
     eventDebug('ERROR', data);
-    displayError(`<code>${data.data.code} - ${data.data.type}</code>&nbsp; ${data.data.message}`);
+    displayError(
+        `<code>${data.data.code} - ${data.data.type}</code>&nbsp; ${
+            data.data.message
+        }`
+    );
 });
 
 ws.on('HELLO', (data) => {
@@ -269,7 +289,7 @@ ws.on('PLAYING', (data) => {
     inChannel = true;
     $('#btnJoinLeave')[0].innerText = 'LEAVE';
     guildID = data.data.guild_id;
-    setVolume(data.data.vol);    
+    setVolume(data.data.vol);
 });
 
 ws.on('END', (data) => {
