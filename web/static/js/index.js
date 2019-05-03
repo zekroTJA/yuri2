@@ -151,57 +151,6 @@ $('#btnJoinLeave').on('click', (e) => {
 });
 
 $('#btnLog').on('click', (e) => {
-<<<<<<< HEAD
-    getGuildLog(guildID)
-        .then((res) => {
-            $('#modalLog').modal('show');
-            var tab = $('#modalLog div.modal-body > table');
-
-            Array.forEach(tab.children('tr'), (tr) => tr.remove());
-            res.forEach((r) => {
-                var tr = document.createElement('tr');
-
-                var tdTime = document.createElement('td');
-                tdTime.innerText = getTime(new Date(r.time));
-                tr.appendChild(tdTime);
-
-                var tdCaller = document.createElement('td');
-                tdCaller.innerText = r.user_tag;
-                tr.appendChild(tdCaller);
-
-                var tdSound = document.createElement('td');
-                tdSound.innerText = r.sound;
-                tr.appendChild(tdSound);
-
-                var tdSource = document.createElement('td');
-                switch (r.source) {
-                    case 'local':
-                        tdSource.innerHTML =
-                            '<span class="badge badge-primary">L</span>';
-                        break;
-                    case 'youtube':
-                        tdSource.innerHTML =
-                            '<span class="badge badge-warning">Y</span>';
-                        break;
-                    case 'http':
-                        tdSource.innerHTML =
-                            '<span class="badge badge-info">H</span>';
-                        break;
-                    default:
-                        tdSource.innerHTML =
-                            '<span class="badge badge-dark">?</span>';
-                }
-                tr.appendChild(tdSource);
-
-                tab.append(tr);
-            });
-        })
-        .catch((r, s) => {
-            console.log('REST :: ERROR :: ', r, s);
-            displayError(
-                `<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds log.`
-            );
-=======
     getGuildLog(guildID).then((res) => {
         $('#modalLog').modal('show');
         var tab = $('#modalLog div.modal-body > table');
@@ -225,57 +174,29 @@ $('#btnLog').on('click', (e) => {
             var tdSource = document.createElement('td');
             switch (r.source) {
                 case 'local':
-                    tdSource.innerHTML = '<span class="badge badge-primary">L</span>';
+                    tdSource.innerHTML =
+                        '<span class="badge badge-primary">L</span>';
                     break;
                 case 'youtube':
-                    tdSource.innerHTML = '<span class="badge badge-warning">Y</span>';
+                    tdSource.innerHTML =
+                        '<span class="badge badge-warning">Y</span>';
                     break;
                 case 'http':
-                    tdSource.innerHTML = '<span class="badge badge-info">H</span>';
+                    tdSource.innerHTML =
+                        '<span class="badge badge-info">H</span>';
                     break;
                 default:
-                    tdSource.innerHTML = '<span class="badge badge-dark">?</span>';
+                    tdSource.innerHTML =
+                        '<span class="badge badge-dark">?</span>';
             }
             tr.appendChild(tdSource);
 
             tab.append(tr);
->>>>>>> f6848dc638d25b6d653d70b5c64e6e2004768fc7
         });
+    });
 });
 
 $('#btnStats').on('click', (e) => {
-<<<<<<< HEAD
-    getGuildStats(guildID)
-        .then((res) => {
-            $('#modalStats').modal('show');
-            var tab = $('#modalStats div.modal-body > table');
-
-            Array.forEach(tab.children('tr'), (tr) => tr.remove());
-            res.forEach((r, i) => {
-                var tr = document.createElement('tr');
-
-                var tdNumber = document.createElement('td');
-                tdNumber.innerHTML = `<span class="badge badge-primary">${i +
-                    1}</span>`;
-                tr.appendChild(tdNumber);
-
-                var tdSound = document.createElement('td');
-                tdSound.innerText = r.sound;
-                tr.appendChild(tdSound);
-
-                var tdCount = document.createElement('td');
-                tdCount.innerText = r.count;
-                tr.appendChild(tdCount);
-
-                tab.append(tr);
-            });
-        })
-        .catch((r, s) => {
-            console.log('REST :: ERROR :: ', r, s);
-            displayError(
-                `<code>REST API ERROR</code> getting log failed: You need to be in a voice channel to open the guilds stats.`
-            );
-=======
     getGuildStats(guildID).then((res) => {
         $('#modalStats').modal('show');
         var tab = $('#modalStats div.modal-body > table');
@@ -285,7 +206,8 @@ $('#btnStats').on('click', (e) => {
             var tr = document.createElement('tr');
 
             var tdNumber = document.createElement('td');
-            tdNumber.innerHTML = `<span class="badge badge-primary">${i + 1}</span>`;
+            tdNumber.innerHTML = `<span class="badge badge-primary">${i +
+                1}</span>`;
             tr.appendChild(tdNumber);
 
             var tdSound = document.createElement('td');
@@ -297,8 +219,8 @@ $('#btnStats').on('click', (e) => {
             tr.appendChild(tdCount);
 
             tab.append(tr);
->>>>>>> f6848dc638d25b6d653d70b5c64e6e2004768fc7
         });
+    });
 });
 
 $('#searchBox').on('input', (e) => {
