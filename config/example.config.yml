@@ -1,7 +1,25 @@
+api:
+  address: :443
+  client_id: ""
+  client_secret: ""
+  enable: false
+  public_address: https://yuri.example.com
+  tls:
+    cert_file: /etc/cert/example.com/example.com.cer
+    enable: true
+    key_file: /etc/cert/example.com/example.com.key
+
+database:
+  dsn: file:yuri.db.sqlite3
+
 discord:
+  token: ""
   general_prefix: y!
   owner_id: ""
-  token: ""
+  right_role_names:
+    admin:   YuriAdmin
+    blocked: YuriBlocked
+    player:  '@everyone'
   status_shuffle:
     delay: 10s
     status:
@@ -9,14 +27,10 @@ discord:
     - zekro.de
     - github.com/zekroTJA/yuri2
 
-database:
-  dsn: file:yuri.db.sqlite3
-
 lavalink:
   address: localhost:2333
   password: ""
-  sounds_location: 
-    - "./sounds"
+  sounds_locations: null
 
 misc:
   log_level: 4

@@ -46,7 +46,7 @@ func main() {
 	}()
 
 	// init Player
-	player := inits.InitPlayer(cfg.Lavalink, dbMiddleware)
+	player := inits.InitPlayer(cfg, dbMiddleware)
 
 	// init Bot
 	bot := inits.InitDiscordBot(cfg.Discord, dbMiddleware, player)

@@ -151,7 +151,7 @@ func (api *API) wsLeaveHandler(e *wsmgr.Event) {
 		return
 	}
 
-	err := api.player.LeaveVoiceChannel(guild.ID)
+	err := api.player.LeaveVoiceChannel(guild.ID, ident.UserID)
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
@@ -258,7 +258,7 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 		return
 	}
 
-	err := api.player.SetVolume(guild.ID, int(vol))
+	err := api.player.SetVolume(guild.ID, ident.UserID, int(vol))
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}

@@ -54,6 +54,12 @@ var (
 	// ErrNotInVoice is returned if the executor is not
 	// in a voice channel on this guild
 	ErrNotInVoice = errors.New("user is not in voice channel")
+	// ErrNoPermission is returned if the user has not the
+	// specified player role
+	ErrNoPermission = errors.New("insufficient permission")
+	// ErrBlocked is returned if the user has the specified
+	// blocking role
+	ErrBlocked = errors.New("blocked of using the player")
 )
 
 // Player maintains multiple gavalink players.
@@ -62,6 +68,9 @@ type Player struct {
 	wsURL    string
 	password string
 	fileLocs []string
+
+	playRoleName    string
+	blockedRoleName string
 
 	onError      func(t string, err error)
 	eventHandler *EventHandlerManager
@@ -76,13 +85,17 @@ type Player struct {
 }
 
 // NewPlayer creates a new Player.
-//   restURL : the lavalink REST API URL
-//   wsURL   : the lavalink WS URL
-//   fileLoc : the pathes to local sound files
-//             (will be merged together and handled as one location)
-//   db      : the database middleware to use
-//   onError : handler func to be used when errors are occuring
-func NewPlayer(restURL, wsURL, password string, fileLocs []string, db database.Middleware, onError func(t string, err error)) *Player {
+//   restURL         : the lavalink REST API URL
+//   wsURL           : the lavalink WS URL
+//   fileLoc         : the pathes to local sound files
+//                     (will be merged together and handled as one location)
+//   playRoleName    : the Discord role name whos permitted to play sounds
+//   blockedRoleName : the Discord role name who is blocked from using the player
+//   db              : the database middleware to use
+//   onError         : handler func to be used when errors are occuring
+func NewPlayer(restURL, wsURL, password string, fileLocs []string, playRoleName, blockedRoleName string,
+	db database.Middleware, onError func(t string, err error)) *Player {
+
 	if onError == nil {
 		onError = func(t string, err error) {}
 	}
@@ -94,6 +107,8 @@ func NewPlayer(restURL, wsURL, password string, fileLocs []string, db database.M
 		wsURL:           wsURL,
 		password:        password,
 		fileLocs:        fileLocs,
+		playRoleName:    playRoleName,
+		blockedRoleName: blockedRoleName,
 		eventHandler:    NewEventHandlerManager(),
 		onError:         onError,
 		db:              db,
@@ -235,6 +250,10 @@ func (p *Player) PlayRandomSound(guild *discordgo.Guild, user *discordgo.User) e
 // JoinVoiceCannel joins the voice channel by passed
 // VoiceState.
 func (p *Player) JoinVoiceCannel(vs *discordgo.VoiceState) error {
+	if err := p.checkPermsByIDs(vs.GuildID, vs.UserID); err != nil {
+		return err
+	}
+
 	if vs == nil {
 		return errors.New("voiceState is nil")
 	}
@@ -251,7 +270,11 @@ func (p *Player) JoinVoiceCannel(vs *discordgo.VoiceState) error {
 
 // LeaveVoiceChannel leaves the voice channel the
 // bot is connected to on the specified guild.
-func (p *Player) LeaveVoiceChannel(guildID string) error {
+func (p *Player) LeaveVoiceChannel(guildID, userID string) error {
+	if err := p.checkPermsByIDs(guildID, userID); err != nil {
+		return err
+	}
+
 	err := p.session.ChannelVoiceJoinManual(guildID, "", false, true)
 	if err != nil {
 		return err
@@ -272,6 +295,10 @@ func (p *Player) LeaveVoiceChannel(guildID string) error {
 // guild the comamnd was executed, the bot will join this
 // channel and then play the sound.
 func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string, t ResourceType) error {
+	if err := p.checkPerms(guild, user.ID); err != nil {
+		return err
+	}
+
 	var joined bool
 	originalIdent := ident
 
@@ -374,6 +401,10 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 
 // Stop stops a playing sound.
 func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
+	if err := p.checkPerms(guild, user.ID); err != nil {
+		return err
+	}
+
 	pl, err := p.link.GetPlayer(guild.ID)
 	if err != nil && err.Error() == "Couldn't find a player for that guild" {
 		return nil
@@ -389,7 +420,11 @@ func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
 // player. The volume will also be saved and set up
 // as volume for all following players created on
 // the guild.
-func (p *Player) SetVolume(guildID string, vol int) error {
+func (p *Player) SetVolume(guildID, userID string, vol int) error {
+	if err := p.checkPermsByIDs(guildID, userID); err != nil {
+		return err
+	}
+
 	pl, err := p.link.GetPlayer(guildID)
 	if err != nil {
 		return nil

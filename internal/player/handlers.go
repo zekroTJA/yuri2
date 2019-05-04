@@ -119,7 +119,7 @@ func (p *Player) autoLeftEmptyVoice(oldVS, newVS *discordgo.VoiceState) {
 		if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
 			time.AfterFunc(autoQuitDuration, func() {
 				if p.getMemberCountInVoiceChan(guild, cVS.ChannelID) <= 1 {
-					if err = p.LeaveVoiceChannel(cVS.GuildID); err != nil {
+					if err = p.LeaveVoiceChannel(cVS.GuildID, cVS.UserID); err != nil {
 						p.onError("autoLeftEmptyVoice#QuitVoice", err)
 					}
 				}

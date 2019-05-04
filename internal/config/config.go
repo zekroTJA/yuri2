@@ -29,10 +29,20 @@ type Main struct {
 // Discord contains the values of
 // Discrord specific configuration.
 type Discord struct {
-	Token         string         `json:"token"`
-	OwnerID       string         `json:"owner_id"`
-	GeneralPrefix string         `json:"general_prefix"`
-	StatusShuffle *StatusShuffle `json:"status_shuffle"`
+	Token          string            `json:"token"`
+	OwnerID        string            `json:"owner_id"`
+	GeneralPrefix  string            `json:"general_prefix"`
+	RightRoleNames *DiscordRoleNames `json:"right_role_names"`
+	StatusShuffle  *StatusShuffle    `json:"status_shuffle"`
+}
+
+// DiscordRoleNames contains the values of
+// the permissioin role names for the
+// Discord configuration.
+type DiscordRoleNames struct {
+	Player  string `json:"player"`
+	Blocked string `json:"blocked"`
+	Admin   string `json:"admin"`
 }
 
 // Lavalink contains the values of
@@ -129,6 +139,11 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 					"zekro.de",
 					"github.com/zekroTJA/yuri2",
 				},
+			},
+			RightRoleNames: &DiscordRoleNames{
+				Player:  "@everyone",
+				Blocked: "YuriBlocked",
+				Admin:   "YuriAdmin",
 			},
 		},
 		Lavalink: &Lavalink{
