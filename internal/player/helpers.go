@@ -42,7 +42,9 @@ func (p *Player) getUsersVoiceState(guildID, userID string) (*discordgo.VoiceSta
 }
 
 func (p *Player) checkPerms(guild *discordgo.Guild, userID string) error {
-	if p.blockedRoleName == "" && (p.playRoleName == "" || p.playRoleName == "@everyone") {
+	isPlayer := p.playRoleName == "" || p.playRoleName == "@everyone"
+
+	if p.blockedRoleName == "" && isPlayer {
 		return nil
 	}
 
@@ -53,8 +55,6 @@ func (p *Player) checkPerms(guild *discordgo.Guild, userID string) error {
 	if err != nil {
 		return err
 	}
-
-	var isPlayer bool
 
 	for _, gRole := range guild.Roles {
 		if gRole.Name != p.blockedRoleName && gRole.Name != p.playRoleName {
