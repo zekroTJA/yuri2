@@ -70,28 +70,6 @@ function filterSoundsList(query, sl) {
     );
 }
 
-function displayError(desc, time) {
-    if (!time) time = 8000;
-
-    var alertBox = $('#errorAlert')[0];
-    $('#errorAlertText')[0].innerHTML = desc;
-
-    // fade in
-    alertBox.style.display = 'block';
-    setTimeout(() => {
-        alertBox.style.opacity = '1';
-        alertBox.style.transform = 'translateY(0px)';
-    }, 10);
-    // fade out
-    setTimeout(() => {
-        alertBox.style.opacity = '0';
-        alertBox.style.transform = 'translateY(-20px)';
-    }, time);
-    setTimeout(() => {
-        alertBox.style.display = 'none';
-    }, time + 250);
-}
-
 function setVolume(v) {
     var container = $('#containerVol');
     if (container.hasClass('invis')) container.removeClass('invis');

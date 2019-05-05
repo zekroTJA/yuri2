@@ -59,3 +59,75 @@ function getTime(date) {
         s = btf(date.getSeconds());
     return `${y}/${m}/${d} - ${h}:${min}:${s}`;
 }
+
+function displayError(desc, time) {
+    if (!time) time = 8000;
+
+    var alertBox = $('#errorAlert')[0];
+    $('#errorAlertText')[0].innerHTML = desc;
+
+    // fade in
+    alertBox.style.display = 'block';
+    setTimeout(() => {
+        alertBox.style.opacity = '1';
+        alertBox.style.transform = 'translateY(0px)';
+    }, 10);
+    // fade out
+    setTimeout(() => {
+        alertBox.style.opacity = '0';
+        alertBox.style.transform = 'translateY(-20px)';
+    }, time);
+    setTimeout(() => {
+        alertBox.style.display = 'none';
+    }, time + 250);
+}
+
+function addRowToTable(tb, ...entries) {
+    var tr = document.createElement('tr');
+    entries.forEach((e) => {
+        if (typeof e === 'object') {
+            tr.appendChild(e);
+        } else {
+            var td = document.createElement('td');
+            td.innerText = e;
+            tr.appendChild(td);
+        }
+    });
+    tb.append(tr);
+}
+
+function elemInnerText(elem, innerText) {
+    var e = document.createElement(elem);
+    e.innerText = innerText;
+    return e;
+}
+
+function byteCountFormatter(bc) {
+    const k = 1024;
+    const fix = 2;
+    if (bc < k) return `${bc} B`;
+    if (bc < k * k) return `${(bc / k).toFixed(fix)} kiB`;
+    if (bc < k * k * k) return `${(bc / k / k).toFixed(fix)} MiB`;
+    if (bc < k * k * k * k) return `${(bc / k / k / k).toFixed(fix)} GiB`;
+    return `${(bc / k / k / k / k).toFixed(fix)} TiB`;
+}
+
+function padFront(num, len, char) {
+    num = num.toString();
+    while (num.length < len) {
+        num = char + num;
+    }
+    return num;
+}
+
+function toDDHHMMSS(secs) {
+    var dd = Math.floor(secs / 86400);
+    var hh = Math.floor((secs % 86400) / 3600);
+    var mm = Math.floor(((secs % 86400) % 3600) / 60);
+    var ss = Math.floor(((secs % 86400) % 3600) % 60);
+    return `${padFront(dd, 2, '0')}:${padFront(hh, 2, '0')}:${padFront(
+        mm,
+        2,
+        '0'
+    )}:${padFront(ss, 2, '0')}`;
+}

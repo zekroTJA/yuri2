@@ -1,0 +1,10 @@
+td {
+    padding-right: 10px;
+}
+
+.panel {
+    background-color: #37474F;
+    padding: 5px 10px;
+    min-width: 300px;
+    border-radius: 3px;
+}
