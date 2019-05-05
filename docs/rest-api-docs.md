@@ -18,6 +18,11 @@ The Yuri REST API is generally just used for authentication and for getting data
   - [Get Play Log](#get-play-log)
   - [Get Play Stats](#get-play-stats)
 
+- [Admin Endpoints](#admin-endpoints)
+  - [Get System Stats](#get-system-stats)
+  - [Restart](#restart)
+  - [Refetch](#refetch)
+
 ---
 
 ## Authentication
@@ -278,4 +283,76 @@ The resulting response of the callback to `/token/authorize` will have follwoing
     }
   ]
 }
+```
+
+## Admin Endpoints
+
+### Get System Stats
+
+> GET /api/admin/stats
+
+#### Parameters
+
+*No parameters passed.*
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Date: Sun, 05 May 2019 01:22:14 GMT
+< Content-Length: 377
+```
+```json
+{
+  "guilds": [
+    {
+      "name": "5w4gg3rn4ut_5t4t10n",
+      "id": "526196711962705925"
+    }
+  ],
+  "voice_connections": [],
+  "system": {
+    "arch": "amd64",
+    "os": "windows",
+    "go_version": "go1.11.2",
+    "cpu_used_cores": 6,
+    "go_routines": 15,
+    "heap_use_b": 2768896,
+    "stack_use_b": 327680,
+    "uptime_seconds": 13123.9373705
+  }
+}
+```
+
+### Restart
+
+> POST /api/admin/restart
+
+#### Parameters
+
+*No parameters passed.*
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Date: Sun, 05 May 2019 01:22:14 GMT
+```
+
+### Refetch
+
+> POST /api/admin/refetch
+
+#### Parameters
+
+*No parameters passed.*
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Date: Sun, 05 May 2019 01:22:14 GMT
 ```

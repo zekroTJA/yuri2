@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -34,7 +35,7 @@ const (
 // API maintains the HTTP web server, REST
 // API and WS API.
 type API struct {
-	cfg *config.API
+	cfg *config.Main
 
 	qualifiedAddress string
 	trackCache       map[string]*soundTrack
@@ -42,6 +43,8 @@ type API struct {
 	db      database.Middleware
 	session *discordgo.Session
 	player  *player.Player
+
+	teardownChan chan os.Signal
 
 	server *http.Server
 	ws     *wsmgr.WebSocketManager
@@ -56,22 +59,23 @@ type API struct {
 
 // NewAPI initializes a new API and registers handlers
 // for web server, REST API and WS API endpoints.
-func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session, player *player.Player) *API {
+func NewAPI(cfg *config.Main, db database.Middleware, session *discordgo.Session, player *player.Player, teardownChan chan os.Signal) *API {
 	// init API object
 	api := &API{
-		cfg:     cfg,
-		db:      db,
-		session: session,
-		player:  player,
+		cfg:          cfg,
+		db:           db,
+		session:      session,
+		player:       player,
+		teardownChan: teardownChan,
 
 		trackCache: make(map[string]*soundTrack),
 		limits:     timedmap.New(limitsCleanupInterval),
 	}
 
-	api.qualifiedAddress = cfg.PublicAddress
+	api.qualifiedAddress = cfg.API.PublicAddress
 	if !strings.HasPrefix(api.qualifiedAddress, "http") {
 		protocol := "http"
-		if cfg.TLS != nil && cfg.TLS.Enable {
+		if cfg.API.TLS != nil && cfg.API.TLS.Enable {
 			protocol += "s"
 		}
 		api.qualifiedAddress = fmt.Sprintf("%s://%s", protocol, api.qualifiedAddress)
@@ -83,7 +87,7 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 	// Initialize HTTP server
 	api.server = &http.Server{
 		Handler: api.mux,
-		Addr:    api.cfg.Address,
+		Addr:    api.cfg.API.Address,
 	}
 
 	// Initialize web socket manager
@@ -95,8 +99,8 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 	// Create Discord OAuth Router for API token
 	// request
 	api.discordAuthAPI = discordoauth.NewDiscordOAuth(
-		api.cfg.ClientID,
-		api.cfg.ClientSecret,
+		api.cfg.API.ClientID,
+		api.cfg.API.ClientSecret,
 		api.qualifiedAddress+"/token/authorize",
 		errResponseWrapper,
 		api.restGetTokenHandler)
@@ -104,8 +108,8 @@ func NewAPI(cfg *config.API, db database.Middleware, session *discordgo.Session,
 	// Create Discord OAuth Router for user
 	// interface login
 	api.discordAuthFE = discordoauth.NewDiscordOAuth(
-		api.cfg.ClientID,
-		api.cfg.ClientSecret,
+		api.cfg.API.ClientID,
+		api.cfg.API.ClientSecret,
 		api.qualifiedAddress+"/login/authorize",
 		errPageResponse,
 		api.successfullAuthHandler)
@@ -157,6 +161,15 @@ func (api *API) registerHTTPHandlers() {
 
 	// GET /api/stats/:GUILDID
 	api.mux.HandleFunc("/api/stats/", api.restGetStats)
+
+	// GET /api/admin/stats
+	api.mux.HandleFunc("/api/admin/stats", api.restGetAdminStats)
+
+	// POST /api/admin/restart
+	api.mux.HandleFunc("/api/admin/restart", api.restPostAdminRestart)
+
+	// POST /api/admin/refetch
+	api.mux.HandleFunc("/api/admin/refetch", api.restPostAdminRefetch)
 }
 
 // registerWSHandlers registers WS handlers
@@ -196,8 +209,8 @@ func (api *API) registerWSHandlers() {
 func (api *API) StartBlocking() error {
 	var err error
 
-	if api.cfg.TLS != nil && api.cfg.TLS.Enable {
-		err = api.server.ListenAndServeTLS(api.cfg.TLS.CertFile, api.cfg.TLS.KeyFile)
+	if api.cfg.API.TLS != nil && api.cfg.API.TLS.Enable {
+		err = api.server.ListenAndServeTLS(api.cfg.API.TLS.CertFile, api.cfg.API.TLS.KeyFile)
 	} else {
 		err = api.server.ListenAndServe()
 	}

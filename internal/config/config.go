@@ -42,7 +42,6 @@ type Discord struct {
 type DiscordRoleNames struct {
 	Player  string `json:"player"`
 	Blocked string `json:"blocked"`
-	Admin   string `json:"admin"`
 }
 
 // Lavalink contains the values of
@@ -69,12 +68,13 @@ type StatusShuffle struct {
 // API contains configuration for the
 // REST and WS API.
 type API struct {
-	Enable        bool    `json:"enable"`
-	ClientID      string  `json:"client_id"`
-	ClientSecret  string  `json:"client_secret"`
-	Address       string  `json:"address"`
-	PublicAddress string  `json:"public_address"`
-	TLS           *APITLS `json:"tls"`
+	Enable        bool     `json:"enable"`
+	ClientID      string   `json:"client_id"`
+	ClientSecret  string   `json:"client_secret"`
+	Address       string   `json:"address"`
+	PublicAddress string   `json:"public_address"`
+	TLS           *APITLS  `json:"tls"`
+	AdminIDs      []string `json:"admin_ids"`
 }
 
 // APITLS contains configuration for the
@@ -143,7 +143,6 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 			RightRoleNames: &DiscordRoleNames{
 				Player:  "@everyone",
 				Blocked: "YuriBlocked",
-				Admin:   "YuriAdmin",
 			},
 		},
 		Lavalink: &Lavalink{

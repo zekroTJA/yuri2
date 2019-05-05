@@ -3,11 +3,13 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/logger"
+	"github.com/zekroTJA/yuri2/internal/static"
 )
 
 type getTokenResponse struct {
@@ -21,11 +23,42 @@ type listResponse struct {
 	Results interface{} `json:"results"`
 }
 
+type getAdminStatsResponse struct {
+	Guilds     []*guildResponse     `json:"guilds"`
+	VoiceConns []*voiceConnResponse `json:"voice_connections"`
+	System     *systemStatsResponse `json:"system"`
+}
+
+type guildResponse struct {
+	Name string `json:"name"`
+	ID   string `json:"id"`
+}
+
+type voiceConnResponse struct {
+	Guild *guildResponse `json:"guild"`
+	VCID  string         `json:"vc_id"`
+}
+
+type systemStatsResponse struct {
+	Arch       string  `json:"arch"`
+	OS         string  `json:"os"`
+	GoVersion  string  `json:"go_version"`
+	NumCPUs    int     `json:"cpu_used_cores"`
+	GoRoutines int     `json:"go_routines"`
+	HeapUse    uint64  `json:"heap_use_b"`
+	StackUse   uint64  `json:"stack_use_b"`
+	Uptime     float64 `json:"uptime_seconds"`
+}
+
 // -----------------------------------------------
 // --- REST API HANDLERS
 
 // GET /token
 func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, userID string) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
 	if ok, _ := api.checkLimitWithResponse(w, r.RemoteAddr); !ok {
 		return
 	}
@@ -51,6 +84,10 @@ func (api *API) restGetTokenHandler(w http.ResponseWriter, r *http.Request, user
 
 // GET /api/localsounds
 func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
 	ok, userID := api.checkAuthWithResponse(w, r)
 	if !ok {
 		return
@@ -106,6 +143,10 @@ func (api *API) restGetLocalSounds(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/logs/:GUILDID
 func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
 	ok, userID := api.checkAuthWithResponse(w, r)
 	if !ok {
 		return
@@ -160,6 +201,10 @@ func (api *API) restGetLogs(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/stats/:GUILDID
 func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
 	ok, userID := api.checkAuthWithResponse(w, r)
 	if !ok {
 		return
@@ -204,6 +249,111 @@ func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
 		N:       len(stats),
 		Results: stats,
 	})
+}
+
+// GET /api/admin/stats
+func (api *API) restGetAdminStats(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if !api.isAdmin(userID) {
+		errResponse(w, http.StatusUnauthorized, "")
+		return
+	}
+
+	status := new(getAdminStatsResponse)
+
+	status.Guilds = make([]*guildResponse, len(api.session.State.Guilds))
+	status.VoiceConns = make([]*voiceConnResponse, 0)
+
+	for i, g := range api.session.State.Guilds {
+		status.Guilds[i] = &guildResponse{
+			ID:   g.ID,
+			Name: g.Name,
+		}
+
+		for _, vs := range g.VoiceStates {
+			if vs.UserID != api.session.State.User.ID {
+				continue
+			}
+
+			status.VoiceConns = append(status.VoiceConns, &voiceConnResponse{
+				Guild: &guildResponse{
+					ID:   g.ID,
+					Name: g.Name,
+				},
+				VCID: vs.ChannelID,
+			})
+		}
+	}
+
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+
+	status.System = &systemStatsResponse{
+		Uptime:     time.Since(static.Uptime).Seconds(),
+		OS:         runtime.GOOS,
+		Arch:       runtime.GOARCH,
+		NumCPUs:    runtime.NumCPU(),
+		GoVersion:  runtime.Version(),
+		GoRoutines: runtime.NumGoroutine(),
+		StackUse:   memStats.StackInuse,
+		HeapUse:    memStats.HeapInuse,
+	}
+
+	jsonResponse(w, 200, status)
+}
+
+// POST /api/admin/restart
+func (api *API) restPostAdminRestart(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "POST") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if !api.isAdmin(userID) {
+		errResponse(w, http.StatusUnauthorized, "")
+		return
+	}
+
+	jsonResponse(w, http.StatusOK, nil)
+	go func() {
+		api.teardownChan <- static.SigRestart
+	}()
+}
+
+// POST /api/admin/refetch
+func (api *API) restPostAdminRefetch(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "POST") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if !api.isAdmin(userID) {
+		errResponse(w, http.StatusUnauthorized, "")
+		return
+	}
+
+	if err := api.player.FetchLocalSounds(); err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	jsonResponse(w, http.StatusOK, nil)
 }
 
 // -----------------------------------------------

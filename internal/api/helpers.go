@@ -240,6 +240,22 @@ func (api *API) checkAuthWithResponse(w http.ResponseWriter, r *http.Request) (b
 	return true, userID
 }
 
+// checkMethodWithResponse checks if the used method is
+// one of the passed allowed methods. Else, attach "Allow"
+// header with allowed request methods and an 405 status.
+// Returns false if the check did not pass.
+func checkMethodWithResponse(w http.ResponseWriter, r *http.Request, method ...string) bool {
+	for _, m := range method {
+		if m == r.Method {
+			return true
+		}
+	}
+
+	w.Header().Set("Allow", strings.Join(method, ", "))
+	errResponse(w, http.StatusMethodNotAllowed, "method not allowed")
+	return false
+}
+
 // wsSendError creates a wsErrorData object from passed error
 // code and message and sends it to the specified connection.
 func wsSendError(wsc *wsmgr.WebSocketConn, code wsErrorType, msg string, data ...interface{}) error {
@@ -370,4 +386,21 @@ func (api *API) checkLimitWithResponse(w http.ResponseWriter, ident string) (boo
 	}
 
 	return ok, res
+}
+
+// isAdmin checks if the specified userID is
+// the owner or in the list of admins defined
+// in the config file.
+func (api *API) isAdmin(userID string) bool {
+	if api.cfg.Discord.OwnerID == userID {
+		return true
+	}
+
+	for _, id := range api.cfg.API.AdminIDs {
+		if id == userID {
+			return true
+		}
+	}
+
+	return false
 }
