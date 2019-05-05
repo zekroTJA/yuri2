@@ -132,6 +132,9 @@ func (api *API) registerHTTPHandlers() {
 	// MAIN HANDLER
 	api.mux.HandleFunc("/", api.indexPageHandler)
 
+	// ADMIN HANDLER
+	api.mux.HandleFunc("/admin", api.adminPageHandler)
+
 	// WS UPGRADE
 	api.mux.HandleFunc("/ws", api.wsUpgradeHandler)
 

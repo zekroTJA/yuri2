@@ -417,3 +417,31 @@ func (api *API) wsUpgradeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (api *API) adminPageHandler(w http.ResponseWriter, r *http.Request) {
+	ok, userID, err := api.checkAuthCookie(r)
+	if err != nil {
+		logger.Error("API :: checkAuthCookie: %s", err.Error())
+		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !ok || userID == "" {
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	if !api.isAdmin(userID) {
+		errPageResponse(w, r, http.StatusForbidden, "")
+		return
+	}
+
+	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	if guilds == nil {
+		errPageResponse(w, r, http.StatusForbidden, "")
+		return
+	}
+
+	http.ServeFile(w, r, "./web/pages/admin.html")
+}
