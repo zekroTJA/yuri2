@@ -72,25 +72,6 @@ function getGuildStats(guildID) {
     });
 }
 
-// GET /api/admin/stats
-function getGuildStats() {
-    var url = `/api/admin/stats`;
-    restDebugRequest('GET', url);
-
-    return new Promise((resolve, rejects) => {
-        $.getJSON(url, (res, s) => {
-            restDebugRespone(res, s);
-            if (s === 'success') {
-                resolve(res);
-            } else {
-                rejects(res, s);
-            }
-        }).fail((e) => {
-            rejects(e);
-        });
-    });
-}
-
 // GET /api/admin/restart
 function postRestart() {
     var url = `/api/admin/restart`;
