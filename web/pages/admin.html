@@ -85,8 +85,21 @@
         </div>
     </div>
 
+    <!-- WARN SUCCESS -->
+    <div id="infoAlert" class="alert alert-success alert-error-override m-4 text-white fade d-none" role="alert"></div>
+
+    <!-- WARN ALERT -->
+    <div id="warnAlert" class="alert alert-warning alert-error-override m-4 text-white fade d-none" role="alert"></div>
+
     <!-- PANEL CONTAINER -->
     <div class="container-fluid d-flex flex-row mt-3">
+        <!-- PANEL Controls -->
+        <div class="panel mr-3">
+            <h4>Controls</h4>
+            <a id="btRestart" href="javascript:{}" class="btn btn-warning text-white bg-clr-orange mt-1 mr-2">RESTART</a>
+            <a id="btRefetch" href="javascript:{}" class="btn btn-warning text-white bg-clr-blue mt-1">REFETCH</a>
+        </div>
+
         <!-- PANEL System Status -->
         <div class="panel mr-3">
             <h4>System Status</h4>
@@ -99,28 +112,30 @@
             </table>
         </div>
         
+        <!-- PANEL Guilds -->        
         <div class="panel mr-3">
             <h4>Guilds</h4>
             <div id="spinnerGuilds" class="container-fluid d-flex align-items-center">
                 <div class="spinner-border text-primary m-3" role="status"></div>
                 <span class="text-white">Loading...</span>
             </div>
-            <table id="tbGuilds" class="text-white w-100">
+            <table id="tbGuilds" class="text-white w-100 mb-5">
                 <tbody></tbody>
             </table>
-            <a id="btnMoreGuilds" href="javascript:{}" class="btn btn-primary btn-sm mt-2">More info...</a>
+            <a id="btnMoreGuilds" href="javascript:{}" class="btn btn-primary btn-sm my-2 btn-more">More info...</a>
         </div>
 
+        <!-- PANEL Voice Connections -->
         <div class="panel mr-3">
             <h4>Voice Connections</h4>
             <div id="spinnerVCs" class="container-fluid d-flex align-items-center">
                 <div class="spinner-border text-primary m-3" role="status"></div>
                 <span class="text-white">Loading...</span>
             </div>
-            <table id="tbVCs" class="text-white w-100">
+            <table id="tbVCs" class="text-white w-100 mb-5">
                 <tbody></tbody>
             </table>
-            <a id="btnMoreVCs" href="javascript:{}" class="btn btn-primary btn-sm mt-2">More info...</a>
+            <a id="btnMoreVCs" href="javascript:{}" class="btn btn-primary btn-sm my-2 btn-more">More info...</a>
         </div>
     </div>
 

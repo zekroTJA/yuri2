@@ -82,6 +82,28 @@ function displayError(desc, time) {
     }, time + 250);
 }
 
+function displayInfo(desc, time) {
+    if (!time) time = 8000;
+
+    var alertBox = $('#infoAlert');
+    $('#infoAlert')[0].innerHTML = desc;
+
+    // fade in
+    alertBox.removeClass('d-none');
+    setTimeout(() => {
+        alertBox[0].style.opacity = '1';
+        alertBox[0].style.transform = 'translateY(0px)';
+    }, 10);
+    // fade out
+    setTimeout(() => {
+        alertBox[0].style.opacity = '0';
+        alertBox[0].style.transform = 'translateY(-20px)';
+    }, time);
+    setTimeout(() => {
+        alertBox.addClass('d-none');
+    }, time + 250);
+}
+
 function addRowToTable(tb, ...entries) {
     var tr = document.createElement('tr');
     entries.forEach((e) => {
@@ -130,4 +152,27 @@ function toDDHHMMSS(secs) {
         2,
         '0'
     )}:${padFront(ss, 2, '0')}`;
+}
+
+var btnStats = {};
+
+function btnAccept(e, cb) {
+    var t = $(e.target);
+    if (t.hasClass('need-accept')) {
+        cb.bind(null, t).call();
+        t.removeClass('need-accept');
+        t.addClass('bg-clr-orange');
+        t[0].innerText = btnStats[t[0].id].innerText;
+        delete btnStats[t[0].id];
+    } else {
+        t.removeClass('bg-clr-orange');
+        t.addClass('need-accept');
+        t.oldText = t[0].innerText;
+        btnStats[t[0].id] = {
+            innerText: t[0].innerText,
+        };
+        var width = t.width();
+        t[0].innerText = 'Sure?';
+        t.width(width);
+    }
 }

@@ -107,6 +107,8 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 
 	if data != nil {
 		bData, err = json.MarshalIndent(data, "", "  ")
+	} else {
+		bData = []byte("{}")
 	}
 
 	if err != nil {

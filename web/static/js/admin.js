@@ -138,6 +138,50 @@ $('#btRefresh').on('click', () => {
     updateStats();
 });
 
+$('#btRestart').on('click', (e) => {
+    btnAccept(e, (t) => {
+        postRestart()
+            .then(() => {
+                var alert = $('#warnAlert');
+                alert.removeClass('d-none');
+                setTimeout(() => {
+                    alert[0].style.opacity = '1';
+                    alert[0].style.transform = 'translateY(0px)';
+                }, 10);
+                var secs = 10;
+                alert.text(
+                    `Restarting... This page atomatically reloads after ${secs} seconds...`
+                );
+                setInterval(() => {
+                    alert.text(
+                        `Restarting... This page atomatically reloads after ${--secs} seconds...`
+                    );
+                    if (secs === 0) window.location = '/admin';
+                }, 1000);
+            })
+            .catch((err) => {
+                displayError(
+                    `<code>REST API ERROR</code> restart failed<br/><code>${err}</code>`
+                );
+            });
+    });
+});
+
+$('#btRefetch').on('click', (e) => {
+    btnAccept(e, (t) => {
+        postRefetch()
+            .then(() => {
+                console.log('abc');
+                displayInfo('Refetched sounds.', 5000);
+            })
+            .catch((err) => {
+                displayError(
+                    `<code>REST API ERROR</code> refetch failed<br/><code>${err}</code>`
+                );
+            });
+    });
+});
+
 // ------------------------------------------------------------
 
 updateStats();

@@ -23,7 +23,7 @@ function getLocalSounds(sortBy) {
     return new Promise((resolve, rejects) => {
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
-            if (s == 'success') {
+            if (s === 'success') {
                 resolve(res.results);
             } else {
                 rejects(res, s);
@@ -42,7 +42,7 @@ function getGuildLog(guildID) {
     return new Promise((resolve, rejects) => {
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
-            if (s == 'success') {
+            if (s === 'success') {
                 resolve(res.results);
             } else {
                 rejects(res, s);
@@ -61,7 +61,7 @@ function getGuildStats(guildID) {
     return new Promise((resolve, rejects) => {
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
-            if (s == 'success') {
+            if (s === 'success') {
                 resolve(res.results);
             } else {
                 rejects(res, s);
@@ -80,7 +80,45 @@ function getGuildStats() {
     return new Promise((resolve, rejects) => {
         $.getJSON(url, (res, s) => {
             restDebugRespone(res, s);
-            if (s == 'success') {
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}
+
+// GET /api/admin/restart
+function postRestart() {
+    var url = `/api/admin/restart`;
+    restDebugRequest('POST', url);
+
+    return new Promise((resolve, rejects) => {
+        $.post(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}
+
+// GET /api/admin/refetch
+function postRefetch() {
+    var url = `/api/admin/refetch`;
+    restDebugRequest('POST', url);
+
+    return new Promise((resolve, rejects) => {
+        $.post(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
                 resolve(res);
             } else {
                 rejects(res, s);

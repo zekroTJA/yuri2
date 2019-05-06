@@ -146,13 +146,15 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 			},
 		},
 		Lavalink: &Lavalink{
-			Address: "localhost:2333",
+			Address:         "localhost:2333",
+			SoundsLocations: []string{"./data/sounds"},
 		},
 		Database: dbConfStruct,
 		API: &API{
 			Enable:        false,
 			Address:       ":443",
 			PublicAddress: "https://yuri.example.com",
+			AdminIDs:      make([]string, 0),
 			TLS: &APITLS{
 				Enable:   true,
 				CertFile: "/etc/cert/example.com/example.com.cer",
