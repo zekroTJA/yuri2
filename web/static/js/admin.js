@@ -25,7 +25,7 @@ function updateStats() {
     spinnerVCs.removeClass('d-none');
     spinnerVCs.addClass('d-flex');
 
-    getGuildStats()
+    getAdminStats()
         .then((res) => {
             guilds = res.guilds;
             VCs = res.voice_connections;
@@ -105,8 +105,13 @@ function updateStats() {
             displayError(
                 `<code>REST API ERROR</code> getting system stats failed<br/><code>${err}</code>`
             );
-            spinner.removeClass('d-flex');
-            spinner.addClass('d-none');
+
+            spinnerGuilds.removeClass('d-flex');
+            spinnerGuilds.addClass('d-none');
+            spinnerInfo.removeClass('d-flex');
+            spinnerInfo.addClass('d-none');
+            spinnerVCs.removeClass('d-flex');
+            spinnerVCs.addClass('d-none');
         });
 }
 
