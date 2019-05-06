@@ -171,7 +171,6 @@ $('#btRefetch').on('click', (e) => {
     btnAccept(e, (t) => {
         postRefetch()
             .then(() => {
-                console.log('abc');
                 displayInfo('Refetched sounds.', 5000);
             })
             .catch((err) => {
