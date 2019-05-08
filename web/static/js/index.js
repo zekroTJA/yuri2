@@ -304,7 +304,13 @@ ws.on('ERROR', (data) => {
 
 ws.on('HELLO', (data) => {
     eventDebug('HELLO', data);
-    if (data.data && data.data.connected) {
+    if (!data.data) return;
+
+    if (data.data.admin) {
+        $('#btnAdmin').removeClass('d-none');
+    }
+
+    if (data.data.connected) {
         $('#btnJoinLeave')[0].innerText = 'LEAVE';
         inChannel = true;
         guildID = data.data.voice_state.guild_id;

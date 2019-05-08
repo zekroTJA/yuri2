@@ -229,6 +229,7 @@ You will only get valid `connected` and `voice_state` information when you are c
 {
   "name": "HELLO",
   "data": {
+    "admin": true,
     "connected": true,
     "vol": 25,
     "voice_state": {
@@ -241,6 +242,7 @@ You will only get valid `connected` and `voice_state` information when you are c
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `admin` | `bool` | Identicates if the logged in user is defined as an admin. |
 | `connected` | `bool` | Identicates whether the bot is connected to any voice channel on the guild you are also connected to. |
 | *`vol`* | `int` | The volume of the guilds player, if connected. |
 | *`voice_state.guild_id`* | `string` | The guild where the bot is in the voice channel. |

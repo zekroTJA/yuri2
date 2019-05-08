@@ -165,3 +165,8 @@ h1, h2, h3, h4, p, a {
     background-color: var(--c-btn-enqueued) !important;
     border-color: var(--c-btn-enqueued) !important;
 }
+
+.btn-admin-panel {
+    background-color: var(--c-btn-admin-panel) !important;
+    border-color: var(--c-btn-admin-panel) !important;
+}

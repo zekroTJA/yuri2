@@ -26,6 +26,7 @@ type wsIdent struct {
 }
 
 type wsHelloData struct {
+	Admin     bool          `json:"admin"`
 	Connected bool          `json:"connected"`
 	Vol       int           `json:"vol"`
 	VS        *wsVoiceState `json:"voice_state"`
@@ -95,6 +96,7 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 	}
 
 	event := &wsHelloData{
+		Admin:     api.isAdmin(data.UserID),
 		Vol:       vol,
 		Connected: svs != nil,
 	}
