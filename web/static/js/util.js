@@ -158,12 +158,16 @@ var btnStats = {};
 
 function btnAccept(e, cb) {
     var t = $(e.target);
-    if (t.hasClass('need-accept')) {
-        cb.bind(null, t).call();
+    var reset = () => {
         t.removeClass('need-accept');
         t.addClass('bg-clr-orange');
         t[0].innerText = btnStats[t[0].id].innerText;
         delete btnStats[t[0].id];
+    };
+
+    if (t.hasClass('need-accept')) {
+        cb.bind(null, t).call();
+        reset();
     } else {
         t.removeClass('bg-clr-orange');
         t.addClass('need-accept');
@@ -174,5 +178,10 @@ function btnAccept(e, cb) {
         var width = t.width();
         t[0].innerText = 'Sure?';
         t.width(width);
+        setTimeout(() => {
+            if (t.hasClass('need-accept')) {
+                reset();
+            }
+        }, 3000);
     }
 }
