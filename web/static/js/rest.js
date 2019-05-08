@@ -91,7 +91,26 @@ function getAdminStats() {
     });
 }
 
-// GET /api/admin/restart
+// GET /api/admin/soundstats
+function getAdminSoundStats() {
+    var url = `/api/admin/soundstats`;
+    restDebugRequest('GET', url);
+
+    return new Promise((resolve, rejects) => {
+        $.getJSON(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}
+
+// POST /api/admin/restart
 function postRestart() {
     var url = `/api/admin/restart`;
     restDebugRequest('POST', url);
@@ -110,7 +129,7 @@ function postRestart() {
     });
 }
 
-// GET /api/admin/refetch
+// POST /api/admin/refetch
 function postRefetch() {
     var url = `/api/admin/refetch`;
     restDebugRequest('POST', url);

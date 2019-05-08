@@ -115,6 +115,46 @@ function updateStats() {
         });
 }
 
+// SOUND STATS
+function updateSoundStats() {
+    var spinnerSoundInfo = $('#spinnerSoundInfo');
+    var tbSoundStats = $('#tbSoundStats > tbody');
+
+    tbSoundStats.empty();
+
+    spinnerSoundInfo.removeClass('d-none');
+    spinnerSoundInfo.addClass('d-flex');
+    getAdminSoundStats()
+        .then((res) => {
+            addRowToTable(
+                tbSoundStats,
+                'Number of Sound Files',
+                elemInnerText('code', res.sounds_len)
+            );
+            addRowToTable(
+                tbSoundStats,
+                'Size of Sound Files',
+                elemInnerText('code', byteCountFormatter(res.size_b))
+            );
+            addRowToTable(
+                tbSoundStats,
+                'Log Records',
+                elemInnerText('code', res.log_len)
+            );
+
+            spinnerSoundInfo.removeClass('d-flex');
+            spinnerSoundInfo.addClass('d-none');
+        })
+        .catch((err) => {
+            displayError(
+                `<code>REST API ERROR</code> getting sound stats failed<br/><code>${err}</code>`
+            );
+
+            spinnerSoundInfo.removeClass('d-flex');
+            spinnerSoundInfo.addClass('d-none');
+        });
+}
+
 // ------------------------------------------------------------
 
 $('#btnMoreGuilds').on('click', () => {
@@ -141,6 +181,7 @@ $('#btnMoreVCs').on('click', () => {
 
 $('#btRefresh').on('click', () => {
     updateStats();
+    updateSoundStats();
 });
 
 $('#btRestart').on('click', (e) => {
@@ -189,3 +230,4 @@ $('#btRefetch').on('click', (e) => {
 // ------------------------------------------------------------
 
 updateStats();
+updateSoundStats();
