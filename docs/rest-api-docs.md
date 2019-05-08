@@ -325,6 +325,32 @@ The resulting response of the callback to `/token/authorize` will have follwoing
 }
 ```
 
+### Get Sound Stats
+
+> GET /api/admin/soundstats
+
+***Note:** `log_len` is the total ammount of recorded played sounds on all guilds and not for one single or the current recognized guild.*
+
+#### Parameters
+
+*No parameters passed.*
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Date: Sun, 05 May 2019 01:22:14 GMT
+< Content-Length: 63
+```
+```json
+{
+  "sounds_len": 3,
+  "log_len": 144,
+  "size_b": 486432
+}
+```
+
 ### Restart
 
 > POST /api/admin/restart
