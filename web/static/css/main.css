@@ -151,6 +151,11 @@ h1, h2, h3, h4, p, a {
     display: none !important;
 }
 
+.btn-chaining {
+    background-color: var(--c-btn-chaining) !important;
+    border-color: var(--c-btn-chaining) !important;
+}
+
 .btn-chaning-active {
     background-color: var(--c-btn-chaining-active) !important;
     border-color: var(--c-btn-chaining-active) !important;
