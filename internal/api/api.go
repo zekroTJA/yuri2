@@ -168,6 +168,9 @@ func (api *API) registerHTTPHandlers() {
 	// GET /api/admin/stats
 	api.mux.HandleFunc("/api/admin/stats", api.restGetAdminStats)
 
+	// GET /api/admin/soundstats
+	api.mux.HandleFunc("/api/admin/soundstats", api.restGetAdminSoundStats)
+
 	// POST /api/admin/restart
 	api.mux.HandleFunc("/api/admin/restart", api.restPostAdminRestart)
 
