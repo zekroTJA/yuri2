@@ -6,8 +6,11 @@
     --c-btn-sound: rgb(0, 135, 202);
     --c-btn-sound-activated: #E91E63;
     --c-btn-random: rgb(0, 135, 202);
+    --c-btn-enqueued: #6A1B9A;
 
     --c-btn-basic: rgba(255, 255, 255, 0.534);
+
+    --c-btn-chaining-active: #FF6F00;
 
     --c-warning: #FFCA2833;
     --c-error: rgba(255, 40, 40, 0.2);
