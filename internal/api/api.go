@@ -165,6 +165,13 @@ func (api *API) registerHTTPHandlers() {
 	// GET /api/stats/:GUILDID
 	api.mux.HandleFunc("/api/stats/", api.restGetStats)
 
+	// GET /api/favorites
+	api.mux.HandleFunc("/api/favorites", api.restGetFavorites)
+
+	// POST /api/favorites/:SOUND
+	// DELETE /api/favorites/:SOUND
+	api.mux.HandleFunc("/api/favorites/", api.restPostDeleteFavorites)
+
 	// GET /api/admin/stats
 	api.mux.HandleFunc("/api/admin/stats", api.restGetAdminStats)
 

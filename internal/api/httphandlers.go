@@ -251,6 +251,93 @@ func (api *API) restGetStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GET /api/favorites
+func (api *API) restGetFavorites(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if ok, _ := api.checkLimitWithResponse(w, userID); !ok {
+		return
+	}
+
+	favs, err := api.db.GetFavorites(userID)
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	jsonResponse(w, http.StatusOK, listResponse{
+		N:       len(favs),
+		Results: favs,
+	})
+}
+
+// POST/DELETE /api/favorites/:SOUND
+func (api *API) restPostDeleteFavorites(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "POST", "DELETE") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if ok, _ := api.checkLimitWithResponse(w, userID); !ok {
+		return
+	}
+
+	sInd := strings.LastIndex(r.URL.Path, "/")
+	if sInd == -1 || sInd == len(r.URL.Path)-1 {
+		errResponse(w, http.StatusBadRequest, "SOUND must be a valid string value")
+		return
+	}
+
+	sound := r.URL.Path[sInd+1:]
+
+	files, err := api.player.GetLocalFiles()
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	var contained bool
+	for _, f := range files {
+		if f.Name == sound {
+			contained = true
+			break
+		}
+	}
+
+	if !contained {
+		errResponse(w, http.StatusNotFound, "")
+		return
+	}
+
+	var statusCode int
+
+	if r.Method == "POST" {
+		err = api.db.SetFavorite(userID, sound)
+		statusCode = http.StatusCreated
+	} else {
+		err = api.db.UnsetFavorite(userID, sound)
+		statusCode = http.StatusOK
+	}
+
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	jsonResponse(w, statusCode, nil)
+}
+
 // GET /api/admin/stats
 func (api *API) restGetAdminStats(w http.ResponseWriter, r *http.Request) {
 	if !checkMethodWithResponse(w, r, "GET") {
