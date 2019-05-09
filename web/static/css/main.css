@@ -150,3 +150,23 @@ h1, h2, h3, h4, p, a {
 .invis {
     display: none !important;
 }
+
+.btn-chaining {
+    background-color: var(--c-btn-chaining) !important;
+    border-color: var(--c-btn-chaining) !important;
+}
+
+.btn-chaning-active {
+    background-color: var(--c-btn-chaining-active) !important;
+    border-color: var(--c-btn-chaining-active) !important;
+}
+
+.sound-enqueued {
+    background-color: var(--c-btn-enqueued) !important;
+    border-color: var(--c-btn-enqueued) !important;
+}
+
+.btn-admin-panel {
+    background-color: var(--c-btn-admin-panel) !important;
+    border-color: var(--c-btn-admin-panel) !important;
+}

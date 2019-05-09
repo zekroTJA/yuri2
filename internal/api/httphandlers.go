@@ -50,6 +50,12 @@ type systemStatsResponse struct {
 	Uptime     float64 `json:"uptime_seconds"`
 }
 
+type soundStatsResponse struct {
+	SoundsLen int   `json:"sounds_len"`
+	LogLen    int   `json:"log_len"`
+	SizeB     int64 `json:"size_b"`
+}
+
 // -----------------------------------------------
 // --- REST API HANDLERS
 
@@ -395,6 +401,43 @@ func (api *API) restGetAdminStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResponse(w, 200, status)
+}
+
+// GET /api/admin/soundstats
+func (api *API) restGetAdminSoundStats(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if !api.isAdmin(userID) {
+		errResponse(w, http.StatusUnauthorized, "")
+		return
+	}
+
+	sounds, err := api.player.GetLocalFiles()
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	logLen, err := api.db.GetLogLen("")
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	stat := &soundStatsResponse{
+		LogLen:    logLen,
+		SoundsLen: len(sounds),
+		SizeB:     sounds.GetSize(),
+	}
+
+	jsonResponse(w, http.StatusOK, stat)
 }
 
 // POST /api/admin/restart

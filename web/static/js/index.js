@@ -2,6 +2,10 @@
 
 'use strict';
 
+var chain = null;
+
+// ------------------------------------------------------------
+
 function eventDebug(name, data) {
     console.log(`WS API :: EVENT < ${name} > ::`, data);
 }
@@ -11,11 +15,24 @@ function addButton(name) {
     btn.innerText = name;
     btn.id = `soundBtn-${name}`;
     btn.className = 'btn btn-primary btn-sound m-2';
-    btn.onclick = (e) =>
+    btn.onclick = (e) => {
+        if (chain !== null) {
+            var t = $(e.target);
+            if (t.hasClass('sound-enqueued')) {
+                t.removeClass('sound-enqueued');
+                delete chain[name];
+                return;
+            }
+            chain[name] = t;
+            t.addClass('sound-enqueued');
+            return;
+        }
+
         ws.emit('PLAY', {
             ident: name,
             source: 0,
         });
+    };
     $('#container-sound-btns').append(btn);
 }
 
@@ -77,6 +94,35 @@ function setVolume(v) {
     $('#labelVol')[0].innerText = v + '%';
 }
 
+function resetChaining() {
+    var t = $('#btnChaining');
+    t.removeClass('btn-chaning-active');
+    t.text('CHAINING');
+    Object.keys(chain).forEach((s) => {
+        chain[s].removeClass('sound-enqueued');
+    });
+    chain = null;
+}
+
+function playFromQueue() {
+    if (Object.keys(chain).length === 0) {
+        resetChaining();
+        return false;
+    }
+
+    var sound = Object.keys(chain)[0];
+
+    ws.emit('PLAY', {
+        ident: sound,
+        source: 0,
+    });
+
+    chain[sound].removeClass('sound-enqueued');
+    delete chain[sound];
+
+    return true;
+}
+
 ws.onEmit((e, raw) =>
     console.log(`WS API :: COMMAND < ${e.name} > ::`, e.data)
 );
@@ -126,6 +172,27 @@ $('#btnStop').on('click', (e) => {
 $('#btnJoinLeave').on('click', (e) => {
     if (inChannel) ws.emit('LEAVE');
     else ws.emit('JOIN');
+});
+
+$('#btnChaining').on('click', (e) => {
+    var t = $(e.target);
+
+    if (chain === null) {
+        chain = {};
+        t.addClass('btn-chaning-active');
+        t.text('RECORDING');
+        return;
+    }
+
+    if (chain.length === 0) {
+        t.removeClass('btn-chaning-active');
+        t.text('CHAINING');
+        chain = null;
+        return;
+    }
+
+    t.text('PLAYING');
+    playFromQueue();
 });
 
 $('#btnLog').on('click', (e) => {
@@ -237,7 +304,13 @@ ws.on('ERROR', (data) => {
 
 ws.on('HELLO', (data) => {
     eventDebug('HELLO', data);
-    if (data.data && data.data.connected) {
+    if (!data.data) return;
+
+    if (data.data.admin) {
+        $('#btnAdmin').removeClass('d-none');
+    }
+
+    if (data.data.connected) {
         $('#btnJoinLeave')[0].innerText = 'LEAVE';
         inChannel = true;
         guildID = data.data.voice_state.guild_id;
@@ -261,10 +334,17 @@ ws.on('END', (data) => {
     if (data.data.ident) {
         $(`#soundBtn-${data.data.ident}`).removeClass('playing');
     }
+
+    if (chain !== null) {
+        playFromQueue();
+    }
 });
 
 ws.on('PLAY_ERROR', (data) => {
     eventDebug('PLAY_ERROR', data);
+    if (chain !== null) {
+        resetChaining();
+    }
 });
 
 ws.on('STUCK', (data) => {

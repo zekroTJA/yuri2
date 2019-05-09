@@ -72,6 +72,7 @@
 	<div id="header" class="container-fluid d-flex align-items-center mx-auto px-3 py-2">
         <img class="avi mr-3" src="/static/img/avi.jpg" width="42"/>
         <h2 class="p-0 m-0 mr-4">YURI | Admin Panel</h2>
+        <a href="/" class="btn text-white btn-info btn-header mx-1">◄&nbsp;&nbsp;HOME</a>
         <a id="btRefresh" href="javascript:{}" class="btn text-white btn-success btn-header mx-1">REFRESH</a>
     </div>
 
@@ -108,6 +109,18 @@
                 <span class="text-white">Loading...</span>
             </div>
             <table id="tbStats" class="text-white w-100">
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- PANEL System Status -->
+        <div class="panel mr-3">
+            <h4>Sound Stats</h4>
+            <div id="spinnerSoundInfo" class="container-fluid d-flex align-items-center">
+                <div class="spinner-border text-primary m-3" role="status"></div>
+                <span class="text-white">Loading...</span>
+            </div>
+            <table id="tbSoundStats" class="text-white w-100">
                 <tbody></tbody>
             </table>
         </div>

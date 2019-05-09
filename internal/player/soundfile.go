@@ -28,13 +28,26 @@ func (sfl SoundFileList) SortByName() {
 	}).Sort(sfl)
 }
 
+// GetSize returns the sum of the sizes of
+// all sounds in the SoundFileList.
+func (sfl SoundFileList) GetSize() int64 {
+	var size int64
+
+	for _, sf := range sfl {
+		size += sf.Size
+	}
+
+	return size
+}
+
 // ----------------------------------------------
 
 // SoundFile contains the name (without file extension),
-// path and last modified date of a local sound file.
+// path, size and last modified date of a local sound file.
 type SoundFile struct {
 	Name         string    `json:"name"`
 	Path         string    `json:"-"`
+	Size         int64     `json:"-"`
 	LastModified time.Time `json:"last_modified"`
 }
 
@@ -50,6 +63,7 @@ func NewSoundFile(name, path string) (*SoundFile, error) {
 	file := &SoundFile{
 		Name:         name,
 		Path:         path,
+		Size:         s.Size(),
 		LastModified: s.ModTime(),
 	}
 
