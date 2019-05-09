@@ -25,11 +25,11 @@ const (
 	limitsCleanupInterval = 5 * time.Minute
 	limitsLifetime        = 1 * time.Hour
 
-	wsLimit = 1500 * time.Millisecond
+	wsLimit = 1000 * time.Millisecond
 	wsBurst = 10
 
-	restLimit = 2 * time.Second
-	restBurst = 5
+	restLimit = 1 * time.Second
+	restBurst = 10
 )
 
 // API maintains the HTTP web server, REST
