@@ -147,3 +147,65 @@ function postRefetch() {
         });
     });
 }
+
+// GET /api/favorites
+function getFavorites() {
+    var url = `/api/favorites`;
+    restDebugRequest('GET', url);
+
+    return new Promise((resolve, rejects) => {
+        $.getJSON(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}
+
+// POST /api/favorites/:SOUND
+function postFavorites(sound) {
+    var url = `/api/favorites/${sound}`;
+    restDebugRequest('POST', url);
+
+    return new Promise((resolve, rejects) => {
+        $.post(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}
+
+// DELETE /api/favorites/:SOUND
+function deleteFavorites(sound) {
+    var url = `/api/favorites/${sound}`;
+    restDebugRequest('DELETE', url);
+
+    return new Promise((resolve, rejects) => {
+        $.ajax({
+            method: 'DELETE',
+            url: url,
+        })
+            .done((res, s) => {
+                restDebugRespone(res, s);
+                if (s === 'success') {
+                    resolve(res);
+                } else {
+                    rejects(res, s);
+                }
+            })
+            .fail((e) => {
+                rejects(e);
+            });
+    });
+}

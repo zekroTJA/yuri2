@@ -3,6 +3,8 @@
 'use strict';
 
 var chain = null;
+var favorites = [];
+var test;
 
 // ------------------------------------------------------------
 
@@ -16,6 +18,8 @@ function addButton(name) {
     btn.id = `soundBtn-${name}`;
     btn.className = 'btn btn-primary btn-sound m-2';
     btn.onclick = (e) => {
+        if (e.target.className.includes('btn-favorite')) return;
+
         if (chain !== null) {
             var t = $(e.target);
             if (t.hasClass('sound-enqueued')) {
@@ -33,6 +37,43 @@ function addButton(name) {
             source: 0,
         });
     };
+
+    var fav = document.createElement('a');
+    fav.className = 'btn-favorite';
+    if (favorites.includes(name)) fav.className += ' d-block';
+    fav.onclick = (e) => {
+        if (favorites.includes(name)) {
+            deleteFavorites(name)
+                .then(() => {
+                    test = $(e.target).find('.btn-favorite');
+                    favorites.splice(favorites.indexOf(name), 1);
+                    $(e.target)
+                        .find('.btn-favorite')
+                        .prevObject.removeClass('d-block');
+                })
+                .catch((err) => {
+                    displayError(
+                        `<code>REST API ERROR</code> unsetting favorite failed:<br/><code>${err}</code>`
+                    );
+                });
+        } else {
+            postFavorites(name)
+                .then(() => {
+                    test = $(e.target).find('.btn-favorite');
+                    $(e.target)
+                        .find('.btn-favorite')
+                        .prevObject.addClass('d-block');
+                    favorites.push(name);
+                })
+                .catch((err) => {
+                    displayError(
+                        `<code>REST API ERROR</code> setting favorite failed:<br/><code>${err}</code>`
+                    );
+                });
+        }
+    };
+
+    btn.appendChild(fav);
     $('#container-sound-btns').append(btn);
 }
 
@@ -71,7 +112,16 @@ function fetchSoundsList(sort, cb) {
 function updateSoundList(soundList) {
     $('#container-sound-btns').empty();
     addRandomButton();
-    soundList.forEach((s) => addButton(s.name));
+    soundList
+        .filter((s) => favorites.includes(s.name))
+        .forEach((s) => {
+            addButton(s.name);
+        });
+    soundList
+        .filter((s) => !favorites.includes(s.name))
+        .forEach((s) => {
+            addButton(s.name);
+        });
 }
 
 function filterSoundsList(query, sl) {
@@ -139,9 +189,19 @@ if (getCookieValue('cookies_accepted') !== '1') {
     $('#cookieInformation')[0].style.display = 'block';
 }
 
-fetchSoundsList(sortBy, (s) => {
-    if (s) sounds = s;
-});
+getFavorites()
+    .then((res) => {
+        favorites = res.results;
+        fetchSoundsList(sortBy, (s) => {
+            if (s) sounds = s;
+        });
+    })
+    .catch((err) => {
+        console.log('REST :: ERROR :: ', r, s);
+        displayError(
+            `<code>REST API ERROR</code> getting favorites:<br/><code>${r}</code>`
+        );
+    });
 
 // BUTTON EVENT HOOKS
 

@@ -70,8 +70,23 @@ h1, h2, h3, h4, p, a {
 }
 
 .btn-sound {
+    position: relative;
     background-color: var(--c-btn-sound) !important;
     transition: all .25s ease;
+}
+
+.btn-sound:hover > .btn-favorite {
+    display: block;
+}
+
+.btn-favorite {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 16px;
+    height: 16px;
+    background-image: url('/static/img/fav16.png');
+    display: none;
 }
 
 .btn-header {
