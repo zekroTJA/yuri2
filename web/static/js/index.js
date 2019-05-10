@@ -197,7 +197,7 @@ getFavorites()
         });
     })
     .catch((err) => {
-        console.log('REST :: ERROR :: ', r, s);
+        console.log('REST :: ERROR :: ', err);
         displayError(
             `<code>REST API ERROR</code> getting favorites:<br/><code>${r}</code>`
         );
