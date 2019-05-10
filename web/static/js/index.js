@@ -256,76 +256,84 @@ $('#btnChaining').on('click', (e) => {
 });
 
 $('#btnLog').on('click', (e) => {
-    getGuildLog(guildID).then((res) => {
-        $('#modalLog').modal('show');
-        var tab = $('#modalLog div.modal-body > table');
+    getGuildLog(guildID)
+        .then((res) => {
+            $('#modalLog').modal('show');
+            var tab = $('#modalLog div.modal-body > table');
 
-        tab.children('tr').each((_, tr) => tr.remove());
-        res.forEach((r) => {
-            var tr = document.createElement('tr');
+            tab.children('tr').each((_, tr) => tr.remove());
+            res.forEach((r) => {
+                var tr = document.createElement('tr');
 
-            var tdTime = document.createElement('td');
-            tdTime.innerText = getTime(new Date(r.time));
-            tr.appendChild(tdTime);
+                var tdTime = document.createElement('td');
+                tdTime.innerText = getTime(new Date(r.time));
+                tr.appendChild(tdTime);
 
-            var tdCaller = document.createElement('td');
-            tdCaller.innerText = r.user_tag;
-            tr.appendChild(tdCaller);
+                var tdCaller = document.createElement('td');
+                tdCaller.innerText = r.user_tag;
+                tr.appendChild(tdCaller);
 
-            var tdSound = document.createElement('td');
-            tdSound.innerText = r.sound;
-            tr.appendChild(tdSound);
+                var tdSound = document.createElement('td');
+                tdSound.innerText = r.sound;
+                tr.appendChild(tdSound);
 
-            var tdSource = document.createElement('td');
-            switch (r.source) {
-                case 'local':
-                    tdSource.innerHTML =
-                        '<span class="badge badge-primary">L</span>';
-                    break;
-                case 'youtube':
-                    tdSource.innerHTML =
-                        '<span class="badge badge-warning">Y</span>';
-                    break;
-                case 'http':
-                    tdSource.innerHTML =
-                        '<span class="badge badge-info">H</span>';
-                    break;
-                default:
-                    tdSource.innerHTML =
-                        '<span class="badge badge-dark">?</span>';
-            }
-            tr.appendChild(tdSource);
+                var tdSource = document.createElement('td');
+                switch (r.source) {
+                    case 'local':
+                        tdSource.innerHTML =
+                            '<span class="badge badge-primary">L</span>';
+                        break;
+                    case 'youtube':
+                        tdSource.innerHTML =
+                            '<span class="badge badge-warning">Y</span>';
+                        break;
+                    case 'http':
+                        tdSource.innerHTML =
+                            '<span class="badge badge-info">H</span>';
+                        break;
+                    default:
+                        tdSource.innerHTML =
+                            '<span class="badge badge-dark">?</span>';
+                }
+                tr.appendChild(tdSource);
 
-            tab.append(tr);
+                tab.append(tr);
+            });
+        })
+        .catch((err) => {
+            displayError('You need to be in a voice channel to see the log.');
         });
-    });
 });
 
 $('#btnStats').on('click', (e) => {
-    getGuildStats(guildID).then((res) => {
-        $('#modalStats').modal('show');
-        var tab = $('#modalStats div.modal-body > table');
+    getGuildStats(guildID)
+        .then((res) => {
+            $('#modalStats').modal('show');
+            var tab = $('#modalStats div.modal-body > table');
 
-        tab.children('tr').each((_, tr) => tr.remove());
-        res.forEach((r, i) => {
-            var tr = document.createElement('tr');
+            tab.children('tr').each((_, tr) => tr.remove());
+            res.forEach((r, i) => {
+                var tr = document.createElement('tr');
 
-            var tdNumber = document.createElement('td');
-            tdNumber.innerHTML = `<span class="badge badge-primary">${i +
-                1}</span>`;
-            tr.appendChild(tdNumber);
+                var tdNumber = document.createElement('td');
+                tdNumber.innerHTML = `<span class="badge badge-primary">${i +
+                    1}</span>`;
+                tr.appendChild(tdNumber);
 
-            var tdSound = document.createElement('td');
-            tdSound.innerText = r.sound;
-            tr.appendChild(tdSound);
+                var tdSound = document.createElement('td');
+                tdSound.innerText = r.sound;
+                tr.appendChild(tdSound);
 
-            var tdCount = document.createElement('td');
-            tdCount.innerText = r.count;
-            tr.appendChild(tdCount);
+                var tdCount = document.createElement('td');
+                tdCount.innerText = r.count;
+                tr.appendChild(tdCount);
 
-            tab.append(tr);
+                tab.append(tr);
+            });
+        })
+        .catch((err) => {
+            displayError('You need to be in a voice channel to see stats.');
         });
-    });
 });
 
 $('#searchBox').on('input', (e) => {
