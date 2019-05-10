@@ -24,6 +24,11 @@ document.addEventListener('paste', (e) => {
 
     pastedData = pastedData.substring(cut);
 
+    var mod = $('#modalYouTube');
+    var btnPlay = mod.find('button[name=accept]');
+    var iframe = mod.find('iframe');
+    mod.on('hide.bs.modal', () => btnPlay.off('click'));
+
     $.getJSON(
         `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${pastedData}`
     )
@@ -35,9 +40,8 @@ document.addEventListener('paste', (e) => {
             } else {
                 var ytUrl = `https://www.youtube-nocookie.com/embed/${pastedData}?controls=0`;
 
-                var mod = $('#modalYouTube');
-                mod.find('iframe')[0].src = ytUrl;
-                mod.find('button[name=accept]').one('click', () => {
+                iframe[0].src = ytUrl;
+                btnPlay.one('click', () => {
                     ws.emit('PLAY', {
                         ident: pastedData,
                         source: 1,
