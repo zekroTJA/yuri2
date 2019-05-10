@@ -2,6 +2,10 @@
 
 'use strict';
 
+var btnStats = {};
+
+// ------------------------------------------------------------
+
 /**
  * Returns an object of cookies with
  * the name of the cookie as key and
@@ -60,6 +64,14 @@ function getTime(date) {
     return `${y}/${m}/${d} - ${h}:${min}:${s}`;
 }
 
+/**
+ * Fades in an error box and sets its
+ * text to the passed error description.
+ * After the specified time in milliseconds,
+ * the alert box will be faded out.
+ * @param {string} desc error description
+ * @param {number} time time until fade out (in ms)
+ */
 function displayError(desc, time) {
     if (!time) time = 8000;
 
@@ -82,6 +94,14 @@ function displayError(desc, time) {
     }, time + 250);
 }
 
+/**
+ * Fades in an info box and sets its
+ * text to the passed info description.
+ * After the specified time in milliseconds,
+ * the alert box will be faded out.
+ * @param {string} desc info description
+ * @param {number} time time until fade out (in ms)
+ */
 function displayInfo(desc, time) {
     if (!time) time = 8000;
 
@@ -104,6 +124,12 @@ function displayInfo(desc, time) {
     }, time + 250);
 }
 
+/**
+ * Adds a row element to the passed table
+ * containing the
+ * @param {Object} tb
+ * @param  {...any} entries
+ */
 function addRowToTable(tb, ...entries) {
     var tr = document.createElement('tr');
     entries.forEach((e) => {
@@ -118,12 +144,26 @@ function addRowToTable(tb, ...entries) {
     tb.append(tr);
 }
 
+/**
+ * Creates a new element of the passed type
+ * and sets its inner text to the specified
+ * text.
+ * @param {string} elem type of object to be created
+ * @param {string} innerText inner text
+ * @returns created DOM element
+ */
 function elemInnerText(elem, innerText) {
     var e = document.createElement(elem);
     e.innerText = innerText;
     return e;
 }
 
+/**
+ * Formats a passed number of bytes to
+ * a useful number with the adequate
+ * unit prefix.
+ * @param {number} bc byte count
+ */
 function byteCountFormatter(bc) {
     const k = 1024;
     const fix = 2;
@@ -134,28 +174,53 @@ function byteCountFormatter(bc) {
     return `${(bc / k / k / k / k).toFixed(fix)} TiB`;
 }
 
+/**
+ * Pads char to the passed num until
+ * nums length is equal to len.
+ * num and char will we converted to
+ * string using.
+ * @param {*} num object to be padded
+ * @param {number} len minimum result string length
+ * @param {*} char the string which will be padded
+ * @returns result string
+ */
 function padFront(num, len, char) {
     num = num.toString();
+    char = char.toString();
     while (num.length < len) {
         num = char + num;
     }
     return num;
 }
 
+/**
+ * Parses a duration in seconds to 
+ * DD:HH:MM:SS format.
+ * @param {number} secs seconds
+ * @returns formatted string
+ */
 function toDDHHMMSS(secs) {
-    var dd = Math.floor(secs / 86400);
-    var hh = Math.floor((secs % 86400) / 3600);
-    var mm = Math.floor(((secs % 86400) % 3600) / 60);
-    var ss = Math.floor(((secs % 86400) % 3600) % 60);
-    return `${padFront(dd, 2, '0')}:${padFront(hh, 2, '0')}:${padFront(
-        mm,
-        2,
-        '0'
-    )}:${padFront(ss, 2, '0')}`;
+    var dd = padFront(Math.floor(secs / 86400), 2, 0);
+    var hh = padFront(Math.floor((secs % 86400) / 3600), 2, 0);
+    var mm = padFront(Math.floor(((secs % 86400) % 3600) / 60), 2, 0);
+    var ss = padFront(Math.floor(((secs % 86400) % 3600) % 60), 2, 0);
+    return `${dd}:${hh}:${mm}:${ss}`;
 }
 
-var btnStats = {};
-
+/**
+ * Taskes a button onclick event. The fisr time, the
+ * button was pressed, the color of the background
+ * of the button will change to red and the text will
+ * be changed to 'Sure?'. If the button was pressed 
+ * again in this state, the passed callback winn be 
+ * executed. The callback is getting passed the button
+ * DOM element object. After that, the button will
+ * reset to its initial state.
+ * If a second click does not occur after 3 seconds,
+ * the button will return to its initial state.
+ * @param {Object} e button onclick event
+ * @param {function} cb callback on acception
+ */
 function btnAccept(e, cb) {
     var t = $(e.target);
     var reset = () => {

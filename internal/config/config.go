@@ -147,7 +147,7 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 		},
 		Lavalink: &Lavalink{
 			Address:         "localhost:2333",
-			SoundsLocations: []string{"./data/sounds"},
+			SoundsLocations: make([]string, 0),
 		},
 		Database: dbConfStruct,
 		API: &API{
