@@ -9,6 +9,7 @@ import (
 	"github.com/zekroTJA/yuri2/internal/static"
 )
 
+// Ready handles a Discord WS ready event.
 type Ready struct {
 	status []string
 	delay  time.Duration
@@ -19,6 +20,7 @@ type Ready struct {
 	t       *time.Ticker
 }
 
+// NewReady cteates a new instance of Ready.
 func NewReady(cfg *config.StatusShuffle) *Ready {
 	if len(cfg.Status) == 0 {
 		logger.Fatal("DBOT :: failed initializing ready handler: status must contain at least one string")
@@ -34,6 +36,8 @@ func NewReady(cfg *config.StatusShuffle) *Ready {
 	}
 }
 
+// Handler is the actual handler function
+// executes when the event was fired.
 func (h *Ready) Handler(s *discordgo.Session, e *discordgo.Ready) {
 	logger.Info("session ready")
 	logger.Info("Invite: https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=%d",
@@ -49,10 +53,17 @@ func (h *Ready) Handler(s *discordgo.Session, e *discordgo.Ready) {
 	}
 }
 
+// updateStatus updates the presence status
+// of the Discord bots client.
 func (h *Ready) updateStatus(status string) error {
 	return h.s.UpdateStatus(0, status)
 }
 
+// timerLoopBlocking starts a timer loop
+// blocking the current go routine.
+// Everytime the loop evaluates, the
+// status will shuffle through the defined
+// status messages in the configuration.
 func (h *Ready) timerLoopBlocking() {
 	var err error
 	for {
