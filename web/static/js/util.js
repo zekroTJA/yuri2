@@ -194,7 +194,7 @@ function padFront(num, len, char) {
 }
 
 /**
- * Parses a duration in seconds to 
+ * Parses a duration in seconds to
  * DD:HH:MM:SS format.
  * @param {number} secs seconds
  * @returns formatted string
@@ -211,8 +211,8 @@ function toDDHHMMSS(secs) {
  * Taskes a button onclick event. The fisr time, the
  * button was pressed, the color of the background
  * of the button will change to red and the text will
- * be changed to 'Sure?'. If the button was pressed 
- * again in this state, the passed callback winn be 
+ * be changed to 'Sure?'. If the button was pressed
+ * again in this state, the passed callback winn be
  * executed. The callback is getting passed the button
  * DOM element object. After that, the button will
  * reset to its initial state.
