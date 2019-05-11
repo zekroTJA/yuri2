@@ -77,6 +77,7 @@ function displayError(desc, time) {
 
     var alertBox = $('#errorAlert')[0];
     $('#errorAlertText')[0].innerHTML = desc;
+    window.scrollTo(0, 0);
 
     // fade in
     alertBox.style.display = 'block';
