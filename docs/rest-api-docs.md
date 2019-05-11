@@ -17,6 +17,9 @@ The Yuri REST API is generally just used for authentication and for getting data
   - [Get Local Sounds](#get-local-sounds)
   - [Get Play Log](#get-play-log)
   - [Get Play Stats](#get-play-stats)
+  - [Get Favorites](#get-favorites)
+  - [Set Favorite](#set-favorite)
+  - [Unset Favorite](#unset-favorite)
 
 - [Admin Endpoints](#admin-endpoints)
   - [Get System Stats](#get-system-stats)
@@ -283,6 +286,68 @@ The resulting response of the callback to `/token/authorize` will have follwoing
     }
   ]
 }
+```
+
+### Get Favorites
+
+> GET /api/favorites
+
+#### Parameters
+
+*No parameters passed.*
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Date: Sat, 11 May 2019 10:44:47 GMT
+< Content-Type: application/json
+< Content-Length: 104
+```
+```json
+{
+  "n": 4,
+  "results": [
+    "ojamoin",
+    "jamoin",
+    "ichsagenein",
+    "echtjetzt"
+  ]
+}
+```
+
+### Set Favorite
+
+> POST /api/favorite/:SOUND
+
+#### Parameters
+
+| Name | Passed by | Type | Description |
+| -----|-----------|------|-------------|
+| `SOUND` | Resource Path | `string` | The name of the sound. |
+
+#### Response
+
+```
+< HTTP/1.1 201 Created
+< Date: Sat, 11 May 2019 10:46:53 GMT
+```
+
+### Unset Favorite
+
+> DELETE /api/favorite/:SOUND
+
+#### Parameters
+
+| Name | Passed by | Type | Description |
+| -----|-----------|------|-------------|
+| `SOUND` | Resource Path | `string` | The name of the sound. |
+
+#### Response
+
+```
+< HTTP/1.1 200 Created
+< Date: Sat, 11 May 2019 10:46:53 GMT
 ```
 
 ## Admin Endpoints
