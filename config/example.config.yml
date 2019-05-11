@@ -1,36 +1,102 @@
+# REST and web socket API configuration.
 api:
-  address: :443
-  client_id: ""
-  client_secret: ""
+  # Enable or disable the web front end,
+  # REST and web socket API. 
   enable: false
+  # Address and port the REST and ws API
+  # will be exposed to.
+  address: :443
+  # The client ID of the Discord application
+  # of the bots account.
+  client_id: ""
+  # The client secret (NOT the bot token!) of
+  # the Discord application of the bots account.
+  client_secret: ""
+  # A list of discord IDs which will have access
+  # to the admin panel and to general admin
+  # functions.
+  admin_ids:
+    - 458352847312235407938
+    - 219834723749127398723
+  # This will be the address, from which the
+  # web interface will be accessed from.
+  # This is needed for redirecting from the
+  # discord OAuth2 application login.
   public_address: https://yuri.example.com
+  # TLS configuration.
   tls:
-    cert_file: /etc/cert/example.com/example.com.cer
+    # Enable TLS encryption of REST and web socket
+    # exposure.
     enable: true
+    # Cert file location.
+    cert_file: /etc/cert/example.com/example.com.cer
+    # Key file location.
     key_file: /etc/cert/example.com/example.com.key
 
+# Database configuration.
 database:
+  # SQLite DSN.
   dsn: file:yuri.db.sqlite3
 
+# Discord bot configuration.
 discord:
+  # The bot token of the Discord bot application.
   token: ""
+  # General prefix which will always be accessable
+  # on all guilds. This should never be set to
+  # something like '.' or '-', because, the bot 
+  # will ALWAYS listen to it also if the guild
+  # prefix was specified to something else.
   general_prefix: y!
+  # The discord ID of the host of the bot.
+  # (Maybe yours ^^)
   owner_id: ""
+  # Roles names for specific permissions.
   right_role_names:
-    admin:   YuriAdmin
+    # Role which blocks users from using 
+    # the Yuri player.
     blocked: YuriBlocked
-    player:  '@everyone'
+    # Role which allows users to use the
+    # Yuri player. If this is set to '' or
+    # '@everyone', everyone will be allowed
+    # to use Yuri except these who have the
+    # blocked role.
+    player: '@everyone'
+  # Status messages which will be displayed
+  # in the bots presence text.
   status_shuffle:
+    # Shuffle delay.
     delay: 10s
+    # Sttaus messages.
     status:
-    - Yuri v.2!
-    - zekro.de
-    - github.com/zekroTJA/yuri2
+      - Yuri v.2!
+      - zekro.de
+      - github.com/zekroTJA/yuri2
 
+# Lavalink configuration.
 lavalink:
+  # Address and port of the lavalink
+  # server. If on the same machine, just
+  # take localhost as address.
   address: localhost:2333
+  # Password defined in the Lavalink
+  # configuration.
   password: ""
-  sounds_locations: null
+  # Sound file locations.
+  # The locatiosn will be scanned for sounds
+  # NOT recursively. Multiple directories will
+  # be treated like one, merged directory.
+  sounds_locations: 
+    - /var/yurisounds
+    - /home/zekro/myyurisounds
 
+# Miscellaneous configuration.
 misc:
+  # Log level.
+  # 0 - critical
+  # 1 - errors
+  # 2 - warnings
+  # 3 - notice
+  # 4 - info
+  # 5 - debug
   log_level: 4
