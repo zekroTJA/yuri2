@@ -76,7 +76,7 @@ func (c *Volume) Exec(args *discordgocmds.CommandArgs) error {
 		return err
 	}
 
-	if err = c.Player.SetVolume(args.Guild.ID, iVal); err != nil {
+	if err = c.Player.SetVolume(args.Guild.ID, args.User.ID, iVal); err != nil {
 		return err
 	}
 

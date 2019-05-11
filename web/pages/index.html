@@ -15,9 +15,11 @@
 		<h2 class="p-0 m-0">YURI</h2>
 		<div class="container-fluid d-flex mx-2">
 			<a href="/logout" class="btn text-white btn-danger btn-header mx-1">LOGOUT</a>
+			<a href="/admin" class="btn text-white btn-danger btn-header btn-admin-panel mx-1 d-none" id="btnAdmin">ADMIN PANEL</a>
 			<a href="javascript:{}" class="btn text-white btn-info btn-header mx-1" id="btnSortBy">SORT BY DATE</a>
 			<a href="javascript:{}" class="btn text-white btn-warning btn-header mx-1" id="btnStop">STOP</a>
 			<a href="javascript:{}" class="btn text-white btn-success btn-header mx-1" id="btnJoinLeave">JOIN</a>
+			<a href="javascript:{}" class="btn text-white btn-info btn-header btn-chaining mx-1" id="btnChaining">CHAINING</a>
 			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnLog">LOG</a>
 			<a href="javascript:{}" class="btn text-white btn-basic btn-basic-override btn-header mx-1" id="btnStats">STATS</a>
 			<div id="containerVol" class="container d-flex align-items-center col-lg-2 mx-3 my-0 py-0 invis">
@@ -86,6 +88,27 @@
 		</div>
 	</div>
 
+	<!-- MODAL YOUTUBE -->
+	<div class="modal fade" id="modalYouTube" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Do you really want to play this video?</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<iframe style="width: 100%;" src="" frameborder="0" allow="encrypted-media;"></iframe>
+			</div>
+			<div class="modal-footer">
+				<button name="accept" type="button" class="btn btn-success" data-dismiss="modal">Yes</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+			</div>
+			</div>
+		</div>
+	</div>
+
 	<!-- COOKIE INFORMATION -->
 	<div id="cookieInformation" class="alert alert-warning alert-warning-override m-4" role="alert" style="display: none">
 		<h4 class="alert-heading text-white">COOKIE INFORMATION</h4>
@@ -135,7 +158,7 @@
 					<p class="text-muted" style="font-size: 12px; line-height: 17px;">
 						© 2019 Ringo Hoffmann<br/>
 						(zekro Development).<br/>
-						Covered by MIT Licence.
+						Covered by Apache License 2.0.
 					</p>
 				</div>
 				<div class="col-4 col-md">
@@ -172,6 +195,7 @@
 	<script src="/static/js/rest.js"></script>
 	<script src="/static/js/ws.js"></script>
 	<script src="/static/js/index.js"></script>
+	<script src="/static/js/ytplay.js"></script>
 </body>
 
 </html>

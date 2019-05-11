@@ -1,11 +1,12 @@
-"use strict";
+/** @format */
+
+'use strict';
 
 function Handler(id, cb) {
     this.cb = cb;
     this.id = id;
-    
-    this.call = (...args) => 
-        cb.apply(this, args);
+
+    this.call = (...args) => cb.apply(this, args);
 }
 
 function WsClient(url) {
@@ -14,57 +15,55 @@ function WsClient(url) {
     this._rollingID = 0;
     this.eventListener = {};
 
-    this.onEmit = (cb) => this._onEmit = cb;
+    this.onEmit = (cb) => (this._onEmit = cb);
 
     this.on = (event, cb) => {
-        if (!this.eventListener[event])
-            this.eventListener[event] = [];
+        if (!this.eventListener[event]) this.eventListener[event] = [];
 
         var id = this._rollingID++;
-        this.eventListener[event].push(
-            new Handler(id, cb));
+        this.eventListener[event].push(new Handler(id, cb));
 
         return () => {
             if (this.eventListener[event]) {
-                var i = this.eventListener[event]
-                    .findIndex((h) => h.id == id);
+                var i = this.eventListener[event].findIndex((h) => h.id == id);
                 this.eventListener[event].splice(i, 1);
             }
         };
-    }
+    };
 
     this.emit = (name, data) => {
         let event = {
-            name: name, 
+            name: name,
             data: data,
-        }
+        };
         let rawData = JSON.stringify(event);
 
         if (this._onEmit) this._onEmit(event, rawData);
 
         this.ws.send(rawData);
-    }
+    };
 
     this.ws.onmessage = (response) => {
         try {
             let data = JSON.parse(response.data);
             if (data) {
-                let cbs = this.eventListener[data.name]
-                if (cbs)
-                    cbs.forEach((h) => h.call(data));
+                let cbs = this.eventListener[data.name];
+                if (cbs) cbs.forEach((h) => h.call(data));
             }
         } catch (e) {
-            console.log(e)
+            console.log(e);
         }
-    }
+    };
 
-    this.onOpen = (handler) => this.ws.onopen = handler;
-    this.onClose = (handler) => this.ws.onclose = handler;
+    this.onOpen = (handler) => (this.ws.onopen = handler);
+    this.onClose = (handler) => (this.ws.onclose = handler);
 }
 
 var ws = new WsClient(
-    window.location.href.replace(/((http)|(https)):\/\//gm, 
-        window.location.href.startsWith('http://') ? 'ws:/' : 'wss://') + 'ws'
+    window.location.href.replace(
+        /((http)|(https)):\/\//gm,
+        window.location.href.startsWith('http://') ? 'ws:/' : 'wss://'
+    ) + 'ws'
 );
 
 // --------------------------------------------------------------------------------------
@@ -75,4 +74,3 @@ ws.onOpen(() => {
         token: getCookieValue('token'),
     });
 });
-

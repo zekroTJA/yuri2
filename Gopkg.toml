@@ -29,3 +29,11 @@
 [[constraint]]
   name = "github.com/gorilla/websocket"
   version = "1.4.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/zekroTJA/timedmap"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/zekroTJA/ratelimit"

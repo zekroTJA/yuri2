@@ -1,0 +1,31 @@
+td {
+    padding-right: 10px;
+}
+
+.panel {
+    position: relative;
+    background-color: #37474F;
+    padding: 5px 10px;
+    min-width: 300px;
+    border-radius: 3px;
+}
+
+.btn-more {
+    position: absolute;
+    bottom: 0px;
+}
+
+.bg-clr-orange {
+    background-color: #FF6F00 !important;
+    border-color: #FF6F00 !important;
+}
+
+.bg-clr-blue {
+    background-color: #1565C0 !important;
+    border-color: #1565C0 !important;
+}
+
+.need-accept, .bg-clr-red {
+    background-color: #d32f2f !important;
+    border-color: #d32f2f !important;
+}

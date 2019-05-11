@@ -26,6 +26,7 @@ type wsIdent struct {
 }
 
 type wsHelloData struct {
+	Admin     bool          `json:"admin"`
 	Connected bool          `json:"connected"`
 	Vol       int           `json:"vol"`
 	VS        *wsVoiceState `json:"voice_state"`
@@ -40,35 +41,51 @@ type wsVoiceState struct {
 func (api *API) wsInitHandler(e *wsmgr.Event) {
 	data := new(wsInitData)
 
+	// Checking if current connection was already initialized
+	// by checking if the set ident is not nil.
+	if e.Sender.GetIdent() != nil {
+		wsSendError(e.Sender, wsErrBadCommand, "your connection is initialized already")
+		return
+	}
+
+	// Parsing argument data.
 	err := e.ParseDataTo(data)
 	if err != nil {
 		wsSendError(e.Sender, wsErrBadCommandArgs, fmt.Sprintf("failed parsing data: %s", err.Error()))
 		return
 	}
 
+	// Check if the user is member of a guild the bot is also member of
 	guilds := discordbot.GetUsersGuilds(api.session, data.UserID)
 	if guilds == nil {
 		wsSendError(e.Sender, wsErrForbidden, "you must be a member of a guild the bot is also member of")
 		return
 	}
 
+	// Check authorization
 	ok, _, err := api.auth.CheckAndRefresh(data.UserID, data.Token)
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("failed checking auth: %s", err.Error()))
 		return
 	}
-
 	if !ok {
 		wsSendError(e.Sender, wsErrUnauthorized, "unauthorized")
 		e.Sender.Close()
 		return
 	}
 
+	// Create and register rate limiter for current connection
+	api.wsCreateLimiter(data.UserID)
+
+	// Setting connections Ident
 	e.Sender.SetIdent(&wsIdent{
 		UserID: data.UserID,
 		Guilds: guilds,
 	})
 
+	// Get the users voice channel, if the user is connected
+	// to a voice channel.
+	// Then, the information will be added to the HELLO event payload.
 	guild, _ := discordbot.GetUsersGuildInVoice(api.session, data.UserID)
 	var svs *discordgo.VoiceState
 	var vol int
@@ -79,6 +96,7 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 	}
 
 	event := &wsHelloData{
+		Admin:     api.isAdmin(data.UserID),
 		Vol:       vol,
 		Connected: svs != nil,
 	}
@@ -95,8 +113,13 @@ func (api *API) wsInitHandler(e *wsmgr.Event) {
 
 // Event: JOIN
 func (api *API) wsJoinHandler(e *wsmgr.Event) {
-	ident := wsCheckInitilized(e.Sender)
+	ident := wsCheckInitWithResponse(e.Sender)
 	if ident == nil {
+		return
+	}
+
+	ok, _ := api.wsCheckLimitWithResponse(e.Sender, ident.UserID)
+	if !ok {
 		return
 	}
 
@@ -114,8 +137,13 @@ func (api *API) wsJoinHandler(e *wsmgr.Event) {
 
 // Event: LEAVE
 func (api *API) wsLeaveHandler(e *wsmgr.Event) {
-	ident := wsCheckInitilized(e.Sender)
+	ident := wsCheckInitWithResponse(e.Sender)
 	if ident == nil {
+		return
+	}
+
+	ok, _ := api.wsCheckLimitWithResponse(e.Sender, ident.UserID)
+	if !ok {
 		return
 	}
 
@@ -125,7 +153,7 @@ func (api *API) wsLeaveHandler(e *wsmgr.Event) {
 		return
 	}
 
-	err := api.player.LeaveVoiceChannel(guild.ID)
+	err := api.player.LeaveVoiceChannel(guild.ID, ident.UserID)
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
@@ -133,8 +161,13 @@ func (api *API) wsLeaveHandler(e *wsmgr.Event) {
 
 // Event: PLAY
 func (api *API) wsPlayHandler(e *wsmgr.Event) {
-	ident := wsCheckInitilized(e.Sender)
+	ident := wsCheckInitWithResponse(e.Sender)
 	if ident == nil {
+		return
+	}
+
+	ok, _ := api.wsCheckLimitWithResponse(e.Sender, ident.UserID)
+	if !ok {
 		return
 	}
 
@@ -170,8 +203,13 @@ func (api *API) wsPlayHandler(e *wsmgr.Event) {
 
 // Event: RANDOM
 func (api *API) wsRandomHandler(e *wsmgr.Event) {
-	ident := wsCheckInitilized(e.Sender)
+	ident := wsCheckInitWithResponse(e.Sender)
 	if ident == nil {
+		return
+	}
+
+	ok, _ := api.wsCheckLimitWithResponse(e.Sender, ident.UserID)
+	if !ok {
 		return
 	}
 
@@ -195,8 +233,13 @@ func (api *API) wsRandomHandler(e *wsmgr.Event) {
 
 // Event: VOLUME
 func (api *API) wsVolumeHandler(e *wsmgr.Event) {
-	ident := wsCheckInitilized(e.Sender)
+	ident := wsCheckInitWithResponse(e.Sender)
 	if ident == nil {
+		return
+	}
+
+	ok, _ := api.wsCheckLimitWithResponse(e.Sender, ident.UserID)
+	if !ok {
 		return
 	}
 
@@ -217,7 +260,7 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 		return
 	}
 
-	err := api.player.SetVolume(guild.ID, int(vol))
+	err := api.player.SetVolume(guild.ID, ident.UserID, int(vol))
 	if err != nil {
 		wsSendError(e.Sender, wsErrInternal, fmt.Sprintf("command failed: %s", err.Error()))
 	}
@@ -225,8 +268,13 @@ func (api *API) wsVolumeHandler(e *wsmgr.Event) {
 
 // Event: STOP
 func (api *API) wsStopHandler(e *wsmgr.Event) {
-	ident := wsCheckInitilized(e.Sender)
+	ident := wsCheckInitWithResponse(e.Sender)
 	if ident == nil {
+		return
+	}
+
+	ok, _ := api.wsCheckLimitWithResponse(e.Sender, ident.UserID)
+	if !ok {
 		return
 	}
 

@@ -61,7 +61,7 @@ $(BIN):
 			-X $(PACKAGE)/$(LDPAKAGE).AppVersion=$(TAG) \
 			-X $(PACKAGE)/$(LDPAKAGE).AppCommit=$(COMMIT) \
 			-X $(PACKAGE)/$(LDPAKAGE).Release=TRUE" \
-		$(CURDIR)/cmd/$(APPNAME)
+		$(CURDIR)/cmd/$(APPNAME)/*.go
 
 PHONY += test
 test:
@@ -74,7 +74,7 @@ lint:
 PHONY += run
 run:
 	$(GO) run -v \
-		$(CURDIR)/cmd/$(APPNAME) -c $(CONFIG)
+		$(CURDIR)/cmd/$(APPNAME)/*.go -c $(CONFIG)
 
 PHONY += cleanup
 cleanup:
@@ -84,6 +84,11 @@ cloc:
 	$(CLOC) \
 		--exclude-dir=vendor,docs,public \
 		--exclude-lang=JSON,Markdown,YAML,XML,TOML,Sass ./
+
+PHONY += release
+release:
+	bash $(CURDIR)/scripts/bundle-release.sh
+
 
 PHONY += help
 help:

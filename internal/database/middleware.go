@@ -90,6 +90,20 @@ type Middleware interface {
 	// SetFastTrigger sets the sound which will
 	// be triggered by using fast trigger.
 	SetFastTrigger(userID, val string) error
+	// GetFavorites gets the set favorites
+	// set by the specified user. This should
+	// return an empty array when no favorite
+	// was set.
+	GetFavorites(userID string) ([]string, error)
+	// SetFavorite sets a sound as favorite.
+	// This should not return an error if the
+	// specified sound is already set as favorite.
+	SetFavorite(userID, sound string) error
+	// UnsetFavorite unsets a favorite for the
+	// specified user. If the sound was not
+	// set as favorite yet, this should not
+	// return an error.
+	UnsetFavorite(userID, sound string) error
 
 	/////////////////////////
 	// AUTHORIZATION STUFF //

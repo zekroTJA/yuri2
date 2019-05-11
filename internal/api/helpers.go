@@ -9,6 +9,9 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/zekroTJA/ratelimit"
 
 	"github.com/zekroTJA/yuri2/pkg/wsmgr"
 )
@@ -23,6 +26,8 @@ const (
 	wsErrUnauthorized
 	wsErrForbidden
 	wsErrInternal
+	wsErrBadCommand
+	wsErrRateLimitExceed
 )
 
 var wsErrTypeStr = []string{
@@ -30,13 +35,15 @@ var wsErrTypeStr = []string{
 	"unatuhorized",
 	"forbidden",
 	"internal",
+	"bad command",
+	"rate limit exceed",
 }
 
 var stdErrMsgs = map[int]string{
 	400: "bad request",
 	401: "unauthorized",
 	403: "forbidden",
-	429: "too many requests",
+	429: "rate limit exceed",
 }
 
 // apIErrorBody contains data for a REST
@@ -52,6 +59,7 @@ type wsErrorData struct {
 	Code    wsErrorType `json:"code"`
 	Type    string      `json:"type"`
 	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 // errResponse writes a JSON formated error response
@@ -99,6 +107,8 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 
 	if data != nil {
 		bData, err = json.MarshalIndent(data, "", "  ")
+	} else {
+		bData = []byte("{}")
 	}
 
 	if err != nil {
@@ -197,7 +207,7 @@ func (api *API) checkAuthHeader(r *http.Request) (bool, string, error) {
 	return ok, userID, err
 }
 
-// checkAuthWithResponse is first checks for a valid 'Authorization'
+// checkAuthWithResponse first checks for a valid 'Authorization'
 // header value using checkAuthHeader. If this was not successful,
 // the cookies will be checked for valid authorization values.
 // If one of both fails because of an unexpected error, this
@@ -232,20 +242,40 @@ func (api *API) checkAuthWithResponse(w http.ResponseWriter, r *http.Request) (b
 	return true, userID
 }
 
+// checkMethodWithResponse checks if the used method is
+// one of the passed allowed methods. Else, attach "Allow"
+// header with allowed request methods and an 405 status.
+// Returns false if the check did not pass.
+func checkMethodWithResponse(w http.ResponseWriter, r *http.Request, method ...string) bool {
+	for _, m := range method {
+		if m == r.Method {
+			return true
+		}
+	}
+
+	w.Header().Set("Allow", strings.Join(method, ", "))
+	errResponse(w, http.StatusMethodNotAllowed, "method not allowed")
+	return false
+}
+
 // wsSendError creates a wsErrorData object from passed error
 // code and message and sends it to the specified connection.
-func wsSendError(wsc *wsmgr.WebSocketConn, code wsErrorType, msg string) error {
-	return wsc.Out(wsmgr.NewEvent("ERROR", &wsErrorData{
+func wsSendError(wsc *wsmgr.WebSocketConn, code wsErrorType, msg string, data ...interface{}) error {
+	e := &wsErrorData{
 		Code:    code,
 		Type:    wsErrTypeStr[code],
 		Message: msg,
-	}))
+	}
+	if len(data) > 0 {
+		e.Data = data[0]
+	}
+	return wsc.Out(wsmgr.NewEvent("ERROR", e))
 }
 
-// wsCheckInitialized checks if the connection was successfully
+// wsCheckInitWithResponse checks if the connection was successfully
 // initialized by an `INIT` event, which writes userID and
 // the users guilds to the ident property of the connection.
-func wsCheckInitilized(wsc *wsmgr.WebSocketConn) *wsIdent {
+func wsCheckInitWithResponse(wsc *wsmgr.WebSocketConn) *wsIdent {
 	ident, ok := wsc.GetIdent().(*wsIdent)
 	if !ok || ident == nil {
 		wsSendError(wsc, wsErrUnauthorized, "unauthorized")
@@ -285,4 +315,94 @@ func GetURLQueryInt(queries url.Values, key string, rng ...int) (bool, int, erro
 	}
 
 	return false, 0, nil
+}
+
+// wsCreateLimiter creates a WS limiter with the configured
+// parameters for the user ID.
+func (api *API) wsCreateLimiter(userID string) *ratelimit.Limiter {
+	limiter := ratelimit.NewLimiter(wsLimit, wsBurst)
+	api.limits.Set("ws"+userID, limiter, limitsLifetime)
+	return limiter
+}
+
+// wsCheckLimitWithResponse tries to get a token from the users limiter.
+// The success of this will be returned as boolean and a reservation
+// object will be returned containing the current ratelimiters status.
+// If the limit was exceed, this will be send to the client as ERROR
+// event.
+func (api *API) wsCheckLimitWithResponse(wsc *wsmgr.WebSocketConn, userID string) (bool, *ratelimit.Reservation) {
+	var limiter *ratelimit.Limiter
+
+	limiter, _ = api.limits.GetValue("ws" + userID).(*ratelimit.Limiter)
+	if limiter == nil {
+		limiter = api.wsCreateLimiter(userID)
+	}
+
+	ok, res := limiter.Reserve()
+	if !ok {
+		wsSendError(wsc, wsErrRateLimitExceed, "Rate limit exceed. Wait reset_time * milliseconds until sending another command.", map[string]int64{
+			"reset_time": time.Until(res.Reset.Time).Nanoseconds() / 1000000,
+		})
+	}
+
+	return ok, res
+}
+
+// createLimiter creates a rest limiter with the configured
+// parameters for the user ID.
+func (api *API) createLimiter(ident string) *ratelimit.Limiter {
+	limiter := ratelimit.NewLimiter(restLimit, restBurst)
+	api.limits.Set("rest"+ident, limiter, limitsLifetime)
+	return limiter
+}
+
+// checkLimitWithResponse tries to get a token from the users limiter.
+// The success of this will be returned as boolean and a reservation
+// object will be returned containing the current ratelimiters status.
+// The current limiter status will be set as "X-RateLimit-Limit",
+// "X-RateLimit-Remaining" and "X-RateLimit-Reset" header.
+// If the limit was exceed, this will be send to the client as 429 error
+// response.
+func (api *API) checkLimitWithResponse(w http.ResponseWriter, ident string) (bool, *ratelimit.Reservation) {
+	var limiter *ratelimit.Limiter
+
+	limiter, _ = api.limits.GetValue("rest" + ident).(*ratelimit.Limiter)
+	if limiter == nil {
+		limiter = api.createLimiter(ident)
+	}
+
+	ok, res := limiter.Reserve()
+
+	var reset int64
+	if !res.Reset.IsNil() {
+		reset = time.Until(res.Reset.Time).Nanoseconds() / 1000000
+	}
+
+	h := w.Header()
+	h.Set("X-RateLimit-Limit", fmt.Sprintf("%d", res.Burst))
+	h.Set("X-RateLimit-Remaining", fmt.Sprintf("%d", res.Remaining))
+	h.Set("X-RateLimit-Reset", fmt.Sprintf("%d", reset))
+
+	if !ok {
+		errResponse(w, http.StatusTooManyRequests, "")
+	}
+
+	return ok, res
+}
+
+// isAdmin checks if the specified userID is
+// the owner or in the list of admins defined
+// in the config file.
+func (api *API) isAdmin(userID string) bool {
+	if api.cfg.Discord.OwnerID == userID {
+		return true
+	}
+
+	for _, id := range api.cfg.API.AdminIDs {
+		if id == userID {
+			return true
+		}
+	}
+
+	return false
 }

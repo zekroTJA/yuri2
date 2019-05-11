@@ -27,4 +27,11 @@ const (
 
 	TokenHashRounds = 10
 	TokenLifetime   = 7 * 24 * time.Hour
+
+	SigRestart = sigRestart(0)
 )
+
+type sigRestart int
+
+func (s sigRestart) String() string { return "" }
+func (s sigRestart) Signal()        {}

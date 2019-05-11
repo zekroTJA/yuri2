@@ -48,5 +48,5 @@ func (c *Leave) GetPermission() int {
 // Exec is the actual function which will
 // be executed when the command was invoked.
 func (c *Leave) Exec(args *discordgocmds.CommandArgs) error {
-	return c.Player.LeaveVoiceChannel(args.Guild.ID)
+	return c.Player.LeaveVoiceChannel(args.Guild.ID, args.User.ID)
 }

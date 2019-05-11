@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/zekroTJA/yuri2/internal/database"
@@ -12,7 +13,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const timeFormat = "2006-01-02 15:04:05"
+const (
+	timeFormat     = "2006-01-02 15:04:05"
+	arraySeperator = "|"
+)
 
 // SQLite maintains the connection
 // to the sqlite database file.
@@ -98,7 +102,8 @@ func (s *SQLite) setup() error {
 	_, err = s.db.Exec("CREATE TABLE IF NOT EXISTS `users` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT," +
 		"`user_id` text NOT NULL DEFAULT ''," +
-		"`fast_trigger` text NOT NULL DEFAULT '' );")
+		"`fast_trigger` text NOT NULL DEFAULT ''," +
+		"`favorites` text NOT NULL DEFAULT '' );")
 	mErr.Append(err)
 
 	// TABLE `sounds_log`
@@ -223,6 +228,83 @@ func (s *SQLite) SetFastTrigger(userID, val string) error {
 	if ar == 0 {
 		_, err = s.db.Exec("INSERT INTO `users` (`user_id`, `fast_trigger`) VALUES (?, ?);", userID, val)
 	}
+
+	return err
+}
+
+func (s *SQLite) GetFavorites(userID string) ([]string, error) {
+	var favsStr string
+
+	row := s.db.QueryRow("SELECT `favorites` FROM `users` WHERE `user_id` = ?;", userID)
+	if err := row.Scan(&favsStr); err == sql.ErrNoRows {
+		return []string{}, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return strings.Split(favsStr, arraySeperator), nil
+}
+
+func (s *SQLite) SetFavorite(userID, sound string) error {
+	favs, err := s.GetFavorites(userID)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range favs {
+		if f == sound {
+			return nil
+		}
+	}
+
+	favsStr := strings.Join(append(favs, sound), arraySeperator)
+
+	res, err := s.db.Exec("UPDATE `users` SET `favorites` = ? WHERE `user_id` = ?;",
+		favsStr, userID)
+	if err != nil {
+		return err
+	}
+	if ar, err := res.RowsAffected(); err != nil {
+		return err
+	} else if ar == 0 {
+		_, err = s.db.Exec("INSERT INTO `users` (`user_id`, `favorites`) VALUES (?, ?);",
+			userID, favsStr)
+	}
+
+	return err
+}
+
+func (s *SQLite) UnsetFavorite(userID, sound string) error {
+	favs, err := s.GetFavorites(userID)
+	if err != nil {
+		return err
+	}
+
+	var removed bool
+
+	for i, s := range favs {
+		if s == sound {
+			favs[i] = ""
+			removed = true
+			break
+		}
+	}
+
+	if !removed {
+		return nil
+	}
+
+	newFavs := make([]string, len(favs)-1)
+	var i int
+	for _, f := range favs {
+		if f != "" {
+			newFavs[i] = f
+			i++
+		}
+	}
+
+	_, err = s.db.Exec("UPDATE `users` SET `favorites` = ? WHERE `user_id` = ?;",
+		strings.Join(newFavs, arraySeperator), userID)
 
 	return err
 }

@@ -29,18 +29,27 @@ type Main struct {
 // Discord contains the values of
 // Discrord specific configuration.
 type Discord struct {
-	Token         string         `json:"token"`
-	OwnerID       string         `json:"owner_id"`
-	GeneralPrefix string         `json:"general_prefix"`
-	StatusShuffle *StatusShuffle `json:"status_shuffle"`
+	Token          string            `json:"token"`
+	OwnerID        string            `json:"owner_id"`
+	GeneralPrefix  string            `json:"general_prefix"`
+	RightRoleNames *DiscordRoleNames `json:"right_role_names"`
+	StatusShuffle  *StatusShuffle    `json:"status_shuffle"`
+}
+
+// DiscordRoleNames contains the values of
+// the permissioin role names for the
+// Discord configuration.
+type DiscordRoleNames struct {
+	Player  string `json:"player"`
+	Blocked string `json:"blocked"`
 }
 
 // Lavalink contains the values of
 // the Lavalink specific configuration.
 type Lavalink struct {
-	Address        string `json:"address"`
-	Password       string `json:"password"`
-	SoundsLocation string `json:"sounds_location"`
+	Address         string   `json:"address"`
+	Password        string   `json:"password"`
+	SoundsLocations []string `json:"sounds_locations"`
 }
 
 // Misc contains miscellaneous configuration
@@ -59,12 +68,13 @@ type StatusShuffle struct {
 // API contains configuration for the
 // REST and WS API.
 type API struct {
-	Enable        bool    `json:"enable"`
-	ClientID      string  `json:"client_id"`
-	ClientSecret  string  `json:"client_secret"`
-	Address       string  `json:"address"`
-	PublicAddress string  `json:"public_address"`
-	TLS           *APITLS `json:"tls"`
+	Enable        bool     `json:"enable"`
+	ClientID      string   `json:"client_id"`
+	ClientSecret  string   `json:"client_secret"`
+	Address       string   `json:"address"`
+	PublicAddress string   `json:"public_address"`
+	TLS           *APITLS  `json:"tls"`
+	AdminIDs      []string `json:"admin_ids"`
 }
 
 // APITLS contains configuration for the
@@ -130,15 +140,21 @@ func createNew(loc string, marshaler MarshalIndentFunc, dbConfStruct interface{}
 					"github.com/zekroTJA/yuri2",
 				},
 			},
+			RightRoleNames: &DiscordRoleNames{
+				Player:  "@everyone",
+				Blocked: "YuriBlocked",
+			},
 		},
 		Lavalink: &Lavalink{
-			Address: "localhost:2333",
+			Address:         "localhost:2333",
+			SoundsLocations: make([]string, 0),
 		},
 		Database: dbConfStruct,
 		API: &API{
 			Enable:        false,
 			Address:       ":443",
 			PublicAddress: "https://yuri.example.com",
+			AdminIDs:      make([]string, 0),
 			TLS: &APITLS{
 				Enable:   true,
 				CertFile: "/etc/cert/example.com/example.com.cer",

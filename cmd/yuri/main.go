@@ -5,8 +5,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/zekroTJA/yuri2/internal/logger"
+	"github.com/zekroTJA/yuri2/internal/static"
 
 	"github.com/zekroTJA/yuri2/internal/database/sqlite"
 
@@ -21,6 +23,8 @@ var (
 func main() {
 	flag.Parse()
 
+	/// CUSTOMIZABLE DRIVER SECTION ///////////////////////////
+
 	// unmarshaler function for config
 	unmarshaler := yaml.Unmarshal
 	// marshaler function for preset config generation
@@ -30,6 +34,14 @@ func main() {
 
 	// database middleware
 	dbMiddleware := new(sqlite.SQLite)
+
+	///////////////////////////////////////////////////////////
+
+	// initializing teardown channel which will receive a
+	// signal when one of the listed signals was sent to the
+	// process or the program wants to exit itself by sending
+	// a custom signal into the channel.
+	teardownChan := make(chan os.Signal, 1)
 
 	// init Logger
 	inits.InitLogger()
@@ -46,7 +58,7 @@ func main() {
 	}()
 
 	// init Player
-	player := inits.InitPlayer(cfg.Lavalink, dbMiddleware)
+	player := inits.InitPlayer(cfg, dbMiddleware)
 
 	// init Bot
 	bot := inits.InitDiscordBot(cfg.Discord, dbMiddleware, player)
@@ -57,16 +69,22 @@ func main() {
 	}()
 
 	// init API
-	api := inits.InitAPI(cfg.API, dbMiddleware, bot.Session, player)
+	api := inits.InitAPI(cfg, dbMiddleware, bot.Session, player, teardownChan)
 	// close api exposure on exit
 	defer func() {
 		logger.Info("API :: shutting down")
 		api.Close()
 	}()
 
-	// block main go routine until one of the control
-	// signals below was catched
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
+	// Block main thread until channel receives a teardown
+	// signal. If the signal equals the custom signal
+	// SigRestart which identifies a restart signal send
+	// by Yuri hinself, the routine will be blocked for
+	// 2 further seconds to ensure sending the response
+	// to the request properly.
+	signal.Notify(teardownChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	if sig := <-teardownChan; sig == static.SigRestart {
+		logger.Info("CORE :: blocking core routine for 2 seconds to ensure restart request response")
+		time.Sleep(2 * time.Second)
+	}
 }
