@@ -350,6 +350,55 @@ The resulting response of the callback to `/token/authorize` will have follwoing
 < Date: Sat, 11 May 2019 10:46:53 GMT
 ```
 
+### Get Fast Trigger
+
+> GET /api/settings/fasttrigger
+
+#### Parameters
+
+*No parameters passed.*
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Date: Fri, 31 May 2019 14:32:10 GMT
+< Content-Length: 40
+```
+```json
+{
+  "ident": "nice",
+  "random": false
+}
+```
+
+### SET Fast Trigger
+
+> POST /api/settings/fasttrigger
+
+#### Parameters
+
+| Name | Passed by | Type | Description |
+| -----|-----------|------|-------------|
+| `random` | JSON Body | `boolean` | Set fast trigger to random or not. |
+| `ident` | JSON Body | `string` | Ident of sound to set fast trigger to if not random. |
+
+#### Response
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json
+< Date: Fri, 31 May 2019 14:34:28 GMT
+< Content-Length: 40
+```
+```json
+{
+  "ident": "danke",
+  "random": false
+}
+```
+
 ## Admin Endpoints
 
 ### Get System Stats
