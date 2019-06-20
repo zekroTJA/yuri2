@@ -94,6 +94,7 @@ function fetchSoundsList(sort, cb) {
     getLocalSounds(sort ? sort : 'NAME')
         .then((sounds) => {
             updateSoundList(sounds);
+            updateFastTriggerSelector(sounds);
             spinner.removeClass('d-flex');
             spinner.addClass('d-none');
             if (cb) cb(sounds);
@@ -121,6 +122,36 @@ function updateSoundList(soundList) {
         .filter((s) => !favorites.includes(s.name))
         .forEach((s) => {
             addButton(s.name);
+        });
+}
+
+function updateFastTriggerSelector(soundList) {
+    var ddff = $('#ddFastTrigger');
+    ddff.children().empty();
+
+    var opt = document.createElement('option');
+    opt.innerText = 'RANDOM';
+    ddff.append(opt);
+
+    soundList.forEach((s) => {
+        var opt = document.createElement('option');
+        opt.innerText = s.name;
+        ddff.append(opt);
+    });
+
+    getFastTrigger()
+        .then((res) => {
+            if (res.random) {
+                ddff.val('RANDOM');
+            } else {
+                ddff.val(res.ident);
+            }
+        })
+        .catch((r, s) => {
+            console.log('REST :: ERROR :: ', r, s);
+            displayError(
+                `<code>REST API ERROR</code> getting fast trigger:<br/><code>${r}</code>`
+            );
         });
 }
 
@@ -336,12 +367,14 @@ $('#btnStats').on('click', (e) => {
         });
 });
 
-$('#searchBox').on('input', (e) => {
-    var tb = e.currentTarget;
-    var val = tb.value;
-    setTimeout(() => {
-        if (val == tb.value) filterSoundsList(val, sounds);
-    }, 250);
+$('#ddFastTrigger').on('change', (e) => {
+    var ident = $('#ddFastTrigger').val();
+    postFastTrigger(ident === 'RANDOM', ident).catch((err) => {
+        console.log('REST :: ERROR :: ', err);
+        displayError(
+            `<code>REST API ERROR</code> setting fast trigger:<br/><code>${r}</code>`
+        );
+    });
 });
 
 $('#sliderVol').on('input', (e) => {
@@ -352,6 +385,14 @@ $('#sliderVol').on('input', (e) => {
 $('#sliderVol').on('change', (e) => {
     var val = $('#sliderVol').val();
     ws.emit('VOLUME', parseInt(val));
+});
+
+$('#searchBox').on('input', (e) => {
+    var tb = e.currentTarget;
+    var val = tb.value;
+    setTimeout(() => {
+        if (val == tb.value) filterSoundsList(val, sounds);
+    }, 250);
 });
 
 if (sortBy)

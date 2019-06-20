@@ -130,6 +130,14 @@ h1, h2, h3, h4, p, a {
     /* height: 60px; Set the fixed height of the footer here */
 }
 
+.selector {
+    color: white;
+    background-color: #00897B;
+    padding: 3px 7px;
+    font-size: 13px !important;
+    border-style: none;
+}
+
 .slider {
     -webkit-appearance: none;
     width: 100%;
