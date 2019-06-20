@@ -2,3 +2,4 @@ vendor
 docs
 bin
 *.md
+data

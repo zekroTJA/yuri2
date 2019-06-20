@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+        "fmt"
 
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
@@ -17,9 +18,12 @@ import (
 )
 
 var (
-	flagConfig = flag.String("c", "./config.yml", "config file location")
-	flagAddr = flag.String("addr", "", "API expose address (overrides config)")
-	flagDbDsn = flag.String("db-dsn", "Database DSN (overrides config)")
+	flagConfig     = flag.String("c", "./config.yml", "config file location")
+	flagAddr       = flag.String("addr", "", "API expose address (overrides config)")
+	flagDbDsn      = flag.String("db-dsn", "", "Database DSN (overrides config)")
+	flagLLAddr     = flag.String("lavalink-address", "", "Lavalink address (overrides config)")
+	flagLLPW       = flag.String("lavalink-password", "", "Lavalink password (overrides config)")
+	flagLLSoundLoc = flag.String("lavalink-location", "", "Lavalink sounds location (overrides onfig)")
 )
 
 func main() {
@@ -50,6 +54,30 @@ func main() {
 
 	// init Config
 	cfg := inits.InitConfig(*flagConfig, unmarshaler, marshaler, dbMiddleware.GetConfigStructure())
+
+	if *flagAddr != "" {
+		cfg.API.Address = *flagAddr
+	}
+
+	if *flagDbDsn != "" {
+		cfg.Database = map[string]interface{}{
+			"dsn": *flagDbDsn,
+		}
+	}
+
+        fmt.Printf("TEST %+v", cfg.Database)
+
+	if *flagLLAddr != "" {
+		cfg.Lavalink.Address = *flagLLAddr
+	}
+
+	if *flagLLPW != "" {
+		cfg.Lavalink.Password = *flagLLPW
+	}
+
+	if *flagLLSoundLoc != "" {
+		cfg.Lavalink.SoundsLocations = []string{*flagLLSoundLoc}
+	}
 
 	// init Databse
 	inits.InitDatabase(dbMiddleware, cfg.Database)
