@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-        "fmt"
 
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
@@ -64,8 +63,6 @@ func main() {
 			"dsn": *flagDbDsn,
 		}
 	}
-
-        fmt.Printf("TEST %+v", cfg.Database)
 
 	if *flagLLAddr != "" {
 		cfg.Lavalink.Address = *flagLLAddr
