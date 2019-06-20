@@ -18,6 +18,8 @@ import (
 
 var (
 	flagConfig = flag.String("c", "./config.yml", "config file location")
+	flagAddr = flag.String("addr", "", "API expose address (overrides config)")
+	flagDbDsn = flag.String("db-dsn", "Database DSN (overrides config)")
 )
 
 func main() {
