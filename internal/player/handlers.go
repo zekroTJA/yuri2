@@ -3,8 +3,8 @@ package player
 import (
 	"time"
 
-	"github.com/foxbot/gavalink"
 	"github.com/zekroTJA/discordgo"
+	"github.com/zekroTJA/gavalink"
 	"github.com/zekroTJA/yuri2/internal/logger"
 )
 

@@ -14,8 +14,8 @@ import (
 
 	"github.com/zekroTJA/timedmap"
 
-	"github.com/foxbot/gavalink"
 	"github.com/zekroTJA/discordgo"
+	"github.com/zekroTJA/gavalink"
 )
 
 // allowedFileTypes specifies local audio file types
