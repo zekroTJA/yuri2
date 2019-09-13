@@ -16,3 +16,6 @@ private.*
 vendor/*
 
 *.sqlite3
+
+bin/*
+data/

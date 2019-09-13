@@ -209,3 +209,41 @@ function deleteFavorites(sound) {
             });
     });
 }
+
+// GET /api/settings/fasttrigger
+function getFastTrigger() {
+    var url = `/api/settings/fasttrigger`;
+    restDebugRequest('GET', url);
+
+    return new Promise((resolve, rejects) => {
+        $.getJSON(url, (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}
+
+// POST /api/settings/fasttrigger
+function postFastTrigger(random, ident) {
+    var url = `/api/settings/fasttrigger`;
+    restDebugRequest('POST', url);
+
+    return new Promise((resolve, rejects) => {
+        $.post(url, JSON.stringify({ random, ident }), (res, s) => {
+            restDebugRespone(res, s);
+            if (s === 'success') {
+                resolve(res);
+            } else {
+                rejects(res, s);
+            }
+        }).fail((e) => {
+            rejects(e);
+        });
+    });
+}

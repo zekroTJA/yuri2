@@ -56,6 +56,11 @@ type soundStatsResponse struct {
 	SizeB     int64 `json:"size_b"`
 }
 
+type fastTriggerObject struct {
+	Ident  string `json:"ident"`
+	Random bool   `json:"random"`
+}
+
 // -----------------------------------------------
 // --- REST API HANDLERS
 
@@ -342,6 +347,75 @@ func (api *API) restPostDeleteFavorites(w http.ResponseWriter, r *http.Request) 
 	}
 
 	jsonResponse(w, statusCode, nil)
+}
+
+// GET/POST /api/settings/fasttrigger
+func (api *API) restSettingFastTrigger(w http.ResponseWriter, r *http.Request) {
+	if !checkMethodWithResponse(w, r, "GET", "POST") {
+		return
+	}
+
+	ok, userID := api.checkAuthWithResponse(w, r)
+	if !ok {
+		return
+	}
+
+	if ok, _ := api.checkLimitWithResponse(w, userID); !ok {
+		return
+	}
+
+	if r.Method == "GET" {
+		ident, err := api.db.GetFastTrigger(userID)
+		if err != nil {
+			errResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		jsonResponse(w, http.StatusOK, &fastTriggerObject{
+			Ident:  ident,
+			Random: ident == "",
+		})
+		return
+	}
+
+	req := new(fastTriggerObject)
+	if err := parseJSONBody(r.Body, req); err != nil {
+		errResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if req.Random {
+		if err := api.db.SetFastTrigger(userID, ""); err != nil {
+			errResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		jsonResponse(w, http.StatusOK, &fastTriggerObject{
+			Ident:  "",
+			Random: true,
+		})
+		return
+	}
+
+	sounds, err := api.player.GetLocalFiles()
+	if err != nil {
+		errResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	for _, s := range sounds {
+		if s.Name == req.Ident {
+			if err := api.db.SetFastTrigger(userID, req.Ident); err != nil {
+				errResponse(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			jsonResponse(w, http.StatusOK, &fastTriggerObject{
+				Ident:  req.Ident,
+				Random: false,
+			})
+			return
+		}
+	}
+
+	errResponse(w, http.StatusNotFound, "sound was not found")
 }
 
 // GET /api/admin/stats

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 
@@ -14,8 +15,8 @@ import (
 
 	"github.com/zekroTJA/timedmap"
 
-	"github.com/foxbot/gavalink"
 	"github.com/zekroTJA/discordgo"
+	"github.com/zekroTJA/gavalink"
 )
 
 // allowedFileTypes specifies local audio file types
@@ -148,6 +149,7 @@ func (p *Player) AddEventHandler(handler EventHandler) {
 func (p *Player) ReadyHandler(s *discordgo.Session, e *discordgo.Ready) {
 	if err := p.Init(s); err != nil {
 		p.onError("Ready#Init", err)
+		os.Exit(1)
 	}
 }
 

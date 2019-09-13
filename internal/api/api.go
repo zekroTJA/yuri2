@@ -172,6 +172,10 @@ func (api *API) registerHTTPHandlers() {
 	// DELETE /api/favorites/:SOUND
 	api.mux.HandleFunc("/api/favorites/", api.restPostDeleteFavorites)
 
+	// GET /api/settings/fasttrigger
+	// POST /api/settings/fasttrigger
+	api.mux.HandleFunc("/api/settings/fasttrigger", api.restSettingFastTrigger)
+
 	// GET /api/admin/stats
 	api.mux.HandleFunc("/api/admin/stats", api.restGetAdminStats)
 

@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+
+  lavalink:
+    image: 'fredboat/lavalink:master'
+    expose:
+      - '2333'
+    volumes:
+      - './data/lavalink/application.yml:/opt/Lavalink/application.yml'
+      - './data/lavalink/logs:/opt/Lavalink/logs'
+      - './data/sounds:/etc/sounds'
+    links:
+      - yuri
+
+  yuri:
+    image: 'zekro/yuri2:latest'
+    ports:
+      - '6613:8080'
+    volumes:
+      - './data/yuri/config:/etc/yuri/config'
+      - './data/yuri/db:/etc/yuri/db'
+      - './data/sounds:/etc/sounds'
+    env_file: 'docker.env'
+    restart: always
