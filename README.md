@@ -5,11 +5,13 @@
      <img src="https://forthebadge.com/images/badges/made-with-go.svg" height="30" />&nbsp;
      <img src="https://forthebadge.com/images/badges/uses-html.svg" height="30" />&nbsp;
      <img src="https://forthebadge.com/images/badges/uses-css.svg" height="30" />&nbsp;
-     <a href="https://zekro.de/discord"><img src="https://img.shields.io/discord/307084334198816769.svg?logo=discord&style=for-the-badge" height="30"></a>
+     <a href="https://zekro.de/discord"><img src="https://img.shields.io/discord/307084334198816769.svg?logo=discord&style=for-the-badge" height="30"></a>&nbsp;
+     <a href="https://cloud.docker.com/u/zekro/repository/docker/zekro/yuri2"><img alt="Docker Cloud Automated build" src="https://img.shields.io/docker/cloud/automated/zekro/yuri2.svg?color=cyan&logo=docker&logoColor=cyan&style=for-the-badge"></a>
      <!-- <br>
      <br>
      <a href="https://travis-ci.org/zekroTJA/yuri" ><img src="https://travis-ci.org/zekroTJA/yuri.svg?branch=master" /></a>&nbsp;
-     <a href="https://github.com/zekroTJA/yuri/releases"><img src="https://img.shields.io/github/tag/zekroTJA/yuri.svg" /></a> -->
+     <a href="https://github.com/zekroTJA/yuri/releases"><img src="https://img.shields.io/github/tag/zekroTJA/yuri.svg" /></a>
+-->
 </div>
 
 ---
