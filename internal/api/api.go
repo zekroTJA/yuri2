@@ -144,15 +144,6 @@ func (api *API) registerHTTPHandler(path string, handler HTTPHandler) {
 // registerHTTPHandlers registers HTTP request handlers
 // for specific endpoint paths to the ServeMux.
 func (api *API) registerHTTPHandlers() {
-	// Static file server
-	api.mux.Handle("/static/", http.StripPrefix("/static/",
-		http.FileServer(http.Dir("./web/static"))))
-
-	// MAIN HANDLER
-	api.registerHTTPHandler("/", api.indexPageHandler)
-
-	// ADMIN HANDLER
-	api.registerHTTPHandler("/admin", api.adminPageHandler)
 
 	// WS UPGRADE
 	api.registerHTTPHandler("/ws", api.wsUpgradeHandler)
@@ -206,6 +197,9 @@ func (api *API) registerHTTPHandlers() {
 
 	// POST /api/admin/refetch
 	api.registerHTTPHandler("/api/admin/refetch", api.restPostAdminRefetch)
+
+	// Static File Server
+	api.registerHTTPHandler("/", api.fileHandler)
 }
 
 // registerWSHandlers registers WS handlers
