@@ -1,0 +1,30 @@
+<div class="sidebar-container">
+
+  <div class="etry-wrapper">
+
+    <div class="entry logoff">
+      <img src="assets/icons/logoff.svg">
+      <p>LOG OUT</p>
+    </div>
+    <div class="entry sort">
+      <img src="assets/icons/sort.svg">
+      <p>SORT BY {{ sortByName ? 'DATE' : 'NAME' }}</p>
+    </div>
+    <div class="entry stop">
+      <img src="assets/icons/stop.svg">
+      <p>STOP PLAYBACK</p>
+    </div>
+    <div class="entry join" (click)="inChannel = !inChannel">
+      <img src="assets/icons/join.svg" [style.transform]="inChannel ? 'rotate(180deg)' : 'rotate(0deg)'">
+      <p>{{ inChannel ? 'LEAVE' : 'JOIN' }} CHANNEL</p>
+    </div>
+    <div class="entry volume">
+      <img src="assets/icons/volume.svg">
+      <div class="slider">
+        <app-slider></app-slider>
+      </div>
+    </div>
+
+  </div>
+
+</div>

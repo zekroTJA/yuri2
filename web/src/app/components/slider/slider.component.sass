@@ -1,0 +1,36 @@
+@import '../../../sass/vars'
+
+// *
+//   transition: all .25s
+
+$height: 20px
+
+.slider
+  -webkit-appearance: none
+  appearance: none
+  width: 100%
+  height: $height
+  background: #0000005d
+  outline: none
+  opacity: 0.7
+  -webkit-transition: .2s
+  transition: opacity .2s
+  border-radius: $height
+
+
+.slider::-webkit-slider-thumb
+  -webkit-appearance: none
+  appearance: none
+  width: $height
+  height: $height
+  background-color: #000000e7
+  cursor: pointer
+  border-radius: $height
+
+
+.slider::-moz-range-thumb
+  width: $height
+  height: $height
+  background-color: #000000e7
+  cursor: pointer
+
