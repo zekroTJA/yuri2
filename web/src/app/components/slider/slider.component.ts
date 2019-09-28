@@ -1,6 +1,6 @@
 /** @format */
 
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, Output, EventEmitter } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
@@ -18,6 +18,8 @@ export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
 export class SliderComponent implements ControlValueAccessor {
   private _value: number;
 
+  @Output() public change: EventEmitter<any> = new EventEmitter();
+
   private onTouchedCallback: () => void = () => {};
   private onChangeCallback: (_: any) => void = () => {};
 
@@ -27,7 +29,6 @@ export class SliderComponent implements ControlValueAccessor {
     }
 
     this.value = event.target.value;
-    console.log(this.value);
   }
 
   public get value(): number {
@@ -38,6 +39,7 @@ export class SliderComponent implements ControlValueAccessor {
     if (v !== this._value) {
       this._value = v;
       this.onChangeCallback(v);
+      this.change.emit(this.value);
     }
   }
 
