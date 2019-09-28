@@ -10,4 +10,6 @@ import { Component } from '@angular/core';
 export class SideBarComponent {
   public sortByName: boolean;
   public inChannel: boolean;
+
+  public isAdmin;
 }
