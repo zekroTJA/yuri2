@@ -7,30 +7,30 @@
       <p>YURI INTERFACE</p>
     </div>
 
-    <div class="entry logoff">
+    <a class="entry logoff" href="/logout">
       <img src="assets/icons/logoff.svg">
       <p>LOG OUT</p>
-    </div>
-    <div *ngIf="isAdmin" class="entry admin">
+    </a>
+    <a *ngIf="isAdmin" class="entry admin" routerLink="/admin">
       <img src="assets/icons/dashboard.svg">
       <p>ADMIN PANEL</p>
-    </div>
-    <div class="entry sort">
+    </a>
+    <div class="entry sort" (click)="onSortBy()">
       <img src="assets/icons/sort.svg">
       <p>SORT BY {{ sortByName ? 'DATE' : 'NAME' }}</p>
     </div>
-    <div class="entry stop">
+    <div class="entry stop" (click)="onStop()">
       <img src="assets/icons/stop.svg">
       <p>STOP PLAYBACK</p>
     </div>
-    <div class="entry join" (click)="inChannel = !inChannel">
+    <div class="entry join" (click)="onJoin()">
       <img src="assets/icons/join.svg" [style.transform]="inChannel ? 'rotate(180deg)' : 'rotate(0deg)'">
       <p>{{ inChannel ? 'LEAVE' : 'JOIN' }} CHANNEL</p>
     </div>
     <div class="entry volume">
       <img src="assets/icons/volume.svg">
       <div class="slider">
-        <app-slider></app-slider>
+        <app-slider [(ngModel)]="volume" (update)="onVolume()"></app-slider>
       </div>
     </div>
 

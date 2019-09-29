@@ -2,7 +2,7 @@
 
 export interface ListReponse<T> {
   n: number;
-  data: T[];
+  results: T[];
 }
 
 export interface Sound {

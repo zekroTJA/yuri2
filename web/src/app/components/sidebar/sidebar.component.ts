@@ -1,6 +1,11 @@
 /** @format */
 
 import { Component } from '@angular/core';
+import { WSService } from 'src/app/api/ws/ws.service';
+import { WSEvent, WSCommand } from 'src/app/api/ws/ws.static';
+import { HelloEvent, JoinedEvent, LeftEvent } from 'src/app/api/ws/ws.models';
+import { toNumber } from 'src/util/util.converters';
+import { SoundListService } from 'src/app/services/soundlist.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,6 +15,39 @@ import { Component } from '@angular/core';
 export class SideBarComponent {
   public sortByName: boolean;
   public inChannel: boolean;
+  public isAdmin: boolean;
+  public volume: number;
 
-  public isAdmin;
+  constructor(private ws: WSService, private sounds: SoundListService) {
+    ws.on(WSEvent.HELLO, (ev: HelloEvent) => {
+      this.isAdmin = ev.admin;
+      this.inChannel = ev.connected;
+      this.volume = ev.vol;
+    });
+
+    ws.on(WSEvent.JOINED, (ev: JoinedEvent) => {
+      this.inChannel = true;
+      this.volume = ev.vol;
+    });
+
+    ws.on(WSEvent.LEFT, (ev: LeftEvent) => {
+      this.inChannel = false;
+    });
+  }
+
+  public onSortBy() {
+    this.sortByName = !this.sortByName;
+    this.sounds.refreshSoundList(this.sortByName ? 'name' : 'date');
+  }
+
+  public onStop() {}
+
+  public onJoin() {
+    const cmd = this.inChannel ? WSCommand.LEAVE : WSCommand.JOIN;
+    this.ws.sendMessage(cmd);
+  }
+
+  public onVolume() {
+    this.ws.sendMessage(WSCommand.VOLUME, toNumber(this.volume));
+  }
 }

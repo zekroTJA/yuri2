@@ -1,0 +1,17 @@
+@import '../../../sass/vars'
+
+*
+  transition: all .25s ease-in-out
+
+.sidebar-container
+  background-color: $c-soundbtn
+  color: $c-background
+  padding: 10px 15px
+  font-weight: 500
+  cursor: pointer
+
+  p
+    margin: 0px
+
+  &:hover
+    background-color: adjust-hue($c-soundbtn, -10)

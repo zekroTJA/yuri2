@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, share } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {
   ListReponse,
   Sound,
@@ -13,19 +13,20 @@ import {
   FastTrigger,
   SystemStats,
   SoundStats,
-} from '../api.models';
+} from './rest.models';
+import { ToastService } from 'src/app/components/toast/toast.service';
 
 /** @format */
 
 @Injectable({
   providedIn: 'root',
 })
-export class APIService {
+export class RestService {
   private rootURL = '';
 
   private readonly errorCatcher = (err) => {
     console.error(err);
-    // this.toasts.push(err.message, 'Request Error', 'error', 10000);
+    this.toasts.push(err.message, 'REST Request Error', 'error', 10000);
     return of(null);
   };
 
@@ -47,7 +48,7 @@ export class APIService {
   // RESOURCES
 
   private readonly rcRoot = (sub: string = null) =>
-    this.rootURL + (sub ? `/${sub}` : '');
+    this.rootURL + '/api' + (sub ? `/${sub}` : '');
 
   private readonly rcPlayLogs = (guild: string) =>
     this.rcRoot('logs') + '/' + guild;
@@ -66,14 +67,14 @@ export class APIService {
 
   // ----------------
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private toasts: ToastService) {
     this.rootURL = environment.production ? '' : 'http://localhost:8080';
   }
 
   public getSounds(
     sort: string,
-    from: number,
-    limit: number
+    from: number = 0,
+    limit: number = 0
   ): Observable<Sound[]> {
     const opts = this.defopts({
       params: new HttpParams()
@@ -84,7 +85,7 @@ export class APIService {
     return this.http
       .get<ListReponse<Sound>>(this.rcRoot('localsounds'), opts)
       .pipe(
-        map((lr) => lr.data),
+        map((lr) => lr.results),
         catchError(this.errorCatcher)
       );
   }
@@ -102,7 +103,7 @@ export class APIService {
     return this.http
       .get<ListReponse<LogEntry>>(this.rcPlayLogs(guild), opts)
       .pipe(
-        map((lr) => lr.data),
+        map((lr) => lr.results),
         catchError(this.errorCatcher)
       );
   }
@@ -114,7 +115,7 @@ export class APIService {
     return this.http
       .get<ListReponse<StatsEntry>>(this.rcPlayStats(guild), opts)
       .pipe(
-        map((lr) => lr.data),
+        map((lr) => lr.results),
         catchError(this.errorCatcher)
       );
   }
@@ -123,7 +124,7 @@ export class APIService {
     return this.http
       .get<ListReponse<string>>(this.rcFavorites(), this.defopts())
       .pipe(
-        map((lr) => lr.data),
+        map((lr) => lr.results),
         catchError(this.errorCatcher)
       );
   }

@@ -577,9 +577,9 @@ func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, u
 	}
 
 	w.Header().Add("Set-Cookie",
-		fmt.Sprintf("token=%s; Max-Age=2147483647; Path=/; HttpOnly", token))
+		fmt.Sprintf("token=%s; Max-Age=2147483647; Path=/;", token))
 	w.Header().Add("Set-Cookie",
-		fmt.Sprintf("userid=%s; Max-Age=2147483647; Path=/; HttpOnly", userID))
+		fmt.Sprintf("userid=%s; Max-Age=2147483647; Path=/;", userID))
 	w.Header().Set("Location", "/")
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
@@ -612,8 +612,8 @@ func (api *API) fileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) logoutHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Set-Cookie", "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; HttpOnly")
-	w.Header().Add("Set-Cookie", "userid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; HttpOnly")
+	w.Header().Add("Set-Cookie", "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
+	w.Header().Add("Set-Cookie", "userid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
 	w.Header().Add("Location", "/login")
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }

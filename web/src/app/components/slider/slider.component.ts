@@ -14,14 +14,17 @@ export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
   selector: 'app-slider',
   templateUrl: './slider.component.html',
   styleUrls: ['./slider.component.sass'],
+  providers: [CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR],
 })
 export class SliderComponent implements ControlValueAccessor {
   private _value: number;
 
-  @Output() public change: EventEmitter<any> = new EventEmitter();
+  @Output() public update: EventEmitter<any> = new EventEmitter();
 
   private onTouchedCallback: () => void = () => {};
   private onChangeCallback: (_: any) => void = () => {};
+
+  constructor() {}
 
   public onChange(event: any) {
     if (!event || !event.target) {
@@ -39,7 +42,7 @@ export class SliderComponent implements ControlValueAccessor {
     if (v !== this._value) {
       this._value = v;
       this.onChangeCallback(v);
-      this.change.emit(this.value);
+      this.update.emit(this.value);
     }
   }
 
