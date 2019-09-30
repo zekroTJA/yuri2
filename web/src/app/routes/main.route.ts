@@ -35,7 +35,7 @@ export class MainRouteComponent implements OnInit, OnDestroy {
   constructor(
     private rest: RestService,
     private ws: WSService,
-    private sounds: SoundListService
+    public sounds: SoundListService
   ) {
     this.ws.on(WSEvent.PLAYING, (ev: PlayingEvent) => {
       sounds.setPlayingState(ev.ident, true);

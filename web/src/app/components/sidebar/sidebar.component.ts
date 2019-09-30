@@ -17,7 +17,7 @@ export class SideBarComponent {
   public isAdmin: boolean;
   public volume: number;
 
-  constructor(private ws: WSService, private sounds: SoundListService) {
+  constructor(private ws: WSService, public sounds: SoundListService) {
     ws.on(WSEvent.HELLO, (ev: HelloEvent) => {
       this.isAdmin = ev.admin;
       this.inChannel = ev.connected;
