@@ -5,6 +5,8 @@ import { WSService } from '../api/ws/ws.service';
 import { SoundListService, SoundBtn } from '../services/soundlist.service';
 import { WSCommand, SourceType, WSEvent } from '../api/ws/ws.static';
 import { PlayingEvent, EndEvent } from '../api/ws/ws.models';
+import { ContextMenuItem } from '../components/contextmenu/contextmenu.component';
+import { RestService } from '../api/rest/rest.service';
 
 @Component({
   selector: 'app-main-route',
@@ -15,7 +17,26 @@ export class MainRouteComponent implements OnInit, OnDestroy {
   public search: boolean;
   public displayedSounds: SoundBtn[];
 
-  constructor(private ws: WSService, private sounds: SoundListService) {
+  public contextMenu = {
+    x: 0,
+    y: 0,
+    visible: false,
+  };
+
+  public contextMenuItems: ContextMenuItem[] = [
+    {
+      el: 'Favorite',
+      action: () => {
+        this.contextMenu.visible = false;
+      },
+    },
+  ];
+
+  constructor(
+    private rest: RestService,
+    private ws: WSService,
+    private sounds: SoundListService
+  ) {
     this.ws.on(WSEvent.PLAYING, (ev: PlayingEvent) => {
       sounds.setPlayingState(ev.ident, true);
     });
@@ -53,11 +74,46 @@ export class MainRouteComponent implements OnInit, OnDestroy {
     this.displayedSounds = null;
   }
 
+  public onSoundContextMenu(ev: any, sound: SoundBtn) {
+    this.contextMenuItems[0].el = sound.favorite ? 'Unfavorize' : 'Favorize';
+    this.contextMenuItems[0].action = sound.favorite
+      ? this.unfavorize.bind(this, sound)
+      : this.favorize.bind(this, sound);
+
+    this.contextMenu.visible = true;
+    this.contextMenu.x = ev.clientX;
+    this.contextMenu.y = ev.clientY;
+
+    ev.preventDefault();
+  }
+
+  private favorize(sound: SoundBtn) {
+    this.rest
+      .setFavorite(sound.name)
+      .toPromise()
+      .then(() => (sound.favorite = true));
+  }
+
+  private unfavorize(sound: SoundBtn) {
+    this.rest
+      .deleteFavorite(sound.name)
+      .toPromise()
+      .then(() => (sound.favorite = false));
+  }
+
+  public onWindowClick(ev: any) {
+    if (ev.target && ev.target.id != 'context-menu') {
+      this.contextMenu.visible = false;
+    }
+  }
+
   public ngOnInit() {
     window.addEventListener('keydown', this.onKeyDown.bind(this));
+    window.addEventListener('click', this.onWindowClick.bind(this));
   }
 
   public ngOnDestroy() {
     window.removeEventListener('keydown', this.onKeyDown.bind(this));
+    window.removeEventListener('click', this.onWindowClick.bind(this));
   }
 }

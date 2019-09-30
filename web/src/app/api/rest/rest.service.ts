@@ -57,7 +57,7 @@ export class RestService {
     this.rcRoot('stats') + '/' + guild;
 
   private readonly rcFavorites = (sub: string = null) =>
-    this.rcRoot('favorite') + (sub ? `/${sub}` : '');
+    this.rcRoot('favorites') + (sub ? `/${sub}` : '');
 
   private readonly rcSettings = (sub: string = null) =>
     this.rcRoot('settings') + (sub ? `/${sub}` : '');
@@ -131,7 +131,7 @@ export class RestService {
 
   public setFavorite(sound: string): Observable<any> {
     return this.http
-      .post(this.rcFavorites(sound), this.defopts())
+      .post(this.rcFavorites(sound), {}, this.defopts())
       .pipe(catchError(this.errorCatcher));
   }
 
@@ -167,13 +167,13 @@ export class RestService {
 
   public postRestart(): Observable<any> {
     return this.http
-      .post(this.rcAdmin('restart'), this.defopts())
+      .post(this.rcAdmin('restart'), {}, this.defopts())
       .pipe(catchError(this.errorCatcher));
   }
 
   public postRefetch(): Observable<any> {
     return this.http
-      .post(this.rcAdmin('refetch'), this.defopts())
+      .post(this.rcAdmin('refetch'), {}, this.defopts())
       .pipe(catchError(this.errorCatcher));
   }
 }

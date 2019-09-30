@@ -1,0 +1,15 @@
+<div
+  class="menu-container"
+  *ngIf="visible"
+  [style.top]="y + 'px'"
+  [style.left]="x + 'px'"
+  id="context-menu"
+  #contextmenu
+>
+  <div *ngFor="let i of items" class="item" (click)="i.action()">
+    <ng-template [ngIf]="isTemplate(i)" [ngIfElse]="text">
+      <ng-template [ngTemplateOutlet]="i.el"></ng-template>
+    </ng-template>
+    <ng-template #text>{{ i.el }}</ng-template>
+  </div>
+</div>

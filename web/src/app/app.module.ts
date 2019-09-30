@@ -13,6 +13,7 @@ import { MainRouteComponent } from './routes/main.route';
 import { SoundBtnComponent } from './components/soundbtn/soundbtn.component';
 import { HttpClientModule } from '@angular/common/http';
 import { SearchBarComponent } from './components/searchbar/searchbar.component';
+import { ContextMenuComponent } from './components/contextmenu/contextmenu.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { SearchBarComponent } from './components/searchbar/searchbar.component';
     ToastComponent,
     SoundBtnComponent,
     SearchBarComponent,
+    ContextMenuComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule],
   providers: [],
