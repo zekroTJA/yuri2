@@ -133,6 +133,11 @@ func (api *API) httpHandlerWrapper(handler HTTPHandler) HTTPHandler {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
+		if (r.Method == http.MethodOptions) {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
 		handler(w, r)
 	}
 }
