@@ -13,7 +13,6 @@ import { SoundListService } from 'src/app/services/soundlist.service';
   styleUrls: ['./sidebar.component.sass'],
 })
 export class SideBarComponent {
-  public sortByName: boolean;
   public inChannel: boolean;
   public isAdmin: boolean;
   public volume: number;
@@ -36,11 +35,13 @@ export class SideBarComponent {
   }
 
   public onSortBy() {
-    this.sortByName = !this.sortByName;
-    this.sounds.refreshSoundList(this.sortByName ? 'name' : 'date');
+    this.sounds.sortBy = this.sounds.sortBy == 'name' ? 'date' : 'name';
+    this.sounds.refreshSoundList();
   }
 
-  public onStop() {}
+  public onStop() {
+    this.ws.sendMessage(WSCommand.STOP);
+  }
 
   public onJoin() {
     const cmd = this.inChannel ? WSCommand.LEAVE : WSCommand.JOIN;

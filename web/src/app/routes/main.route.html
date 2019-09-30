@@ -1,8 +1,16 @@
+<div *ngIf="search" class="search">
+  <app-searchbar
+    (close)="onSearchClose()"
+    (search)="onSearchInput($event)"
+  ></app-searchbar>
+</div>
+
 <div class="sounds-outlet">
   <app-soundbtn
-    *ngFor="let sound of sounds.sounds"
+    *ngFor="let sound of (displayedSounds || sounds.sounds)"
     [name]="sound.name"
+    [playing]="sound.playing"
     class="sound-btn"
-  >
-  </app-soundbtn>
+    (click)="playSound(sound)"
+  ></app-soundbtn>
 </div>

@@ -12,15 +12,18 @@ import { ToastComponent } from './components/toast/toast.component';
 import { MainRouteComponent } from './routes/main.route';
 import { SoundBtnComponent } from './components/soundbtn/soundbtn.component';
 import { HttpClientModule } from '@angular/common/http';
+import { SearchBarComponent } from './components/searchbar/searchbar.component';
 
 @NgModule({
   declarations: [
+    MainRouteComponent,
+
     AppComponent,
     SideBarComponent,
     SliderComponent,
     ToastComponent,
-    MainRouteComponent,
     SoundBtnComponent,
+    SearchBarComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule],
   providers: [],

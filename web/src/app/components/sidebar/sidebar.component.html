@@ -17,7 +17,7 @@
     </a>
     <div class="entry sort" (click)="onSortBy()">
       <img src="assets/icons/sort.svg">
-      <p>SORT BY {{ sortByName ? 'DATE' : 'NAME' }}</p>
+      <p>SORT BY {{ sounds.sortBy == 'name' ? 'DATE' : 'NAME' }}</p>
     </div>
     <div class="entry stop" (click)="onStop()">
       <img src="assets/icons/stop.svg">

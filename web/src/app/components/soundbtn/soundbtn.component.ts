@@ -9,4 +9,6 @@ import { Component, Input } from '@angular/core';
 })
 export class SoundBtnComponent {
   @Input() public name: string;
+  @Input() public playing: boolean;
+  @Input() public favorite: boolean;
 }
