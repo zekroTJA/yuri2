@@ -1,0 +1,93 @@
+@import '../../../sass/vars'
+
+*
+  transition: all .25s
+
+a
+  text-decoration: none
+  color: $c-background
+
+.sidebar-container
+  position: fixed
+  height: 100vh !important
+  width: fit-content
+  height: fit-content
+  background-color: $c-background-sec
+  z-index: 1
+
+.etry-wrapper
+  width: 50px
+  overflow: hidden
+  white-space: nowrap
+
+  &:hover
+    width: 250px
+
+.entry
+  width: 100%
+  height: 50px
+  display: flex
+  opacity: .9
+  cursor: pointer
+
+  img
+    margin: auto 13px
+    height: 25px !important
+    width: 25px !important
+    min-width: 25px
+
+  p
+    font-size: 20px
+    font-family: 'Montserrat', sans-serif !important
+    font-weight: 500
+    margin: auto 0px
+
+  .slider
+    width: 180px
+    min-width: 180px
+    margin: auto 0px
+    padding-top: 7px
+
+  &:hover
+    opacity: 1
+
+.logo-entry
+  width: 100%
+  height: 50px
+  display: flex
+  margin-bottom: 10px
+  background-color: #ffffff18
+
+  img
+    height: 100%
+    width: 50px
+    min-width: 50px
+
+  p
+    font-size: 20px
+    font-family: 'Montserrat', sans-serif !important
+    font-weight: 600
+    margin: auto 12px
+    color: $c-ice
+
+
+// --------------------
+// TILE COLORS
+
+.logoff
+  background-color: $c-red
+
+.admin
+  background-color: $c-orange
+
+.sort
+  background-color: $c-purple
+
+.stop
+  background-color: $c-cyan
+
+.join
+  background-color: $c-green
+
+.volume
+  background-color: $c-yellow

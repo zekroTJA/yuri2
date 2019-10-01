@@ -1,0 +1,14 @@
+@import '../../../sass/vars'
+
+.menu-container
+  position: absolute
+
+.item
+  padding: 10px 15px
+  color: $c-ice
+  background-color: $c-background-sec
+  cursor: pointer
+  transition: all .25s ease
+
+  &:hover
+    background-color: adjust-hue($c-background-sec, 40)

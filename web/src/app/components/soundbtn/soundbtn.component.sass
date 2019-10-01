@@ -1,0 +1,26 @@
+@import '../../../sass/vars'
+
+*
+  transition: all .25s ease-in-out
+
+.sound-btn
+  background-color: $c-soundbtn
+  color: $c-background
+  padding: 10px 15px
+  height: 45px
+  font-weight: 500
+  cursor: pointer
+  border-bottom: solid 0px $c-yellow
+
+  p
+    margin: 0px
+
+  &:hover
+    background-color: adjust-hue($c-soundbtn, -10)
+
+.playing
+  background-color: $c-soundbrm-palying
+
+.favorite
+  box-sizing: border-box
+  border-bottom: solid 5px adjust-hue($c-soundbtn, 20)

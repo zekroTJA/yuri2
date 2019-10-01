@@ -1,0 +1,25 @@
+<app-contextmenu
+  [items]="contextMenuItems"
+  [visible]="contextMenu.visible"
+  [x]="contextMenu.x"
+  [y]="contextMenu.y"
+></app-contextmenu>
+
+<div *ngIf="search" class="search">
+  <app-searchbar
+    (close)="onSearchClose()"
+    (search)="onSearchInput($event)"
+  ></app-searchbar>
+</div>
+
+<div class="sounds-outlet">
+  <app-soundbtn
+    *ngFor="let sound of (displayedSounds || sounds.sounds)"
+    [name]="sound.name"
+    [playing]="sound.playing"
+    [favorite]="sound.favorite"
+    class="sound-btn"
+    (click)="playSound(sound)"
+    (contextmenu)="onSoundContextMenu($event, sound)"
+  ></app-soundbtn>
+</div>

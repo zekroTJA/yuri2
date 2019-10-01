@@ -1,0 +1,17 @@
+<div
+    *ngIf="visible"
+    class="toast-container"
+    [class.white]="!dark"
+    [ngClass]="colorClass"
+    [class.fade-out]="fadeOut"
+>
+    <div class="heading">
+        <h5>{{ heading }}</h5>
+        <a *ngIf="closable" class="close-btn" (click)="hide(true)">
+          <img [src]="dark ? '/assets/icons/close-black.svg' : '/assets/icons/close.svg'"/>
+        </a>
+    </div>
+    <div class="content">
+      <ng-content></ng-content>
+    </div>
+</div>

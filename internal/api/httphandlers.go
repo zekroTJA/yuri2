@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -11,6 +12,8 @@ import (
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
 )
+
+var staticFileRx = regexp.MustCompile(`.*\.(js|css|ico|png|jpeg|jpg|gif|svg)`)
 
 type getTokenResponse struct {
 	Token  string    `json:"token"`
@@ -577,14 +580,21 @@ func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, u
 	}
 
 	w.Header().Add("Set-Cookie",
-		fmt.Sprintf("token=%s; Max-Age=2147483647; Path=/", token))
+		fmt.Sprintf("token=%s; Max-Age=2147483647; Path=/;", token))
 	w.Header().Add("Set-Cookie",
-		fmt.Sprintf("userid=%s; Max-Age=2147483647; Path=/", userID))
+		fmt.Sprintf("userid=%s; Max-Age=2147483647; Path=/;", userID))
 	w.Header().Set("Location", "/")
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
+func (api *API) fileHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+
+	if staticFileRx.MatchString(path) {
+		http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
+		return
+	}
+
 	ok, userID, err := api.checkAuthCookie(r)
 	if err != nil {
 		logger.Error("API :: checkAuthCookie: %s", err.Error())
@@ -604,13 +614,37 @@ func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "./web/pages/index.html")
+	http.ServeFile(w, r, "./web/dist/web/index.html")
+
+	// if path == "/" || path == "/index.hmtl" {
+	// 	ok, userID, err := api.checkAuthCookie(r)
+	// 	if err != nil {
+	// 		logger.Error("API :: checkAuthCookie: %s", err.Error())
+	// 		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
+	// 		return
+	// 	}
+
+	// 	if !ok || userID == "" {
+	// 		w.Header().Set("Location", "/login")
+	// 		w.WriteHeader(http.StatusTemporaryRedirect)
+	// 		return
+	// 	}
+
+	// 	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	// 	if guilds == nil {
+	// 		errPageResponse(w, r, http.StatusForbidden, "")
+	// 		return
+	// 	}
+	// }
+
+	// http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
 }
 
 func (api *API) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Set-Cookie", "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
 	w.Header().Add("Set-Cookie", "userid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
-	http.ServeFile(w, r, "./web/pages/logout.html")
+	w.Header().Add("Location", "/login")
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 func (api *API) wsUpgradeHandler(w http.ResponseWriter, r *http.Request) {

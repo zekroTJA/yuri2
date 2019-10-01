@@ -1,0 +1,39 @@
+<div class="sidebar-container">
+
+  <div class="etry-wrapper">
+
+    <div class="logo-entry">
+      <img src="assets/img/logo.jpg">
+      <p>YURI INTERFACE</p>
+    </div>
+
+    <a class="entry logoff" href="/logout">
+      <img src="assets/icons/logoff.svg">
+      <p>LOG OUT</p>
+    </a>
+    <a *ngIf="isAdmin" class="entry admin" routerLink="/admin">
+      <img src="assets/icons/dashboard.svg">
+      <p>ADMIN PANEL</p>
+    </a>
+    <div class="entry sort" (click)="onSortBy()">
+      <img src="assets/icons/sort.svg">
+      <p>SORT BY {{ sounds.sortBy == 'name' ? 'DATE' : 'NAME' }}</p>
+    </div>
+    <div class="entry stop" (click)="onStop()">
+      <img src="assets/icons/stop.svg">
+      <p>STOP PLAYBACK</p>
+    </div>
+    <div class="entry join" (click)="onJoin()">
+      <img src="assets/icons/join.svg" [style.transform]="inChannel ? 'rotate(180deg)' : 'rotate(0deg)'">
+      <p>{{ inChannel ? 'LEAVE' : 'JOIN' }} CHANNEL</p>
+    </div>
+    <div class="entry volume">
+      <img src="assets/icons/volume.svg">
+      <div class="slider">
+        <app-slider [(ngModel)]="volume" (update)="onVolume()"></app-slider>
+      </div>
+    </div>
+
+  </div>
+
+</div>

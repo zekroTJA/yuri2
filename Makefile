@@ -89,6 +89,10 @@ PHONY += release
 release:
 	bash $(CURDIR)/scripts/bundle-release.sh
 
+PHONY += runfe
+runfe:
+	cd web &&\
+		ng serve --port=8081
 
 PHONY += help
 help:
