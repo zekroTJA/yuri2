@@ -16,12 +16,8 @@ export class WSService extends EventEmitter {
   private ws: WebSocket;
 
   private getRootURLFromWindow(): string {
-    return (
-      window.location.href.replace(
-        /((http)|(https)):\/\//gm,
-        window.location.href.startsWith('http://') ? 'ws:/' : 'wss://'
-      ) + 'ws'
-    );
+    const loc = window.location;
+    return `${loc.href.startsWith('http://') ? 'ws' : 'wss'}://${loc.host}/ws`;
   }
 
   constructor(private toasts: ToastService) {

@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -11,6 +12,8 @@ import (
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
 )
+
+var staticFileRx = regexp.MustCompile(`.*\.(js|css|ico|png|jpeg|jpg|gif|svg)`)
 
 type getTokenResponse struct {
 	Token  string    `json:"token"`
@@ -587,28 +590,54 @@ func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, u
 func (api *API) fileHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
-	if path == "/" || path == "/index.hmtl" {
-		ok, userID, err := api.checkAuthCookie(r)
-		if err != nil {
-			logger.Error("API :: checkAuthCookie: %s", err.Error())
-			errPageResponse(w, r, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		if !ok || userID == "" {
-			w.Header().Set("Location", "/login")
-			w.WriteHeader(http.StatusTemporaryRedirect)
-			return
-		}
-
-		guilds := discordbot.GetUsersGuilds(api.session, userID)
-		if guilds == nil {
-			errPageResponse(w, r, http.StatusForbidden, "")
-			return
-		}
+	if staticFileRx.MatchString(path) {
+		http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
+		return
 	}
 
-	http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
+	ok, userID, err := api.checkAuthCookie(r)
+	if err != nil {
+		logger.Error("API :: checkAuthCookie: %s", err.Error())
+		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !ok || userID == "" {
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	if guilds == nil {
+		errPageResponse(w, r, http.StatusForbidden, "")
+		return
+	}
+
+	http.ServeFile(w, r, "./web/dist/web/index.html")
+
+	// if path == "/" || path == "/index.hmtl" {
+	// 	ok, userID, err := api.checkAuthCookie(r)
+	// 	if err != nil {
+	// 		logger.Error("API :: checkAuthCookie: %s", err.Error())
+	// 		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
+	// 		return
+	// 	}
+
+	// 	if !ok || userID == "" {
+	// 		w.Header().Set("Location", "/login")
+	// 		w.WriteHeader(http.StatusTemporaryRedirect)
+	// 		return
+	// 	}
+
+	// 	guilds := discordbot.GetUsersGuilds(api.session, userID)
+	// 	if guilds == nil {
+	// 		errPageResponse(w, r, http.StatusForbidden, "")
+	// 		return
+	// 	}
+	// }
+
+	// http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
 }
 
 func (api *API) logoutHandler(w http.ResponseWriter, r *http.Request) {
