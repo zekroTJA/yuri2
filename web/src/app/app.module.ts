@@ -16,6 +16,7 @@ import { SearchBarComponent } from './components/searchbar/searchbar.component';
 import { ContextMenuComponent } from './components/contextmenu/contextmenu.component';
 import { LogsRouteComponent } from './routes/logs/logs.route';
 import { StatsRouteComponent } from './routes/stats/stats.route';
+import { AdminRouteComponent } from './routes/admin/admin.route';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { StatsRouteComponent } from './routes/stats/stats.route';
     MainRouteComponent,
     LogsRouteComponent,
     StatsRouteComponent,
+    AdminRouteComponent,
 
     SideBarComponent,
     SliderComponent,
