@@ -14,6 +14,7 @@ import { ToastService } from 'src/app/components/toast/toast.service';
 export class WSService extends EventEmitter {
   private rootURL: string;
   private ws: WebSocket;
+  private _isInitialized: boolean;
 
   private getRootURLFromWindow(): string {
     const loc = window.location;
@@ -48,8 +49,11 @@ export class WSService extends EventEmitter {
 
     this.ws.onclose = (ev: Event): any => {
       this.emit('close', ev);
+      this._isInitialized = false;
       this.ws = new WebSocket(this.rootURL);
     };
+
+    this.on(WSEvent.HELLO, () => (this._isInitialized = true));
   }
 
   private onMessage(ev: MessageEvent) {
@@ -79,5 +83,9 @@ export class WSService extends EventEmitter {
       payload['data'] = data;
     }
     this.sendMessageRaw(JSON.stringify(payload));
+  }
+
+  public get isInitialized() {
+    return this._isInitialized;
   }
 }

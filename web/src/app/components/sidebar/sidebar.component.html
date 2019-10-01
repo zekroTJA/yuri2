@@ -7,6 +7,8 @@
       <p>YURI INTERFACE</p>
     </div>
 
+    <div class="spacer"></div>
+
     <a class="entry logoff" href="/logout">
       <img src="assets/icons/logoff.svg">
       <p>LOG OUT</p>
@@ -33,6 +35,18 @@
         <app-slider [(ngModel)]="volume" (update)="onVolume()"></app-slider>
       </div>
     </div>
+
+    <div class="spacer"></div>
+
+    <a class="entry etc" routerLink="/logs">
+      <img src="assets/icons/logs.svg">
+      <p>PLAYBACK LOG</p>
+    </a>
+
+    <a class="entry etc" routerLink="/stats">
+      <img src="assets/icons/stats.svg">
+      <p>PLAYBACK STATS</p>
+    </a>
 
   </div>
 

@@ -1,0 +1,66 @@
+@import '../../../sass/vars'
+
+@keyframes rotate360
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)
+
+
+table
+  margin-top: 20px
+  max-width: 500px
+
+  th, td
+    padding: 5px 60px 5px 5px
+    text-align: left
+
+
+.heading
+  display: flex
+
+  h1
+    margin: 0
+
+  .btn-refresh
+    margin-left: auto
+
+
+.smallfont
+  font-size: 10px
+  color: darkgray
+
+
+.btn-refresh
+  background-color: $c-purple
+  margin-right: 10px
+
+  &:focus
+    img
+      animation: rotate360 .5s ease-in-out
+
+
+.tile
+  margin: 20px 0px
+  padding: 20px
+  background-color: #ffffff10
+
+  h3
+    margin-top: 0px
+
+  button
+    margin-right: 20px
+
+
+.btn-refetch
+  background-color: $c-orange
+
+  &:hover
+    background-color: lighten($c-orange, 10)
+
+
+.btn-restart
+  background-color: $c-red
+
+  &:hover
+    background-color: lighten($c-red, 10)

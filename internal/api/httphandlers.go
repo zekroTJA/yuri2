@@ -615,29 +615,6 @@ func (api *API) fileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, "./web/dist/web/index.html")
-
-	// if path == "/" || path == "/index.hmtl" {
-	// 	ok, userID, err := api.checkAuthCookie(r)
-	// 	if err != nil {
-	// 		logger.Error("API :: checkAuthCookie: %s", err.Error())
-	// 		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
-	// 		return
-	// 	}
-
-	// 	if !ok || userID == "" {
-	// 		w.Header().Set("Location", "/login")
-	// 		w.WriteHeader(http.StatusTemporaryRedirect)
-	// 		return
-	// 	}
-
-	// 	guilds := discordbot.GetUsersGuilds(api.session, userID)
-	// 	if guilds == nil {
-	// 		errPageResponse(w, r, http.StatusForbidden, "")
-	// 		return
-	// 	}
-	// }
-
-	// http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
 }
 
 func (api *API) logoutHandler(w http.ResponseWriter, r *http.Request) {
