@@ -3,7 +3,12 @@
 import { Component } from '@angular/core';
 import { WSService } from 'src/app/api/ws/ws.service';
 import { WSEvent, WSCommand } from 'src/app/api/ws/ws.static';
-import { HelloEvent, JoinedEvent, LeftEvent } from 'src/app/api/ws/ws.models';
+import {
+  HelloEvent,
+  JoinedEvent,
+  LeftEvent,
+  VolumeChangedEvent,
+} from 'src/app/api/ws/ws.models';
 import { toNumber } from 'src/util/util.converters';
 import { SoundListService } from 'src/app/services/soundlist.service';
 
@@ -31,6 +36,10 @@ export class SideBarComponent {
 
     ws.on(WSEvent.LEFT, (ev: LeftEvent) => {
       this.inChannel = false;
+    });
+
+    ws.on(WSEvent.VOLUME_CHANGED, (ev: VolumeChangedEvent) => {
+      this.volume = ev.vol;
     });
   }
 

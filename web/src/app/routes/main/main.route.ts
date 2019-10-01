@@ -1,12 +1,12 @@
 /** @format */
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { WSService } from '../api/ws/ws.service';
-import { SoundListService, SoundBtn } from '../services/soundlist.service';
-import { WSCommand, SourceType, WSEvent } from '../api/ws/ws.static';
-import { PlayingEvent, EndEvent } from '../api/ws/ws.models';
-import { ContextMenuItem } from '../components/contextmenu/contextmenu.component';
-import { RestService } from '../api/rest/rest.service';
+import { WSService } from '../../api/ws/ws.service';
+import { SoundListService, SoundBtn } from '../../services/soundlist.service';
+import { WSCommand, SourceType, WSEvent } from '../../api/ws/ws.static';
+import { PlayingEvent, EndEvent } from '../../api/ws/ws.models';
+import { ContextMenuItem } from '../../components/contextmenu/contextmenu.component';
+import { RestService } from '../../api/rest/rest.service';
 
 @Component({
   selector: 'app-main-route',

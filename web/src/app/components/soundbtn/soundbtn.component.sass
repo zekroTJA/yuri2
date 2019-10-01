@@ -7,7 +7,7 @@
   background-color: $c-soundbtn
   color: $c-background
   padding: 10px 15px
-  height: 45px
+  max-height: 45px !important
   font-weight: 500
   cursor: pointer
   border-bottom: solid 0px $c-yellow
@@ -19,8 +19,8 @@
     background-color: adjust-hue($c-soundbtn, -10)
 
 .playing
-  background-color: $c-soundbrm-palying
+  background-color: $c-soundbrm-palying !important
 
 .favorite
   box-sizing: border-box
-  border-bottom: solid 5px adjust-hue($c-soundbtn, 20)
+  box-shadow: inset 0px -5px 0px 0px $c-yellow

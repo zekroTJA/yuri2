@@ -1,5 +1,3 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap')
 @import url('https://fonts.googleapis.com/css?family=Montserrat:300,500&display=swap')
 
@@ -14,3 +12,30 @@ h1, h2, h3, h4, h5, h6
 html, body
   background-color: $c-background
   user-select: none
+
+button
+  padding: 10px 15px
+  font-family: 'Roboto', sans-serif
+  font-weight: 500
+  background-color: $c-blue
+  border-style: none
+  transition: all .25s ease
+  cursor: pointer
+
+  &:hover
+    background-color: adjust-hue($c-blue, -10)
+
+.nomargin
+  margin: 0
+
+.nopadding
+  padding: 0
+
+.tag
+  padding: 5px 10px
+  background-color: $c-blue
+  width: fit-content
+  height: fit-content
+  color: $c-background
+  font-weight: 600
+  font-size: .8em

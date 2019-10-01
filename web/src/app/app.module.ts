@@ -9,17 +9,22 @@ import { SideBarComponent } from './components/sidebar/sidebar.component';
 import { SliderComponent } from './components/slider/slider.component';
 import { FormsModule } from '@angular/forms';
 import { ToastComponent } from './components/toast/toast.component';
-import { MainRouteComponent } from './routes/main.route';
+import { MainRouteComponent } from './routes/main/main.route';
 import { SoundBtnComponent } from './components/soundbtn/soundbtn.component';
 import { HttpClientModule } from '@angular/common/http';
 import { SearchBarComponent } from './components/searchbar/searchbar.component';
 import { ContextMenuComponent } from './components/contextmenu/contextmenu.component';
+import { LogsRouteComponent } from './routes/logs/logs.route';
+import { StatsRouteComponent } from './routes/stats/stats.route';
 
 @NgModule({
   declarations: [
-    MainRouteComponent,
-
     AppComponent,
+
+    MainRouteComponent,
+    LogsRouteComponent,
+    StatsRouteComponent,
+
     SideBarComponent,
     SliderComponent,
     ToastComponent,

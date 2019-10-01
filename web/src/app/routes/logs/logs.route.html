@@ -1,0 +1,27 @@
+<div class="heading">
+  <h1>PLAYBACK LOG</h1>
+  <button class="btn-refresh" (click)="fetchLogs()">
+    <img src="assets/icons/refresh.svg" />
+  </button>
+  <button routerLink="/sounds">◀&nbsp;&nbsp;BACK</button>
+</div>
+
+<table>
+  <tbody>
+    <tr>
+      <th>Time</th>
+      <th>User</th>
+      <th>Sound</th>
+      <th>Source</th>
+    </tr>
+    <tr *ngFor="let e of log">
+      <td>{{ dateFormat(e.time, 'dd.mm - HH:MM:ss') }}</td>
+      <td>
+        <p class="nomargin">{{ e.user_tag }}</p>
+        <p class="smallfont nomargin">{{ e.user_id }}</p>
+      </td>
+      <td>{{ e.sound }}</td>
+      <td><div class="tag" [ngClass]="getSourceClassName(e.source)">{{ e.source[0].toUpperCase() }}</div></td>
+    </tr>
+  </tbody>
+</table>
