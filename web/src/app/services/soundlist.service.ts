@@ -16,7 +16,7 @@ export interface SoundBtn {
   providedIn: 'root',
 })
 export class SoundListService {
-  public sounds: SoundBtn[] = [];
+  public sounds: SoundBtn[];
   public sortBy: string;
 
   constructor(private rest: RestService, private route: ActivatedRoute) {
@@ -39,6 +39,7 @@ export class SoundListService {
   }
 
   public refreshSoundList(): Promise<any> {
+    this.sounds = null;
     return this.getSoundList().then(() =>
       this.getFavorites().then(() => this.sortByFavsFirst())
     );

@@ -14,66 +14,75 @@
   </div>
 </div>
 
-<div class="tile">
-  <h3>INSTANCE</h3>
-  <table>
-    <tbody>
-      <tr>
-        <th>Guilds</th>
-        <td>{{ stats ? stats.guilds.length : '' }}</td>
-      </tr>
-      <tr>
-        <th>Connected Voice Channels</th>
-        <td>{{ stats ? stats.voice_connections.length : '' }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div *ngIf="!stats; else datatiles">
+  <div class="skeleton widetile" style="margin-bottom: 20px"></div>
+  <div class="skeleton widetile" style="animation-delay: .1s; margin-bottom: 20px"></div>
+  <div class="skeleton widetile" style="animation-delay: .2s; margin-bottom: 20px"></div>
 </div>
 
-<div class="tile">
-  <h3>VITALS</h3>
-  <table>
-    <tbody>
-      <tr>
-        <th>Uptime</th>
-        <td>{{ toDDHHMMSS(uptime) || '' }}</td>
-      </tr>
-      <tr>
-        <th>Heap in Use</th>
-        <td>{{ stats ? byteCountFormatter(stats.system.heap_use_b) : '' }}</td>
-      </tr>
-      <tr>
-        <th>Stack in Use</th>
-        <td>{{ stats ? byteCountFormatter(stats.system.stack_use_b) : '' }}</td>
-      </tr>
-      <tr>
-        <th>Running Go Routines</th>
-        <td>{{ stats ? stats.system.go_routines : '' }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<ng-template #datatiles>
+  <div class="tile">
+    <h3>INSTANCE</h3>
+    <table>
+      <tbody>
+        <tr>
+          <th>Guilds</th>
+          <td>{{ stats ? stats.guilds.length : '' }}</td>
+        </tr>
+        <tr>
+          <th>Connected Voice Channels</th>
+          <td>{{ stats ? stats.voice_connections.length : '' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<div class="tile">
-  <h3>HOST AND BUILD</h3>
-  <table>
-    <tbody>
-      <tr>
-        <th>Architecture</th>
-        <td>{{ stats ? stats.system.arch : '' }}</td>
-      </tr>
-      <tr>
-        <th>Platform</th>
-        <td>{{ stats ? stats.system.os : '' }}</td>
-      </tr>
-      <tr>
-        <th>Go Compiler Version</th>
-        <td>{{ stats ? stats.system.go_version : '' }}</td>
-      </tr>
-      <tr>
-        <th>CPU Cores in Use</th>
-        <td>{{ stats ? stats.system.cpu_used_cores : '' }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <div class="tile">
+    <h3>VITALS</h3>
+    <table>
+      <tbody>
+        <tr>
+          <th>Uptime</th>
+          <td>{{ toDDHHMMSS(uptime) || '' }}</td>
+        </tr>
+        <tr>
+          <th>Heap in Use</th>
+          <td>{{ stats ? byteCountFormatter(stats.system.heap_use_b) : '' }}</td>
+        </tr>
+        <tr>
+          <th>Stack in Use</th>
+          <td>{{ stats ? byteCountFormatter(stats.system.stack_use_b) : '' }}</td>
+        </tr>
+        <tr>
+          <th>Running Go Routines</th>
+          <td>{{ stats ? stats.system.go_routines : '' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tile">
+    <h3>HOST AND BUILD</h3>
+    <table>
+      <tbody>
+        <tr>
+          <th>Architecture</th>
+          <td>{{ stats ? stats.system.arch : '' }}</td>
+        </tr>
+        <tr>
+          <th>Platform</th>
+          <td>{{ stats ? stats.system.os : '' }}</td>
+        </tr>
+        <tr>
+          <th>Go Compiler Version</th>
+          <td>{{ stats ? stats.system.go_version : '' }}</td>
+        </tr>
+        <tr>
+          <th>CPU Cores in Use</th>
+          <td>{{ stats ? stats.system.cpu_used_cores : '' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+

@@ -6,22 +6,33 @@
   <button routerLink="/sounds">◀&nbsp;&nbsp;BACK</button>
 </div>
 
-<table>
-  <tbody>
-    <tr>
-      <th>Time</th>
-      <th>User</th>
-      <th>Sound</th>
-      <th>Source</th>
-    </tr>
-    <tr *ngFor="let e of log">
-      <td>{{ dateFormat(e.time, 'dd.mm - HH:MM:ss') }}</td>
-      <td>
-        <p class="nomargin">{{ e.user_tag }}</p>
-        <p class="smallfont nomargin">{{ e.user_id }}</p>
-      </td>
-      <td>{{ e.sound }}</td>
-      <td><div class="tag" [ngClass]="getSourceClassName(e.source)">{{ e.source[0].toUpperCase() }}</div></td>
-    </tr>
-  </tbody>
-</table>
+<div *ngIf="!log; else datatable">
+  <div
+    *ngFor="let _ of range(10); index as i"
+    class="skeleton list"
+    [style.animation-delay]='i * 0.1 + "s"'
+    style="margin-top: 20px"
+  ></div>
+</div>
+
+<ng-template #datatable>
+  <table>
+    <tbody>
+      <tr>
+        <th>Time</th>
+        <th>User</th>
+        <th>Sound</th>
+        <th>Source</th>
+      </tr>
+      <tr *ngFor="let e of log">
+        <td>{{ dateFormat(e.time, 'dd.mm - HH:MM:ss') }}</td>
+        <td>
+          <p class="nomargin">{{ e.user_tag }}</p>
+          <p class="smallfont nomargin">{{ e.user_id }}</p>
+        </td>
+        <td>{{ e.sound }}</td>
+        <td><div class="tag" [ngClass]="getSourceClassName(e.source)">{{ e.source[0].toUpperCase() }}</div></td>
+      </tr>
+    </tbody>
+  </table>
+</ng-template>
