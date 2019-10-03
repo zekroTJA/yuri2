@@ -14,10 +14,34 @@
   </div>
 </div>
 
+<div *ngIf="!soundStats; else soundstats" class="skeleton widetile" style="animation-delay: .1s; margin-bottom: 20px"></div>
+
+<ng-template #soundstats>
+  <div class="tile">
+    <h3>INSTANCE</h3>
+    <table>
+      <tbody>
+        <tr>
+          <th>Local Sound Files</th>
+          <td>{{ soundStats.sounds_len }}</td>
+        </tr>
+        <tr>
+          <th>Sound Files Size</th>
+          <td>{{ byteCountFormatter(soundStats.size_b) }}</td>
+        </tr>
+        <tr>
+          <th>Local Entries</th>
+          <td>{{ soundStats.log_len }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+
 <div *ngIf="!stats; else datatiles">
   <div class="skeleton widetile" style="margin-bottom: 20px"></div>
-  <div class="skeleton widetile" style="animation-delay: .1s; margin-bottom: 20px"></div>
   <div class="skeleton widetile" style="animation-delay: .2s; margin-bottom: 20px"></div>
+  <div class="skeleton widetile" style="animation-delay: .3s; margin-bottom: 20px"></div>
 </div>
 
 <ng-template #datatiles>
