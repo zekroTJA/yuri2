@@ -1,0 +1,10 @@
+<div class="ytimport" *ngIf="rendered" [class.visible]="visible">
+  <img [src]="videoInfo.thumbnail_url">
+  <div>
+    <h2>Do you want to play this Video's Audio?</h2>
+    <p class="title">"{{ videoInfo.title }}"</p>
+    <p class="channel">Channel: {{ videoInfo.author_name }}</p>
+    <button (click)="onPlay()">PLAY</button>
+    <button class="cancel" (click)="onCancel()">CANCEL</button>
+  </div>
+</div>

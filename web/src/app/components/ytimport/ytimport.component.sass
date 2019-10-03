@@ -1,0 +1,48 @@
+@import '../../../sass/vars'
+
+$height: 200px
+
+
+*
+  transition: all .5s cubic-bezier(0.46,-0.01, 0.04, 0.99)
+
+
+button
+  font-size: 16px
+  // padding: 15px 30px
+  margin-right: 20px
+
+
+.visible
+  top: 0px !important
+
+
+.cancel
+  background-color: $c-purple
+
+  &:hover
+    background-color: lighten($c-purple, 10)
+
+
+.ytimport
+  display: flex
+  position: absolute
+  top: - $height
+  left: 50px
+  right: 0px
+  height: $height
+  background: $c-gray
+  color: $c-ice
+
+  img
+    height: $height
+    width: $height / 9 * 16
+    margin-right: 20px
+
+  .channel
+    font-size: .8em
+    color: #c4c4c4
+    margin-bottom: 30px
+
+  .title
+    margin-bottom: 3px

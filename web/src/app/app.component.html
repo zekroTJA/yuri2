@@ -1,4 +1,7 @@
 <app-sidebar></app-sidebar>
+
+<app-ytimport></app-ytimport>
+
 <div id="toasts-container">
     <app-toast
         *ngFor="let t of toasts.toasts"
@@ -11,6 +14,7 @@
         {{ t.text }}
     </app-toast>
 </div>
+
 <div class="router-outlet">
   <router-outlet></router-outlet>
 </div>

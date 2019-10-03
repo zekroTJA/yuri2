@@ -3,7 +3,12 @@
 import { Injectable } from '@angular/core';
 import { WSService } from '../api/ws/ws.service';
 import { WSCommand, WSEvent } from '../api/ws/ws.static';
-import { HelloEvent, JoinedEvent } from '../api/ws/ws.models';
+import {
+  HelloEvent,
+  JoinedEvent,
+  PlayingEvent,
+  EndEvent,
+} from '../api/ws/ws.models';
 
 @Injectable({
   providedIn: 'root',
@@ -17,10 +22,19 @@ export class SharedDataService {
       (ev: HelloEvent) =>
         (this.currentGuildID = ev.voice_state ? ev.voice_state.guild_id : null)
     );
+
     ws.on(
       WSEvent.JOINED,
       (ev: JoinedEvent) => (this.currentGuildID = ev.guild_id)
     );
+
+    ws.on(WSEvent.PLAYING, (ev: PlayingEvent) => {
+      this.currentGuildID = ev.guild_id;
+    });
+
+    ws.on(WSEvent.END, (ev: EndEvent) => {
+      this.currentGuildID = ev.guild_id;
+    });
   }
 
   public set currentGuildID(val: string) {

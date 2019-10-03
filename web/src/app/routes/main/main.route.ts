@@ -59,7 +59,7 @@ export class MainRouteComponent implements OnInit, OnDestroy {
   }
 
   private onKeyDown(event: any) {
-    if (event.keyCode == 114 || (event.ctrlKey && event.keyCode == 70)) {
+    if (event.ctrlKey && event.keyCode == 70) {
       this.search = true;
       event.preventDefault();
     } else if (event.keyCode == 27) {

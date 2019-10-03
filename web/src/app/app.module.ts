@@ -17,6 +17,7 @@ import { ContextMenuComponent } from './components/contextmenu/contextmenu.compo
 import { LogsRouteComponent } from './routes/logs/logs.route';
 import { StatsRouteComponent } from './routes/stats/stats.route';
 import { AdminRouteComponent } from './routes/admin/admin.route';
+import { YTInputComponent } from './components/ytimport/ytimport.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { AdminRouteComponent } from './routes/admin/admin.route';
     SoundBtnComponent,
     SearchBarComponent,
     ContextMenuComponent,
+    YTInputComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule],
   providers: [],

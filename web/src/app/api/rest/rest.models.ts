@@ -61,3 +61,10 @@ export interface SoundStats {
   log_len: number;
   size_b: number;
 }
+
+export interface YouTubeEmbed {
+  author_name: string;
+  title: string;
+  thumbnail_url: string;
+  error: string;
+}
