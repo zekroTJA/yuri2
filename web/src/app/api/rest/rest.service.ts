@@ -14,6 +14,7 @@ import {
   SystemStats,
   SoundStats,
   YouTubeEmbed,
+  BuildInfo,
 } from './rest.models';
 import { ToastService } from 'src/app/components/toast/toast.service';
 
@@ -177,6 +178,12 @@ export class RestService {
   public postRefetch(): Observable<any> {
     return this.http
       .post(this.rcAdmin('refetch'), {}, this.defopts())
+      .pipe(catchError(this.errorCatcher));
+  }
+
+  public getInfo(): Observable<BuildInfo> {
+    return this.http
+      .get<BuildInfo>(this.rcRoot('info'), this.defopts())
       .pipe(catchError(this.errorCatcher));
   }
 

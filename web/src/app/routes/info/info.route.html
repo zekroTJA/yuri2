@@ -1,0 +1,50 @@
+<div class="heading">
+    <h1>ABOUT YURI</h1>
+    <button routerLink="/sounds">◀&nbsp;&nbsp;BACK</button>
+  </div>
+
+<div *ngIf="!info; else infotile" class="skeleton list">
+
+</div>
+
+<ng-template #infotile>
+  <div class="infotile">
+    <p>Yuri2 v.{{ info.build_version }} {{ info.go_os }} {{ info.go_arch }} @ Commit {{ info.commit_hash }}</p>
+    <p>Built with Go compiler version {{ info.go_version }}</p>
+  </div>
+</ng-template>
+
+<h2>LINKS</h2>
+
+<a href="https://zekro.de/imprint.html" target="_blank">IMPRINT</a>
+
+<h3>Repositories</h3>
+<ul>
+  <li>
+    <a href="https://github.com/zekroTJA/yuri2" target="_blank">GitHub Repository</a>
+  </li>
+  <li>
+    <a href="https://hub.docker.com/r/zekro/yuri2" target="_blank">Docker Hub</a>
+  </li>
+</ul>
+
+<h3>Docs</h3>
+<ul>
+  <li>
+    <a href="https://github.com/zekroTJA/yuri2/blob/master/docs/cookie-usage.md" target="_blank">Cookie Usage</a>
+  </li>
+  <li>
+    <a href="https://github.com/zekroTJA/yuri2/blob/master/docs/rest-api-docs.md" target="_blank">REST API</a>
+  </li>
+  <li>
+    <a href="https://github.com/zekroTJA/yuri2/blob/master/docs/ws-api-docs.md" target="_blank">Web Socket API</a>
+  </li>
+</ul>
+
+<hr />
+
+<p>
+  © 2018 - 2019 zekro Development (Ringo Hoffmann)
+  <br/>
+  Covered by <a href="https://github.com/zekroTJA/yuri2/blob/master/LICENSE" target="_blank">Apache License 2.0 Licence</a>.
+</p>

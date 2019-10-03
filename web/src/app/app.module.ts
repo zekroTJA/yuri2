@@ -18,6 +18,7 @@ import { LogsRouteComponent } from './routes/logs/logs.route';
 import { StatsRouteComponent } from './routes/stats/stats.route';
 import { AdminRouteComponent } from './routes/admin/admin.route';
 import { YTInputComponent } from './components/ytimport/ytimport.component';
+import { InfoRouteComponent } from './routes/info/info.route';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { YTInputComponent } from './components/ytimport/ytimport.component';
     LogsRouteComponent,
     StatsRouteComponent,
     AdminRouteComponent,
+    InfoRouteComponent,
 
     SideBarComponent,
     SliderComponent,

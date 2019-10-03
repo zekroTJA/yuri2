@@ -133,7 +133,7 @@ func (api *API) httpHandlerWrapper(handler HTTPHandler) HTTPHandler {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
-		if (r.Method == http.MethodOptions) {
+		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -154,7 +154,7 @@ func (api *API) registerHTTPHandlers() {
 	api.registerHTTPHandler("/ws", api.wsUpgradeHandler)
 
 	// GET /login
-	api.registerHTTPHandler("/login", api.discordAuthFE.HandlerInit)
+	api.registerHTTPHandler("/oauth/login", api.discordAuthFE.HandlerInit)
 
 	// GET /login/authorize
 	api.registerHTTPHandler("/login/authorize", api.discordAuthFE.HandlerCallback)
@@ -202,6 +202,9 @@ func (api *API) registerHTTPHandlers() {
 
 	// POST /api/admin/refetch
 	api.registerHTTPHandler("/api/admin/refetch", api.restPostAdminRefetch)
+
+	// POST /api/admin/refetch
+	api.registerHTTPHandler("/api/info", api.restGetInfo)
 
 	// Static File Server
 	api.registerHTTPHandler("/", api.fileHandler)
