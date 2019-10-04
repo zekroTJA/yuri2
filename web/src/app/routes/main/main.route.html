@@ -1,0 +1,37 @@
+<app-contextmenu
+  [items]="contextMenuItems"
+  [visible]="contextMenu.visible"
+  [x]="contextMenu.x"
+  [y]="contextMenu.y"
+></app-contextmenu>
+
+<div *ngIf="search" class="search">
+  <app-searchbar
+    (close)="onSearchClose()"
+    (search)="onSearchInput($event)"
+  ></app-searchbar>
+</div>
+
+<div class="sounds-outlet" *ngIf="!displayedSounds && !sounds.sounds; else soundsoutlet">
+  <div
+    class="skeleton button sound-btn"
+    *ngFor="let r of randSkeletonWidths; index as i"
+    [style.animation-delay]='i * 0.05 + "s"'
+    [style.width]='r + "px"'
+  ></div>
+</div>
+
+<ng-template #soundsoutlet>
+  <div class="sounds-outlet">
+    <app-soundbtn
+      *ngFor="let sound of (displayedSounds || sounds.sounds)"
+      [name]="sound.name"
+      [playing]="sound.playing"
+      [favorite]="sound.favorite"
+      class="sound-btn"
+      (click)="playSound(sound)"
+      (contextmenu)="onSoundContextMenu($event, sound)"
+    ></app-soundbtn>
+  </div>
+</ng-template>
+

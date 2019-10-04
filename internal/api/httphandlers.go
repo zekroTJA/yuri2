@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -11,6 +12,8 @@ import (
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
 )
+
+var staticFileRx = regexp.MustCompile(`.*\.(js|css|ico|png|jpeg|jpg|gif|svg)`)
 
 type getTokenResponse struct {
 	Token  string    `json:"token"`
@@ -59,6 +62,14 @@ type soundStatsResponse struct {
 type fastTriggerObject struct {
 	Ident  string `json:"ident"`
 	Random bool   `json:"random"`
+}
+
+type buildInfo struct {
+	BuildVersion string `json:"build_version"`
+	GoVersion    string `json:"go_version"`
+	CommitHash   string `json:"commit_hash"`
+	GOOS         string `json:"go_os"`
+	GOARCH       string `json:"go_arch"`
 }
 
 // -----------------------------------------------
@@ -560,6 +571,32 @@ func (api *API) restPostAdminRefetch(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, nil)
 }
 
+// GET /api/info
+func (api *API) restGetInfo(w http.ResponseWriter, r *http.Request) {
+	ok, userID, err := api.checkAuthCookie(r)
+	if err != nil {
+		logger.Error("API :: checkAuthCookie: %s", err.Error())
+		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !ok || userID == "" {
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	info := &buildInfo{
+		BuildVersion: static.AppVersion,
+		CommitHash:   static.AppCommit,
+		GoVersion:    runtime.Version(),
+		GOOS:         runtime.GOOS,
+		GOARCH:       runtime.GOARCH,
+	}
+
+	jsonResponse(w, http.StatusOK, info)
+}
+
 // -----------------------------------------------
 // --- FE HANDLERS
 
@@ -577,14 +614,26 @@ func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, u
 	}
 
 	w.Header().Add("Set-Cookie",
-		fmt.Sprintf("token=%s; Max-Age=2147483647; Path=/", token))
+		fmt.Sprintf("token=%s; Max-Age=2147483647; Path=/;", token))
 	w.Header().Add("Set-Cookie",
-		fmt.Sprintf("userid=%s; Max-Age=2147483647; Path=/", userID))
+		fmt.Sprintf("userid=%s; Max-Age=2147483647; Path=/;", userID))
 	w.Header().Set("Location", "/")
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
+func (api *API) fileHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+
+	if path == "/login" {
+		http.ServeFile(w, r, "./web/dist/web/assets/_login/login.html")
+		return
+	}
+
+	if staticFileRx.MatchString(path) {
+		http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)
+		return
+	}
+
 	ok, userID, err := api.checkAuthCookie(r)
 	if err != nil {
 		logger.Error("API :: checkAuthCookie: %s", err.Error())
@@ -604,13 +653,14 @@ func (api *API) indexPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "./web/pages/index.html")
+	http.ServeFile(w, r, "./web/dist/web/index.html")
 }
 
 func (api *API) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Set-Cookie", "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
 	w.Header().Add("Set-Cookie", "userid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;")
-	http.ServeFile(w, r, "./web/pages/logout.html")
+	w.Header().Add("Location", "/login")
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 func (api *API) wsUpgradeHandler(w http.ResponseWriter, r *http.Request) {
