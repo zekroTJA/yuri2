@@ -2,7 +2,7 @@
 
 import { Component } from '@angular/core';
 import { RestService } from 'src/app/api/rest/rest.service';
-import { SystemStats } from 'src/app/api/rest/rest.models';
+import { SystemStats, SoundStats } from 'src/app/api/rest/rest.models';
 import { ToastService } from 'src/app/components/toast/toast.service';
 import dateFormat from 'dateformat';
 import { toDDHHMMSS } from 'src/util/util.time';
@@ -16,6 +16,9 @@ import { byteCountFormatter } from 'src/util/util.format';
 export class AdminRouteComponent {
   public stats: SystemStats;
   public uptime: number;
+
+  public soundStats: SoundStats;
+
   public dateFormat = dateFormat;
 
   public toDDHHMMSS = toDDHHMMSS;
@@ -23,13 +26,23 @@ export class AdminRouteComponent {
 
   constructor(private rest: RestService, private toasts: ToastService) {
     this.fetchData().then(() => setInterval(() => this.uptime++, 1000));
+    this.fetchSoundStats();
   }
 
   public fetchData(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.rest.getSystemStats().subscribe((stats: SystemStats) => {
         this.stats = stats;
         this.uptime = stats.system.uptime_seconds;
+        resolve();
+      });
+    });
+  }
+
+  public fetchSoundStats(): Promise<any> {
+    return new Promise((resolve) => {
+      this.rest.getSoundStats().subscribe((stats: SoundStats) => {
+        this.soundStats = stats;
         resolve();
       });
     });
