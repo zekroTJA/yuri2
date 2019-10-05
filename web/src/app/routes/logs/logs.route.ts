@@ -6,7 +6,7 @@ import { LogEntry } from 'src/app/api/rest/rest.models';
 import { SharedDataService } from 'src/app/services/shareddata.service';
 import { ToastService } from 'src/app/components/toast/toast.service';
 import { WSService } from 'src/app/api/ws/ws.service';
-import dateFormat from 'dateformat';
+import dateFormat from 'date-format';
 
 @Component({
   selector: 'app-logs-route',

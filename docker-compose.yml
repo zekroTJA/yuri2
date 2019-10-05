@@ -21,5 +21,6 @@ services:
       - './data/yuri/config:/etc/yuri/config'
       - './data/yuri/db:/etc/yuri/db'
       - './data/sounds:/etc/sounds'
-    env_file: 'docker.env'
+    environment:
+      - 'LAVALINK_ADDR=lavalink:2333'
     restart: always
