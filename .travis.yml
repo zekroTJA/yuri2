@@ -1,0 +1,12 @@
+language: go
+
+go:
+  - tip
+
+go_import_path: github.com/zekroTJA/yuri2
+
+services:
+  - docker
+
+script:
+  - bash ./ci/docker-release.bash

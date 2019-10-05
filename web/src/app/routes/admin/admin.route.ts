@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 import { RestService } from 'src/app/api/rest/rest.service';
 import { SystemStats, SoundStats } from 'src/app/api/rest/rest.models';
 import { ToastService } from 'src/app/components/toast/toast.service';
-import dateFormat from 'dateformat';
+import dateFormat from 'date-format';
 import { toDDHHMMSS } from 'src/util/util.time';
 import { byteCountFormatter } from 'src/util/util.format';
 
