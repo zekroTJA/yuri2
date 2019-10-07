@@ -459,7 +459,7 @@ The event data is a JSON object with following properties:
 
 ### LEFT
 
-Is fired when the bot joined a voice channel.
+Is fired when the bot leaves a voice channel.
 
 ```json
 {
