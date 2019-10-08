@@ -64,6 +64,14 @@ type fastTriggerObject struct {
 	Random bool   `json:"random"`
 }
 
+type buildInfo struct {
+	BuildVersion string `json:"build_version"`
+	GoVersion    string `json:"go_version"`
+	CommitHash   string `json:"commit_hash"`
+	GOOS         string `json:"go_os"`
+	GOARCH       string `json:"go_arch"`
+}
+
 // -----------------------------------------------
 // --- REST API HANDLERS
 
@@ -563,6 +571,32 @@ func (api *API) restPostAdminRefetch(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, nil)
 }
 
+// GET /api/info
+func (api *API) restGetInfo(w http.ResponseWriter, r *http.Request) {
+	ok, userID, err := api.checkAuthCookie(r)
+	if err != nil {
+		logger.Error("API :: checkAuthCookie: %s", err.Error())
+		errPageResponse(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !ok || userID == "" {
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusTemporaryRedirect)
+		return
+	}
+
+	info := &buildInfo{
+		BuildVersion: static.AppVersion,
+		CommitHash:   static.AppCommit,
+		GoVersion:    runtime.Version(),
+		GOOS:         runtime.GOOS,
+		GOARCH:       runtime.GOARCH,
+	}
+
+	jsonResponse(w, http.StatusOK, info)
+}
+
 // -----------------------------------------------
 // --- FE HANDLERS
 
@@ -589,6 +623,11 @@ func (api *API) successfullAuthHandler(w http.ResponseWriter, r *http.Request, u
 
 func (api *API) fileHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
+
+	if path == "/login" {
+		http.ServeFile(w, r, "./web/dist/web/assets/_login/login.html")
+		return
+	}
 
 	if staticFileRx.MatchString(path) {
 		http.FileServer(http.Dir("./web/dist/web")).ServeHTTP(w, r)

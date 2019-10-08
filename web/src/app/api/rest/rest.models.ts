@@ -61,3 +61,18 @@ export interface SoundStats {
   log_len: number;
   size_b: number;
 }
+
+export interface YouTubeEmbed {
+  author_name: string;
+  title: string;
+  thumbnail_url: string;
+  error: string;
+}
+
+export interface BuildInfo {
+  build_version: string;
+  go_version: string;
+  commit_hash: string;
+  go_os: string;
+  go_arch: string;
+}

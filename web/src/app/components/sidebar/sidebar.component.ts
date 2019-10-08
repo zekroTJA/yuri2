@@ -8,6 +8,7 @@ import {
   JoinedEvent,
   LeftEvent,
   VolumeChangedEvent,
+  PlayingEvent,
 } from 'src/app/api/ws/ws.models';
 import { toNumber } from 'src/util/util.converters';
 import { SoundListService } from 'src/app/services/soundlist.service';
@@ -39,6 +40,10 @@ export class SideBarComponent {
     });
 
     ws.on(WSEvent.VOLUME_CHANGED, (ev: VolumeChangedEvent) => {
+      this.volume = ev.vol;
+    });
+
+    ws.on(WSEvent.PLAYING, (ev: PlayingEvent) => {
       this.volume = ev.vol;
     });
   }

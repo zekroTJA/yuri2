@@ -7,6 +7,7 @@ import { WSCommand, SourceType, WSEvent } from '../../api/ws/ws.static';
 import { PlayingEvent, EndEvent } from '../../api/ws/ws.models';
 import { ContextMenuItem } from '../../components/contextmenu/contextmenu.component';
 import { RestService } from '../../api/rest/rest.service';
+import { rand } from 'src/util/util.random';
 
 @Component({
   selector: 'app-main-route',
@@ -16,6 +17,10 @@ import { RestService } from '../../api/rest/rest.service';
 export class MainRouteComponent implements OnInit, OnDestroy {
   public search: boolean;
   public displayedSounds: SoundBtn[];
+
+  public randSkeletonWidths: number[] = Array(100)
+    .fill(1)
+    .map((n) => rand(50, 100));
 
   public contextMenu = {
     x: 0,
@@ -54,7 +59,7 @@ export class MainRouteComponent implements OnInit, OnDestroy {
   }
 
   private onKeyDown(event: any) {
-    if (event.keyCode == 114 || (event.ctrlKey && event.keyCode == 70)) {
+    if (event.ctrlKey && event.keyCode == 70) {
       this.search = true;
       event.preventDefault();
     } else if (event.keyCode == 27) {

@@ -6,19 +6,31 @@
   <button routerLink="/sounds">◀&nbsp;&nbsp;BACK</button>
 </div>
 
-<table>
-  <tbody>
-    <tr>
-      <th>#</th>
-      <th>Sound</th>
-      <th>Count</th>
-    </tr>
-    <tr *ngFor="let e of stats; index as i">
-      <td>
-        <p class="tag">{{ i + 1 }}</p>
-      </td>
-      <td>{{ e.sound }}</td>
-      <td>{{ e.count }}</td>
-    </tr>
-  </tbody>
-</table>
+<div *ngIf="!stats; else datatable">
+  <div
+    *ngFor="let _ of range(10); index as i"
+    class="skeleton list"
+    [style.animation-delay]='i * 0.1 + "s"'
+    style="margin-top: 20px"
+  ></div>
+</div>
+
+<ng-template #datatable>
+  <table>
+    <tbody>
+      <tr>
+        <th>#</th>
+        <th>Sound</th>
+        <th>Count</th>
+      </tr>
+      <tr *ngFor="let e of stats; index as i">
+        <td>
+          <p class="tag">{{ i + 1 }}</p>
+        </td>
+        <td>{{ e.sound }}</td>
+        <td>{{ e.count }}</td>
+      </tr>
+    </tbody>
+  </table>
+</ng-template>
+

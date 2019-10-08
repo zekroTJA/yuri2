@@ -6,6 +6,7 @@ import { MainRouteComponent } from './routes/main/main.route';
 import { LogsRouteComponent } from './routes/logs/logs.route';
 import { StatsRouteComponent } from './routes/stats/stats.route';
 import { AdminRouteComponent } from './routes/admin/admin.route';
+import { InfoRouteComponent } from './routes/info/info.route';
 
 const routes: Routes = [
   {
@@ -23,6 +24,10 @@ const routes: Routes = [
   {
     path: 'admin',
     component: AdminRouteComponent,
+  },
+  {
+    path: 'info',
+    component: InfoRouteComponent,
   },
   {
     path: '**',

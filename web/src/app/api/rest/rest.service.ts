@@ -13,6 +13,8 @@ import {
   FastTrigger,
   SystemStats,
   SoundStats,
+  YouTubeEmbed,
+  BuildInfo,
 } from './rest.models';
 import { ToastService } from 'src/app/components/toast/toast.service';
 
@@ -64,6 +66,8 @@ export class RestService {
 
   private readonly rcAdmin = (sub: string = null) =>
     this.rcRoot('admin') + (sub ? `/${sub}` : '');
+
+  private readonly rcNoEmbed = () => 'https://noembed.com/embed';
 
   // ----------------
 
@@ -175,5 +179,17 @@ export class RestService {
     return this.http
       .post(this.rcAdmin('refetch'), {}, this.defopts())
       .pipe(catchError(this.errorCatcher));
+  }
+
+  public getInfo(): Observable<BuildInfo> {
+    return this.http
+      .get<BuildInfo>(this.rcRoot('info'), this.defopts())
+      .pipe(catchError(this.errorCatcher));
+  }
+
+  public getYouTubeEmbed(url: string): Observable<YouTubeEmbed> {
+    return this.http.get<YouTubeEmbed>(this.rcNoEmbed(), {
+      params: new HttpParams().set('url', url),
+    });
   }
 }
