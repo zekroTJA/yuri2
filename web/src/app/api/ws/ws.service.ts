@@ -79,7 +79,7 @@ export class WSService extends EventEmitter {
 
   public sendMessage(name: WSCommand, data: any = null) {
     let payload = { name };
-    if (data) {
+    if (data != undefined && data != null) {
       payload['data'] = data;
     }
     this.sendMessageRaw(JSON.stringify(payload));

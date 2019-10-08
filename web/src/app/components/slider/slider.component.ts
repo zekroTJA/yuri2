@@ -19,6 +19,9 @@ export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
 export class SliderComponent implements ControlValueAccessor {
   private _value: number;
 
+  public ttVisible;
+  public ttTranslation;
+
   @Output() public update: EventEmitter<any> = new EventEmitter();
 
   private onTouchedCallback: () => void = () => {};
@@ -31,7 +34,38 @@ export class SliderComponent implements ControlValueAccessor {
       return;
     }
 
-    this.value = event.target.value;
+    this.value = event.target.valueAsNumber;
+    this.update.emit(this.value);
+  }
+
+  public onInput(event: any) {
+    if (!event || !event.target) {
+      return;
+    }
+
+    this.value = event.target.valueAsNumber;
+
+    this.setTranslation();
+  }
+
+  public onMouseIn() {
+    this.ttVisible = true;
+    this.setTranslation();
+  }
+
+  public onMouseOut() {
+    this.ttVisible = false;
+  }
+
+  private setTranslation() {
+    const maxSteps = 200;
+    const transMin = -14;
+    const transMax = 148;
+    const trans = Math.floor(
+      (this.value / maxSteps) * (transMax - transMin) + transMin
+    );
+    console.log(this.value);
+    this.ttTranslation = `translate(${trans}px, -32px)`;
   }
 
   public get value(): number {
@@ -42,7 +76,6 @@ export class SliderComponent implements ControlValueAccessor {
     if (v !== this._value) {
       this._value = v;
       this.onChangeCallback(v);
-      this.update.emit(this.value);
     }
   }
 

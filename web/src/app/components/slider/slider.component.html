@@ -1,1 +1,14 @@
-<input type="range" min="0" max="200" [value]="value" class="slider" id="sliderVol" (change)="onChange($event)" />
+<div class="tooltip" [style.display]="ttVisible ? 'block' : 'none'" [style.transform]="ttTranslation">{{ value }} %</div>
+<input
+  type="range"
+  name="slider"
+  min="0"
+  max="200"
+  [value]="value"
+  class="slider"
+  id="sliderVol"
+  (change)="onChange($event)"
+  (input)="onInput($event)"
+  (mouseover)="onMouseIn($event)"
+  (mouseout)="onMouseOut($event)"
+/>

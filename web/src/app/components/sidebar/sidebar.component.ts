@@ -58,6 +58,6 @@ export class SideBarComponent {
   }
 
   public onVolume() {
-    this.ws.sendMessage(WSCommand.VOLUME, toNumber(this.volume));
+    this.ws.sendMessage(WSCommand.VOLUME, this.volume);
   }
 }
