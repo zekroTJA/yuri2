@@ -48,12 +48,12 @@ export class SliderComponent implements ControlValueAccessor {
     this.setTranslation();
   }
 
-  public onMouseIn() {
+  public onMouseIn(ev: any) {
     this.ttVisible = true;
     this.setTranslation();
   }
 
-  public onMouseOut() {
+  public onMouseOut(ev: any) {
     this.ttVisible = false;
   }
 
