@@ -78,26 +78,26 @@ func (c *CmdHelp) Exec(args *CommandArgs) error {
 		}
 		emb.Title = "Command Description"
 		emb.Fields = []*discordgo.MessageEmbedField{
-			&discordgo.MessageEmbedField{
+			{
 				Name:   "Invokes",
 				Value:  strings.Join(cmd.GetInvokes(), "\n"),
 				Inline: true,
 			},
-			&discordgo.MessageEmbedField{
+			{
 				Name:   "Group",
 				Value:  cmd.GetGroup(),
 				Inline: true,
 			},
-			&discordgo.MessageEmbedField{
+			{
 				Name:   "Permission Lvl",
 				Value:  strconv.Itoa(cmd.GetPermission()),
 				Inline: true,
 			},
-			&discordgo.MessageEmbedField{
+			{
 				Name:  "Description",
 				Value: ensureNotEmpty(cmd.GetDescription(), "`no description`"),
 			},
-			&discordgo.MessageEmbedField{
+			{
 				Name:  "Usage",
 				Value: ensureNotEmpty(cmd.GetHelp(), "`no uage information`"),
 			},
