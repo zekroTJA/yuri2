@@ -3,3 +3,4 @@ docs
 bin
 *.md
 data
+**/node_modules/
