@@ -19,9 +19,12 @@ import (
 	"github.com/foxbot/gavalink"
 )
 
-// allowedFileTypes specifies local audio file types
-// which are allowed to be played
-const allowedFileTypes = "mp3 wav ogg aac"
+const (
+	// allowedFileTypes specifies local audio file types
+	// which are allowed to be played
+	allowedFileTypes         = "mp3 wav ogg aac"
+	errNoPlayerForGuildFound = "Couldn't find a player for that guild"
+)
 
 // ResourceType is the enum-like collection
 // of sound resources.
@@ -361,7 +364,7 @@ func (p *Player) Play(guild *discordgo.Guild, user *discordgo.User, ident string
 	if err != nil {
 		// Yes, this is quite dirty but also
 		// kind of really effective.
-		for i := 0; i < 10 && joined && err.Error() == "Couldn't find a player for that guild"; i++ {
+		for i := 0; i < 10 && joined && err.Error() == errNoPlayerForGuildFound; i++ {
 			player, err = p.link.GetPlayer(guild.ID)
 			if err == nil {
 				break
@@ -408,7 +411,7 @@ func (p *Player) Stop(guild *discordgo.Guild, user *discordgo.User) error {
 	}
 
 	pl, err := p.link.GetPlayer(guild.ID)
-	if err != nil && err.Error() == "Couldn't find a player for that guild" {
+	if err != nil && err.Error() == errNoPlayerForGuildFound {
 		return nil
 	}
 	if err != nil {

@@ -19,3 +19,4 @@ vendor/*
 
 bin/*
 data/
+__debug_bin
