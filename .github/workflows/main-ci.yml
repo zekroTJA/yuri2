@@ -1,0 +1,52 @@
+name: Main CI
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - name: Check out code
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+
+    - name: Build Backend
+      run: |
+        go build -v -o ./bin/yuri ./cmd/yuri/main.go
+
+    - name: Set up Node.js 13.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 13.x
+
+    - name: Get dependencies
+      run: |
+        cd web
+        npm ci
+    
+    - name: Build Frontend
+      run: |
+        cd web
+        npx ng build --prod
+        mkdir -p ../bin/web/dist
+        mv ./dist/web ../bin/web/dist/web
+
+    - name: Uplaod artifacts
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: Build Artifacts
+        path: bin/
