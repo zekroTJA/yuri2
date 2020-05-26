@@ -106,7 +106,7 @@ Yuri is the best Discord sound board in whole North Korea, if you believe it or 
 
 | Dependency | Licence |
 |------------|---------|
-| [my fork](https://github.com/zekroTJA/discordgo) of [bwmarrin/discordgo](https://github.com/bwmarrin/discordgo) | [BSD-3-Clause](https://github.com/bwmarrin/discordgo/blob/master/LICENSE) |
+| [my fork](https://github.com/bwmarrin/discordgo) of [bwmarrin/discordgo](https://github.com/bwmarrin/discordgo) | [BSD-3-Clause](https://github.com/bwmarrin/discordgo/blob/master/LICENSE) |
 | [foxbot/gavalink](https://github.com/foxbot/gavalink/) | [ISC](https://github.com/foxbot/gavalink/blob/master/LICENSE.md) |
 | [mattn/go-sqlite3](https://github.com/mattn/go-sqlite3) | [MIT](https://github.com/mattn/go-sqlite3/blob/master/LICENSE) |
 | [ghodss/yaml](https://github.com/ghodss/yaml) | [MIT](https://github.com/ghodss/yaml/blob/master/LICENSE) |

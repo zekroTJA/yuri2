@@ -1,7 +1,7 @@
 package player
 
 import (
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (p *Player) getMemberCountInVoiceChan(guild *discordgo.Guild, chanID string) int {

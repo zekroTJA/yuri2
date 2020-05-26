@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 	"github.com/zekroTJA/yuri2/internal/player"
 
 	"github.com/zekroTJA/yuri2/internal/discordbot"

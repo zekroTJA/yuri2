@@ -3,7 +3,7 @@ package handlers
 import (
 	"time"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"

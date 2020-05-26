@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 type CmdHelp struct{}
