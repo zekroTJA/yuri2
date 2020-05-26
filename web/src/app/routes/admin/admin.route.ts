@@ -19,7 +19,7 @@ export class AdminRouteComponent {
 
   public soundStats: SoundStats;
 
-  public dateFormat = dateFormat;
+  public dateFormat = (d: any, f: string) => dateFormat(new Date(d), f);
 
   public toDDHHMMSS = toDDHHMMSS;
   public byteCountFormatter = byteCountFormatter;

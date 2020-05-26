@@ -16,7 +16,7 @@ import dateFormat from 'date-format';
 export class StatsRouteComponent implements OnInit {
   public stats: StatsEntry[];
 
-  public dateFormat = dateFormat;
+  public dateFormat = (d: any, f: string) => dateFormat(new Date(d), f);
   public range = Array;
 
   constructor(
