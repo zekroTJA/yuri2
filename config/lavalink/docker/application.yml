@@ -1,6 +1,6 @@
 server: # REST and WS server
   port: 2333
-  address: lavalink
+  # address: lavalink # set this if you are running lavalink in docker-compose
 spring:
   main:
     banner-mode: log
