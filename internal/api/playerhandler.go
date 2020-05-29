@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/zekroTJA/discordgo"
-	"github.com/zekroTJA/gavalink"
+	"github.com/foxbot/gavalink"
 	"github.com/zekroTJA/yuri2/internal/discordbot"
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/player"
