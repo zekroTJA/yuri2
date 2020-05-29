@@ -1,7 +1,7 @@
 package player
 
 import (
-	"github.com/zekroTJA/gavalink"
+	"github.com/foxbot/gavalink"
 )
 
 type EventHandler interface {
