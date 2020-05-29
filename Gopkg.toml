@@ -8,7 +8,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/zekroTJA/gavalink"
+  name = "github.com/foxbot/gavalink"
 
 [[constraint]]
   name = "github.com/mattn/go-sqlite3"
