@@ -8,7 +8,6 @@ BINPATH  = $(CURDIR)/bin
 
 ### EXECUTABLES ###############################
 GO     = go
-DEP    = dep
 GOLINT = golint
 GREP   = grep
 CLOC   = cloc
@@ -53,7 +52,7 @@ build: $(BIN)
 
 PHONY += deps
 deps:
-	$(DEP) ensure -v
+	$(GO) mod tidy
 
 $(BIN):
 	$(GO) build  \

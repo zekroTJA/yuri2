@@ -1,7 +1,7 @@
 package discordgocmds
 
 import (
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 // DefaultPermissionHandler is the default handler

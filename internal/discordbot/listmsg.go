@@ -7,7 +7,7 @@ import (
 
 	"github.com/zekroTJA/yuri2/internal/static"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 const (

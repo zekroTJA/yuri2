@@ -9,7 +9,7 @@ import (
 
 	"github.com/zekroTJA/timedmap"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 
 	"github.com/zekroTJA/yuri2/internal/api/auth"
 	"github.com/zekroTJA/yuri2/internal/config"

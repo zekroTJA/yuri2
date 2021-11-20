@@ -3,7 +3,7 @@ package inits
 import (
 	"os"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 	"github.com/zekroTJA/yuri2/internal/api"
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/database"

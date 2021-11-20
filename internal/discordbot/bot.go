@@ -1,15 +1,21 @@
 package discordbot
 
 import (
-	"github.com/zekroTJA/discordgo"
+	"fmt"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/pkg/discordgocmds"
+	"github.com/zekrotja/ken"
+	"github.com/zekrotja/ken/state"
+	"github.com/zekrotja/ken/store"
 )
 
 // Bot maintains the Discord bot session,
 // incomming events and command executions.
 type Bot struct {
 	Session    *discordgo.Session
-	CmdHandler *discordgocmds.CmdHandler
+	CmdHandler *ken.Ken
 }
 
 // NewBot creates a new instance of Bot.
@@ -17,37 +23,36 @@ type Bot struct {
 //   ownerID       : the Discord ID of the bot owners account
 //   generalPrefix : the general usable prefix for the bot
 //   dbMiddleware  : database middleware to access database connection
-func NewBot(token, ownerID, generalPrefix string, dbMiddleware discordgocmds.DatabaseMiddleware) (*Bot, error) {
+func NewBot(token, ownerID, generalPrefix string, dbMiddleware discordgocmds.DatabaseMiddleware) (b *Bot, err error) {
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	cmdHandlerOptions := discordgocmds.CmdHandlerOptions{
-		BotOwnerID:           ownerID,
-		DefaultColor:         0x039BE5,
-		InvokeToLower:        true,
-		OwnerPermissionLevel: 999,
-		ParseMsgEdit:         true,
-		Prefix:               generalPrefix,
-		ReactToBots:          false,
-		DeleteCmdMessages:    true,
+	session.StateEnabled = true
+	session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged)
+
+	cmdHandler, err := ken.New(session, ken.Options{
+		CommandStore:   store.NewDefault(),
+		State:          state.NewInternal(),
+		OnSystemError:  systemErrorHandler,
+		OnCommandError: commandErrorHandler,
+	})
+	if err != nil {
+		return
 	}
 
-	cmdHandler := discordgocmds.New(session, dbMiddleware, &cmdHandlerOptions)
-
-	return &Bot{
+	b = &Bot{
 		Session:    session,
 		CmdHandler: cmdHandler,
-	}, nil
+	}
+	return
 }
 
 // RegisterCommands registers a set of commands
 // to the CmdHandler.
-func (b *Bot) RegisterCommands(cmds []discordgocmds.Command) {
-	for _, c := range cmds {
-		b.CmdHandler.RegisterCommand(c)
-	}
+func (b *Bot) RegisterCommands(cmds ...ken.Command) {
+	b.CmdHandler.RegisterCommands(cmds...)
 }
 
 // RegisterHandler registers a set of event handlers
@@ -71,4 +76,22 @@ func (b *Bot) Close() {
 	if b.Session != nil {
 		b.Session.Close()
 	}
+}
+
+func systemErrorHandler(context string, err error, args ...interface{}) {
+	logger.Error("Ken Error [%s]: %s", context, err.Error())
+}
+
+func commandErrorHandler(err error, ctx *ken.Ctx) {
+	// Is ignored if interaction has already been responded
+	ctx.Defer()
+
+	if err == ken.ErrNotDMCapable {
+		ctx.FollowUpError("This command can not be used in DMs.", "")
+		return
+	}
+
+	ctx.FollowUpError(
+		fmt.Sprintf("The command execution failed unexpectedly:\n```\n%s\n```", err.Error()),
+		"Command execution failed")
 }

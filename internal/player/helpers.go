@@ -1,7 +1,7 @@
 package player
 
 import (
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (p *Player) getMemberCountInVoiceChan(guild *discordgo.Guild, chanID string) int {
@@ -27,7 +27,7 @@ func (p *Player) updateSelfVS(newVS *discordgo.VoiceState) {
 }
 
 func (p *Player) getUsersVoiceState(guildID, userID string) (*discordgo.VoiceState, error) {
-	guild, err := p.session.Guild(guildID)
+	guild, err := p.session.State.Guild(guildID)
 	if err != nil {
 		return nil, err
 	}

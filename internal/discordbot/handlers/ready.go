@@ -3,7 +3,7 @@ package handlers
 import (
 	"time"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 	"github.com/zekroTJA/yuri2/internal/config"
 	"github.com/zekroTJA/yuri2/internal/logger"
 	"github.com/zekroTJA/yuri2/internal/static"
@@ -40,7 +40,7 @@ func NewReady(cfg *config.StatusShuffle) *Ready {
 // executes when the event was fired.
 func (h *Ready) Handler(s *discordgo.Session, e *discordgo.Ready) {
 	logger.Info("session ready")
-	logger.Info("Invite: https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=%d",
+	logger.Info("Invite: https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=applications.commands%20bot&permissions=%d",
 		e.User.ID, static.InvitePermission)
 
 	h.s = s
@@ -56,7 +56,7 @@ func (h *Ready) Handler(s *discordgo.Session, e *discordgo.Ready) {
 // updateStatus updates the presence status
 // of the Discord bots client.
 func (h *Ready) updateStatus(status string) error {
-	return h.s.UpdateStatus(0, status)
+	return h.s.UpdateGameStatus(0, status)
 }
 
 // timerLoopBlocking starts a timer loop

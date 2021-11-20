@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/zekroTJA/discordgo"
+	"github.com/bwmarrin/discordgo"
 	"github.com/zekroTJA/yuri2/internal/static"
 )
 
@@ -123,4 +123,12 @@ func GetUsersGuilds(s *discordgo.Session, userID string) []*discordgo.Guild {
 		return nil
 	}
 	return guilds
+}
+
+func Guild(s *discordgo.Session, id string) (g *discordgo.Guild, err error) {
+	if g, err = s.State.Guild(id); err == nil {
+		return
+	}
+	g, err = s.Guild(id)
+	return
 }
