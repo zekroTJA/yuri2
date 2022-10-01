@@ -1,3 +1,7 @@
+> ⚠️ This repository has been archived in favour of the successor [**yuri69**](https://github.com/zekroTJA/yuri69).
+
+---
+
 <div align="center">
      <img src=".github/media/avi.png" width="200"/>
      <h1>~ Yuri v.2 ~</h1>
