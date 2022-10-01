@@ -1,4 +1,4 @@
-> ⚠️ This repository has been archived in favour of the successor [**yuri69**](https://github.com/zekroTJA/yuri69).
+> ## ⚠️ This repository has been archived in favour of the successor [**yuri69**](https://github.com/zekroTJA/yuri69).
 
 ---
 
